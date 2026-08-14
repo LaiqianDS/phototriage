@@ -374,7 +374,9 @@ Move the mouse or press a key and they come back.
 
 - [docs/architecture.md](docs/architecture.md): the modules, the flow of a request, and why the design is what it is.
 - [docs/api.md](docs/api.md): the complete HTTP reference.
-- [CONTRIBUTING.md](CONTRIBUTING.md): how to set up, test and lint the project.
+- [ROADMAP.md](ROADMAP.md): what is planned next, and what is deliberately not.
+- [CHANGELOG.md](CHANGELOG.md): what changed in each version.
+- [CONTRIBUTING.md](CONTRIBUTING.md): how to set up and test the project, and how branches work.
 
 ## License
 

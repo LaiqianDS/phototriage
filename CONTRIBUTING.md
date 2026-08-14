@@ -126,9 +126,33 @@ If you change a dependency, commit the updated `uv.lock` with it.
   Do not make the host configurable, and do not add a CORS middleware.
   The reason is in [docs/api.md](docs/api.md#why-loopback-and-json-are-the-boundary).
 
+## Branches
+
+`main` holds released versions, and every release is tagged there.
+`dev` is where work is collected between releases.
+Nothing is committed straight to either.
+
+Start a branch off `dev`, named after what it does:
+
+```sh
+git switch dev
+git pull
+git switch -c feat/zoom-to-100
+```
+
+Prefixes in use: `feat/`, `fix/`, `docs/`, `refactor/`, `test/`, `chore/`.
+
+Open the pull request against `dev`.
+When `dev` is ready to release, it is merged into `main`, the version is raised
+in `pyproject.toml` and `__init__.py`, `CHANGELOG.md` gets its entry, and the
+commit on `main` is tagged.
+
 ## Pull requests
 
 - One change per pull request.
 - Add a test that fails without your change.
 - Update the documentation the change touches, in the same pull request.
-- Say in one line what the change does and why it is needed.
+- Fill in the template, including the last section.
+  Saying what you did not verify is worth more than saying the tests pass.
+- Continuous integration runs on every push and every pull request.
+  A red run blocks the merge.
