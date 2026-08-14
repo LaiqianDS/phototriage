@@ -1,0 +1,14 @@
+# The app writes its state to ~/.phototriage by default. This covers the
+# case of pointing --state-file at the repository instead.
+.phototriage/
+
+# Machine-local Claude Code permissions, not shared.
+.claude/settings.local.json
+
+.venv/
+__pycache__/
+.DS_Store
+
+.pytest_cache/
+.ruff_cache/
+dist/

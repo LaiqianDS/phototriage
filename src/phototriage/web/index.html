@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>PhotoTriage</title>
+    <link rel="stylesheet" href="style.css" />
+    <script>
+      // Inline and before the stylesheet is applied, so the page is never
+      // painted in one theme and then repainted in the other.
+      (() => {
+        const saved = localStorage.getItem("theme");
+        const dark = saved ?? (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+        document.documentElement.dataset.theme = dark;
+      })();
+    </script>
+  </head>
+  <body>
+    <!-- The stage is the window. Everything below floats on top of it. -->
+    <main class="stage">
+      <div id="viewer" class="viewer" hidden><img id="photo" alt="" /></div>
+      <p id="idle" class="notice">Elige una carpeta de origen para empezar.</p>
+      <p id="empty" class="notice" hidden>Esa carpeta no tiene imágenes.</p>
+      <p id="done" class="notice" hidden>Revisión terminada.</p>
+    </main>
+
+    <header id="topbar" class="bar topbar">
+      <h1 class="visually-hidden">PhotoTriage</h1>
+      <p class="tally">
+        <span><span id="progress">0 / 0</span> revisadas</span>
+        <span class="chip keep"><span id="kept">0</span> mantenidas</span>
+        <span class="chip discard"><span id="discarded">0</span> desechadas</span>
+      </p>
+
+      <label class="field" for="source">
+        <span>Origen</span>
+        <input
+          id="source"
+          type="text"
+          placeholder="~/Pictures/2024"
+          spellcheck="false"
+          autocomplete="off"
+        />
+      </label>
+      <button id="browse" type="button" class="button">Explorar</button>
+
+      <button id="toggle-theme" type="button" class="button icon">
+        <!-- Both icons ship; the stylesheet shows the one matching the theme
+             in use, so the button reads as the state it is in. -->
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
+          <circle cx="12" cy="12" r="4" stroke-width="1.8" />
+          <path
+            d="M12 2.6v2.1M12 19.3v2.1M4.6 4.6l1.5 1.5M17.9 17.9l1.5 1.5M2.6 12h2.1M19.3 12h2.1M4.6 19.4l1.5-1.5M17.9 6.1l1.5-1.5"
+            stroke-width="1.8"
+            stroke-linecap="round"
+          />
+        </svg>
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
+          <path
+            d="M20.5 14.6A8.6 8.6 0 0 1 9.4 3.5a8.6 8.6 0 1 0 11.1 11.1z"
+            stroke-width="1.8"
+            stroke-linejoin="round"
+          />
+        </svg>
+      </button>
+
+      <button id="open-settings" type="button" class="button icon" aria-label="Ajustes">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
+          <circle cx="12" cy="12" r="3.2" stroke-width="1.8" />
+          <path
+            d="M19.1 14.4a1.7 1.7 0 0 0 .34 1.87l.06.06a2.05 2.05 0 1 1-2.9 2.9l-.06-.06a1.7 1.7 0 0 0-1.87-.34 1.7 1.7 0 0 0-1.03 1.55v.18a2.05 2.05 0 1 1-4.1 0v-.1a1.7 1.7 0 0 0-1.11-1.55 1.7 1.7 0 0 0-1.87.34l-.06.06a2.05 2.05 0 1 1-2.9-2.9l.06-.06a1.7 1.7 0 0 0 .34-1.87 1.7 1.7 0 0 0-1.55-1.03H2.1a2.05 2.05 0 1 1 0-4.1h.1a1.7 1.7 0 0 0 1.55-1.11 1.7 1.7 0 0 0-.34-1.87l-.06-.06a2.05 2.05 0 1 1 2.9-2.9l.06.06a1.7 1.7 0 0 0 1.87.34h.08a1.7 1.7 0 0 0 1.03-1.55V2.1a2.05 2.05 0 1 1 4.1 0v.1a1.7 1.7 0 0 0 1.03 1.55 1.7 1.7 0 0 0 1.87-.34l.06-.06a2.05 2.05 0 1 1 2.9 2.9l-.06.06a1.7 1.7 0 0 0-.34 1.87v.08a1.7 1.7 0 0 0 1.55 1.03h.18a2.05 2.05 0 1 1 0 4.1h-.1a1.7 1.7 0 0 0-1.55 1.03z"
+            stroke-width="1.6"
+            stroke-linejoin="round"
+          />
+        </svg>
+      </button>
+
+      <!-- The counters above already say the same thing to a screen reader. -->
+      <div class="progress" aria-hidden="true">
+        <div id="progress-fill" class="progress-fill"></div>
+      </div>
+    </header>
+
+    <!-- On the edges the arrow keys point to. The stage reserves their width,
+         so they sit beside the photo and never over it. -->
+    <button id="discard" type="button" class="edge discard">
+      <svg
+        class="edge-icon"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2.6"
+        stroke-linecap="round"
+        aria-hidden="true"
+      >
+        <path d="M6.5 6.5l11 11M17.5 6.5l-11 11" />
+      </svg>
+      <span class="edge-label">Desechar</span>
+      <kbd class="edge-key" aria-hidden="true">&larr;</kbd>
+    </button>
+
+    <button id="keep" type="button" class="edge keep">
+      <svg
+        class="edge-icon"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2.6"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        aria-hidden="true"
+      >
+        <path d="M4.5 12.8l5.2 5.2L19.5 6.5" />
+      </svg>
+      <span class="edge-label">Mantener</span>
+      <kbd class="edge-key" aria-hidden="true">&rarr;</kbd>
+    </button>
+
+    <footer id="bottombar" class="bar bottombar">
+      <div class="bar-row">
+        <button id="undo" type="button" class="button">
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.9"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <path d="M4 9h11a4.5 4.5 0 0 1 0 9h-3.5M8 5L4 9l4 4" />
+          </svg>
+          Deshacer <kbd aria-hidden="true">U</kbd>
+        </button>
+
+        <fieldset class="mode">
+          <legend>Al ejecutar</legend>
+          <div class="segmented">
+            <input id="mode-copy" type="radio" name="mode" value="copy" checked />
+            <label for="mode-copy">Copiar</label>
+            <input id="mode-move" type="radio" name="mode" value="move" />
+            <label for="mode-move">Mover</label>
+          </div>
+        </fieldset>
+        <button id="apply" type="button" class="button primary">Ejecutar</button>
+      </div>
+
+      <div class="bar-note">
+        <p id="filename" class="filename"></p>
+        <p class="hint">Las desechadas se quedan donde están.</p>
+        <p id="status" class="status" role="status" aria-live="polite"></p>
+      </div>
+    </footer>
+
+    <dialog id="explorer" class="sheet" aria-labelledby="explorer-title">
+      <header class="sheet-head">
+        <h2 id="explorer-title">Elegir carpeta</h2>
+        <p id="explorer-path" class="path"></p>
+      </header>
+      <ul id="explorer-list" class="folder-list"></ul>
+      <p id="explorer-count" class="note"></p>
+      <div class="sheet-actions">
+        <button id="explorer-close" type="button" class="button">Cancelar</button>
+        <button id="explorer-choose" type="button" class="button primary">Usar esta carpeta</button>
+      </div>
+    </dialog>
+
+    <dialog id="settings" class="sheet" aria-labelledby="settings-title">
+      <header class="sheet-head">
+        <h2 id="settings-title">Ajustes</h2>
+      </header>
+
+      <div class="setting">
+        <label class="switch" for="pair-raws">
+          <input id="pair-raws" type="checkbox" role="switch" aria-describedby="pair-raws-note" />
+          <span class="switch-track" aria-hidden="true"></span>
+          <span class="switch-text">Mover los RAW junto a la imagen</span>
+        </label>
+        <p id="pair-raws-note" class="note">
+          Activado, un archivo como <code>IMG_0042.CR2</code> viaja con
+          <code>IMG_0042.JPG</code>. Desactivado, solo se transfiere la imagen.
+        </p>
+      </div>
+
+      <div class="setting">
+        <label class="field stacked" for="destination">
+          <span>Carpeta destino</span>
+          <input
+            id="destination"
+            type="text"
+            spellcheck="false"
+            autocomplete="off"
+            aria-describedby="destination-note"
+          />
+        </label>
+        <p id="destination-note" class="note">Ruta absoluta. La carpeta se crea al ejecutar.</p>
+      </div>
+
+      <div class="sheet-actions">
+        <button id="settings-close" type="button" class="button primary">Listo</button>
+      </div>
+    </dialog>
+
+    <script src="app.js" type="module"></script>
+  </body>
+</html>

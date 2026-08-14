@@ -1,0 +1,899 @@
+/* One palette, two themes. Only the values below change between light and
+   dark, so every component is written once. */
+
+:root {
+  color-scheme: light;
+
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+
+  --radius-sm: 0.375rem;
+  --radius-md: 0.625rem;
+  --radius-lg: 0.875rem;
+  --radius-xl: 1.25rem;
+  --radius-full: 999px;
+
+  /* How much of the window the photo gives back. Also where the edge buttons
+     sit, so the frame reads as one margin. */
+  --inset: 0.5rem;
+
+  --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+
+  --bg: #f5f5f7;
+  --surface: #ffffff;
+  --surface-hover: #f0f0f2;
+  --track: #e6e6ea;
+  --border: rgb(0 0 0 / 0.1);
+  --border-strong: rgb(0 0 0 / 0.18);
+  --text: #1d1d1f;
+  --text-muted: #6e6e73;
+  /* The floating chrome. `--bar` stays opaque enough that text over the
+     darkest possible photo still clears WCAG AA, and `--bar-muted` is a step
+     darker than `--text-muted` for the same reason. */
+  --bar: rgb(255 255 255 / 0.86);
+  --bar-muted: #55555a;
+  --bar-line: rgb(0 0 0 / 0.14);
+  --keep: #0e7a3c;
+  --keep-tint: rgb(14 122 60 / 0.1);
+  --keep-tint-hover: rgb(14 122 60 / 0.18);
+  --keep-line: rgb(14 122 60 / 0.28);
+  --discard: #c4281b;
+  --discard-tint: rgb(196 40 27 / 0.1);
+  --discard-tint-hover: rgb(196 40 27 / 0.18);
+  --discard-line: rgb(196 40 27 / 0.28);
+  --focus: #0066cc;
+  --fill: #1d1d1f;
+  --fill-hover: #38383c;
+  --fill-text: #ffffff;
+  --shadow-sm: 0 1px 2px rgb(0 0 0 / 0.06);
+  --shadow-md: 0 2px 10px rgb(0 0 0 / 0.07);
+  --shadow-lg: 0 16px 48px rgb(0 0 0 / 0.16);
+}
+
+/* Set by the script in the page head before the first paint, so the theme
+   never flashes. The system preference decides it until the button is used. */
+:root[data-theme="dark"] {
+  color-scheme: dark;
+
+  --bg: #141416;
+  --surface: #1c1c1f;
+  --surface-hover: #26262a;
+  --track: #2c2c31;
+  --border: rgb(255 255 255 / 0.1);
+  --border-strong: rgb(255 255 255 / 0.22);
+  --text: #f2f2f5;
+  --text-muted: #a1a1a8;
+  --bar: rgb(22 22 25 / 0.84);
+  --bar-muted: #b6b6bd;
+  --bar-line: rgb(255 255 255 / 0.14);
+  --keep: #30d158;
+  --keep-tint: rgb(48 209 88 / 0.14);
+  --keep-tint-hover: rgb(48 209 88 / 0.22);
+  --keep-line: rgb(48 209 88 / 0.32);
+  --discard: #ff453a;
+  --discard-tint: rgb(255 69 58 / 0.14);
+  --discard-tint-hover: rgb(255 69 58 / 0.22);
+  --discard-line: rgb(255 69 58 / 0.32);
+  --focus: #0a84ff;
+  --fill: #f2f2f5;
+  --fill-hover: #ffffff;
+  --fill-text: #141416;
+  --shadow-sm: 0 1px 2px rgb(0 0 0 / 0.3);
+  --shadow-md: 0 2px 10px rgb(0 0 0 / 0.35);
+  --shadow-lg: 0 16px 48px rgb(0 0 0 / 0.55);
+}
+
+/* ------------------------------------------------------------------ base ---*/
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+/* Set on the element rather than by attribute, so a rule with a `display`
+   cannot leave a hidden element on screen. */
+[hidden] {
+  display: none !important;
+}
+
+body {
+  margin: 0;
+  /* Nothing on the page is in flow, so any scrolling would only be the window
+     rubber-banding away from the photo. */
+  overflow: hidden;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+  font-size: 0.9375rem;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+
+.note,
+.hint,
+.path {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 0.8125rem;
+}
+
+/* Off the layout, still read aloud. */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* ----------------------------------------------------------------- stage ---*/
+
+/* The window, less the chrome. The bars and the verdict buttons reserve their
+   room through the variables the script measures, so no part of a photo is ever
+   hidden behind the interface. */
+.stage {
+  position: fixed;
+  top: calc(var(--bar-top, 4rem) + var(--inset));
+  bottom: calc(var(--bar-bottom, 7rem) + var(--inset));
+  left: calc(var(--edge, 7.5rem) + var(--inset));
+  right: calc(var(--edge, 7.5rem) + var(--inset));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 150ms ease;
+}
+
+/* The wait is only visible when the server is slow: a local decision answers
+   long before the delay elapses, so the photo never flickers. */
+body[aria-busy="true"] .stage {
+  opacity: 0.55;
+  transition-delay: 250ms;
+}
+
+.viewer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+}
+
+/* The browser applies the EXIF orientation on its own, so the server can send
+   the original file untouched. Neither dimension is forced, so a photo smaller
+   than the window is shown at its own size instead of being enlarged. */
+#photo {
+  max-width: 100%;
+  max-height: 100%;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+}
+
+.notice {
+  max-width: 26rem;
+  margin: 0;
+  padding: var(--space-4) var(--space-5);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  box-shadow: var(--shadow-md);
+  color: var(--text-muted);
+  text-align: center;
+}
+
+/* ------------------------------------------------------------------ bars ---*/
+
+.bar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  background: var(--bar);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  color: var(--text);
+}
+
+/* Faded rather than removed, so the tab order and the reading order of the
+   page are the same whether the chrome is on screen or not. */
+body.resting .bar {
+  opacity: 0;
+  pointer-events: none;
+}
+
+body.resting .topbar {
+  translate: 0 -0.75rem;
+}
+
+body.resting .bottombar {
+  translate: 0 0.75rem;
+}
+
+/* Whoever is navigating by keyboard must not lose sight of the control they are
+   on. Written against the ring rather than plain focus, so a bar the mouse left
+   focus in still fades. */
+body.resting .bar:has(:focus-visible) {
+  opacity: 1;
+  translate: 0;
+  pointer-events: auto;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .bar {
+    transition:
+      opacity 240ms ease,
+      translate 240ms ease;
+  }
+}
+
+.topbar {
+  top: 0;
+  border-bottom: 1px solid var(--bar-line);
+}
+
+.bottombar {
+  bottom: 0;
+  flex-direction: column;
+  align-items: stretch;
+  gap: var(--space-2);
+  border-top: 1px solid var(--bar-line);
+}
+
+.bar .note,
+.bar .hint,
+.bar .field > span,
+.bar legend {
+  color: var(--bar-muted);
+}
+
+/* ---------------------------------------------------------------- topbar ---*/
+
+.tally {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  margin: 0;
+  color: var(--bar-muted);
+  font-size: 0.8125rem;
+  font-variant-numeric: tabular-nums;
+}
+
+#progress {
+  color: var(--text);
+  font-weight: 600;
+}
+
+/* The colour is carried by the dot, not by the label. A dot is a graphical
+   object and needs 3:1, while the small text keeps the full contrast of plain
+   text against the translucent bar. */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.1rem 0.55rem;
+  border-radius: var(--radius-full);
+}
+
+.chip::before {
+  content: "";
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+}
+
+.chip > span {
+  color: var(--text);
+  font-weight: 600;
+}
+
+.chip.keep {
+  background: var(--keep-tint);
+}
+
+.chip.keep::before {
+  background: var(--keep);
+}
+
+.chip.discard {
+  background: var(--discard-tint);
+}
+
+.chip.discard::before {
+  background: var(--discard);
+}
+
+/* Along the edge of the bar: a full-width reading of the run that costs no
+   row of its own. */
+.topbar .progress {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 2px;
+  background: var(--bar-line);
+}
+
+.progress-fill {
+  width: 0;
+  height: 100%;
+  background: var(--text);
+  transition: width 260ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.field {
+  display: flex;
+  flex: 1 1 18rem;
+  align-items: center;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+/* Stacked inside a sheet, where the column direction would otherwise turn the
+   row's `flex: 1 1 18rem` into an 18rem tall field. */
+.field.stacked {
+  flex: none;
+  flex-direction: column;
+  align-items: stretch;
+  gap: var(--space-1);
+}
+
+.field > span {
+  color: var(--text-muted);
+  font-size: 0.8125rem;
+  white-space: nowrap;
+}
+
+input[type="text"] {
+  flex: 1;
+  min-width: 0;
+  padding: 0.45rem 0.65rem;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  color: var(--text);
+  font: inherit;
+  transition: border-color 120ms ease;
+}
+
+input[type="text"]:hover:not(:disabled) {
+  border-color: var(--text-muted);
+}
+
+input[type="text"]:disabled {
+  opacity: 0.45;
+}
+
+/* ------------------------------------------------------------- bottombar ---*/
+
+.bar-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.mode {
+  min-inline-size: 0;
+  /* Pushes itself and the button after it to the far end of the row. */
+  margin: 0 0 0 auto;
+  padding: 0;
+  border: 0;
+}
+
+.mode legend {
+  padding: 0;
+  font-size: 0.8125rem;
+}
+
+.segmented {
+  position: relative;
+  display: inline-flex;
+  margin-top: var(--space-1);
+  padding: 2px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--track);
+}
+
+/* Invisible but still focusable, so the arrow keys keep moving between the two
+   choices the way a native segmented control does. */
+.segmented input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.segmented label {
+  padding: 0.25rem 0.85rem;
+  border-radius: calc(var(--radius-md) - 3px);
+  color: var(--text-muted);
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  user-select: none;
+  transition:
+    background-color 140ms ease,
+    color 140ms ease;
+}
+
+.segmented input:checked + label {
+  background: var(--surface);
+  box-shadow: var(--shadow-sm);
+  color: var(--text);
+}
+
+.segmented input:focus-visible + label {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+
+/* One line always reserved, so a message never resizes the bar under the
+   pointer. The three parts share it and each gives way with an ellipsis. */
+.bar-note {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-4);
+  min-height: 1.25rem;
+}
+
+.bar-note > * {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.filename {
+  margin: 0;
+  color: var(--text);
+  font-size: 0.8125rem;
+  font-weight: 500;
+}
+
+.status {
+  margin: 0;
+  color: var(--bar-muted);
+  font-size: 0.8125rem;
+  text-align: right;
+}
+
+/* The status line and the explorer count both double as an error slot. */
+.status.error,
+.note.error {
+  color: var(--discard);
+}
+
+/* --------------------------------------------------------------- buttons ---*/
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  min-height: 2.25rem;
+  padding: 0.45rem 0.9rem;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  box-shadow: var(--shadow-sm);
+  color: var(--text);
+  font: inherit;
+  font-weight: 500;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    background-color 120ms ease,
+    border-color 120ms ease,
+    transform 90ms ease;
+}
+
+.button svg {
+  width: 1.05rem;
+  height: 1.05rem;
+  flex: none;
+}
+
+.button.icon {
+  padding: 0.45rem;
+}
+
+.button.icon svg {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+.button:hover:not(:disabled) {
+  background: var(--surface-hover);
+}
+
+.button:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+.button:disabled {
+  box-shadow: none;
+  opacity: 0.4;
+  cursor: default;
+}
+
+.button.primary {
+  border-color: transparent;
+  background: var(--fill);
+  color: var(--fill-text);
+}
+
+.button.primary:hover:not(:disabled) {
+  background: var(--fill-hover);
+}
+
+kbd {
+  display: inline-block;
+  min-width: 1.4rem;
+  padding: 0.05rem 0.3rem;
+  border: 1px solid var(--border);
+  border-bottom-width: 2px;
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--text-muted);
+  font-family: inherit;
+  font-size: 0.75rem;
+  font-weight: 500;
+  text-align: center;
+}
+
+/* ---------------------------------------------------------- verdict edges ---*/
+
+/* Left and right, where the arrow keys point, over the space a portrait photo
+   cannot use. These never fade: they are the reason the app is open. */
+.edge {
+  position: fixed;
+  top: 50%;
+  translate: 0 -50%;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  width: 7.5rem;
+  min-height: 11rem;
+  padding: var(--space-4) var(--space-2);
+  border: 1.5px solid;
+  border-radius: var(--radius-xl);
+  background-color: var(--bar);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  box-shadow: var(--shadow-md);
+  font: inherit;
+  /* Large text, so the verdict colour only needs the 3:1 that WCAG asks of it. */
+  font-size: 1.25rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition:
+    background-image 140ms ease,
+    transform 90ms ease;
+}
+
+.edge:active:not(:disabled) {
+  transform: scale(0.97);
+}
+
+.edge:disabled {
+  box-shadow: none;
+  opacity: 0.35;
+  cursor: default;
+}
+
+.edge-icon {
+  width: 2.5rem;
+  height: 2.5rem;
+}
+
+/* Sits on the translucent edge itself rather than on a surface, so it needs the
+   contrast-safe muted colour. */
+.edge-key {
+  color: var(--bar-muted);
+  font-size: 0.8125rem;
+  font-weight: 500;
+}
+
+.edge.discard {
+  left: var(--inset);
+  border-color: var(--discard-line);
+  background-image: linear-gradient(var(--discard-tint), var(--discard-tint));
+  color: var(--discard);
+}
+
+.edge.discard:hover:not(:disabled) {
+  background-image: linear-gradient(var(--discard-tint-hover), var(--discard-tint-hover));
+}
+
+.edge.keep {
+  right: var(--inset);
+  border-color: var(--keep-line);
+  background-image: linear-gradient(var(--keep-tint), var(--keep-tint));
+  color: var(--keep);
+}
+
+.edge.keep:hover:not(:disabled) {
+  background-image: linear-gradient(var(--keep-tint-hover), var(--keep-tint-hover));
+}
+
+/* ---------------------------------------------------------------- sheets ---*/
+
+.sheet {
+  width: min(34rem, calc(100vw - 2rem));
+  max-height: min(36rem, calc(100dvh - 4rem));
+  padding: var(--space-5);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  background: var(--surface);
+  box-shadow: var(--shadow-lg);
+  color: var(--text);
+}
+
+/* Scoped to the open state: a bare `display` would defeat the dialog's own
+   `display: none` and leave it on screen. */
+.sheet[open] {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  animation: rise 180ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+/* ::backdrop does not inherit the custom properties in every browser. */
+.sheet::backdrop {
+  background: rgb(0 0 0 / 0.35);
+  backdrop-filter: blur(3px);
+}
+
+.sheet[open]::backdrop {
+  animation: fade 180ms ease;
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(0.5rem) scale(0.98);
+  }
+}
+
+@keyframes fade {
+  from {
+    opacity: 0;
+  }
+}
+
+.sheet-head {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.sheet h2 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.sheet-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-2);
+}
+
+.path {
+  overflow-wrap: anywhere;
+}
+
+/* -------------------------------------------------------------- settings ---*/
+
+.setting {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.switch {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  cursor: pointer;
+}
+
+/* Invisible but still focusable and still the element the label names, so the
+   control stays a checkbox to the keyboard and to a screen reader. */
+.switch input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+}
+
+.switch-track {
+  position: relative;
+  flex: none;
+  width: 2.75rem;
+  height: 1.5rem;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-full);
+  background: var(--track);
+  transition:
+    background-color 160ms ease,
+    border-color 160ms ease;
+}
+
+.switch-track::after {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 1.125rem;
+  height: 1.125rem;
+  border-radius: 50%;
+  background: var(--surface);
+  box-shadow: var(--shadow-sm);
+  transition: translate 160ms ease;
+}
+
+.switch input:checked + .switch-track {
+  border-color: var(--keep);
+  background: var(--keep);
+}
+
+.switch input:checked + .switch-track::after {
+  translate: 1.25rem 0;
+}
+
+.switch input:focus-visible + .switch-track {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+
+.switch-text {
+  font-weight: 500;
+}
+
+code {
+  padding: 0.05rem 0.25rem;
+  border-radius: var(--radius-sm);
+  background: var(--bg);
+  font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  font-size: 0.9em;
+}
+
+/* -------------------------------------------------------------- explorer ---*/
+
+.folder-list {
+  flex: 1;
+  min-height: 8rem;
+  margin: 0;
+  padding: var(--space-1);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--bg);
+  list-style: none;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.folder {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  width: 100%;
+  padding: 0.35rem 0.5rem;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.folder::after {
+  content: "›";
+  margin-left: auto;
+  color: var(--text-muted);
+}
+
+.folder.up {
+  color: var(--text-muted);
+}
+
+.folder.up::before {
+  content: "‹";
+}
+
+.folder.up::after {
+  content: none;
+}
+
+.folder:hover {
+  background: var(--surface-hover);
+}
+
+.folder-empty {
+  padding: var(--space-3) var(--space-2);
+  color: var(--text-muted);
+  font-size: 0.8125rem;
+  text-align: center;
+}
+
+/* ------------------------------------------------------------ responsive ---*/
+
+@media (max-width: 60rem) {
+  /* The reassurance is the first thing to go: the filename and the status both
+     change, and this line never does. */
+  .bar-note .hint {
+    display: none;
+  }
+}
+
+@media (max-width: 44rem) {
+  .edge {
+    width: 4.5rem;
+    min-height: 8rem;
+    padding: var(--space-3) var(--space-1);
+    font-size: 0.8125rem;
+  }
+
+  .edge-icon {
+    width: 1.75rem;
+    height: 1.75rem;
+  }
+
+  .edge-key {
+    display: none;
+  }
+
+  .topbar {
+    flex-wrap: wrap;
+  }
+
+  .mode {
+    margin-left: 0;
+  }
+
+  .bar-row .button.primary {
+    flex: 1;
+  }
+}
+
+/* The delays survive on purpose: the one that matters holds the busy state back
+   until a request is genuinely slow, which is what stops the photo flickering. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}
+
+/* One button, two icons: the one on screen names the theme in use. */
+:root[data-theme="dark"] .icon-sun,
+:root:not([data-theme="dark"]) .icon-moon {
+  display: none;
+}

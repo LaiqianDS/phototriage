@@ -1,0 +1,79 @@
+[project]
+name = "phototriage"
+version = "0.1.0"
+description = "Review a folder of photos one by one and collect the ones you keep."
+readme = "README.md"
+requires-python = ">=3.12"
+authors = [{ name = "LaiqianDS", email = "lqj.2004@gmail.com" }]
+maintainers = [{ name = "LaiqianDS", email = "lqj.2004@gmail.com" }]
+license = "MIT"
+license-files = ["LICENSE"]
+keywords = ["photos", "images", "raw", "culling", "review", "fastapi", "local"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Environment :: Web Environment",
+    "Framework :: FastAPI",
+    "Intended Audience :: End Users/Desktop",
+    "Natural Language :: Spanish",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Multimedia :: Graphics",
+    "Topic :: Utilities",
+]
+dependencies = [
+    "fastapi>=0.115",
+    "uvicorn>=0.34",
+]
+
+[project.urls]
+Homepage = "https://github.com/LaiqianDS/phototriage"
+Repository = "https://github.com/LaiqianDS/phototriage"
+Issues = "https://github.com/LaiqianDS/phototriage/issues"
+
+[project.scripts]
+phototriage = "phototriage.__main__:main"
+
+[dependency-groups]
+dev = [
+    "httpx>=0.28",
+    "pytest>=8.3",
+    "ruff>=0.9",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/phototriage"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "--strict-markers --strict-config"
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = [
+    "E",    # pycodestyle errors
+    "W",    # pycodestyle warnings
+    "F",    # pyflakes
+    "I",    # import order
+    "N",    # naming
+    "UP",   # pyupgrade
+    "B",    # bugbear
+    "SIM",  # simplify
+    "PTH",  # prefer pathlib
+    "RUF",  # ruff-specific
+]
+# `str, Enum` is the form FastAPI documents for request bodies. StrEnum would
+# also change what `str(member)` returns, so the rule stays off.
+ignore = ["UP042"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["phototriage"]
