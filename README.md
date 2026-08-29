@@ -2,6 +2,8 @@
 
 Review a folder of photos one at a time, and collect the ones you keep.
 
+The site is at <https://laiqiands.github.io/phototriage/>, built from `site/` on every release.
+
 A shoot leaves you with hundreds of files and no quick way to separate the good ones.
 A file manager makes you open, compare and drag.
 This app shows one image at a time, takes one decision per image, and then puts the kept images into a folder of their own.

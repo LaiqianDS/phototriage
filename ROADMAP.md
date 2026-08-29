@@ -88,6 +88,7 @@ write the destination, which fits this app well.
 It also means rewriting every Python module in JavaScript, and it drops Safari
 and Firefox, which do not support the API for user folders.
 Not worth it while the local tool works.
+The page published from `site/` is a description of the app, not the app.
 
 **Adding Pillow for convenience.**
 It was removed on purpose.

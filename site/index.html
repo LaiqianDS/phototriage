@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>PhotoTriage - photo culling that never leaves your machine</title>
+    <meta
+      name="description"
+      content="Review a folder of photos one at a time, keep with the right arrow, discard with the left, and collect the keepers into a folder of their own. Runs on your own machine."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400&amp;family=Instrument+Serif:ital@0;1&amp;display=swap"
+    />
+    <link rel="stylesheet" href="style.css" />
+    <script src="demo.js" defer></script>
+  </head>
+  <body>
+    <!-- ============ NAV + HERO · the promise ============ -->
+    <header class="hero">
+      <div class="hero-grain" aria-hidden="true"></div>
+      <div class="hero-grain hero-grain-next" aria-hidden="true"></div>
+      <div class="hero-veil" aria-hidden="true"></div>
+
+      <nav class="nav wrap">
+        <span class="wordmark">PhotoTriage</span>
+        <div class="nav-links">
+          <a href="#pass">The pass</a>
+          <a href="#guarantee">The guarantee</a>
+          <a href="https://github.com/LaiqianDS/phototriage#readme">Docs</a>
+          <a class="nav-cta" href="https://github.com/LaiqianDS/phototriage">Download</a>
+        </div>
+      </nav>
+
+      <div class="hero-copy wrap">
+        <p class="eyebrow">
+          Photo culling that never leaves your machine · Mac · Windows · Linux
+        </p>
+        <h1 class="hero-title">
+          Two keys.<br />Six hundred photos.<br /><span class="hi"
+            >One folder worth keeping.</span
+          >
+        </h1>
+        <div class="hero-foot">
+          <p class="hero-lede">
+            One photo fills the screen and asks one question. Left arrow leaves it, right arrow
+            keeps it. When the roll runs out, your keepers are collected into a folder of their
+            own, and every photo you passed on is exactly where you left it.
+          </p>
+          <div class="hero-cta">
+            <a class="btn-light" href="https://github.com/LaiqianDS/phototriage">Download, free</a>
+            <span class="cta-note">no account · works offline</span>
+          </div>
+        </div>
+      </div>
+
+      <!--
+        Last in the hero so that a narrow screen reads the headline first and
+        meets the demo below it. On a wide screen it is lifted out of the flow
+        into the top right corner, where the design puts it.
+      -->
+      <aside class="hud">
+        <div class="hud-head">
+          <span>now reviewing</span><span id="demo-pct">43%</span>
+        </div>
+        <p class="hud-name" id="demo-name">IMG_0412.JPG</p>
+        <div class="hud-track" aria-hidden="true">
+          <div class="hud-fill" id="demo-fill" style="width: 43%"></div>
+        </div>
+        <div class="hud-foot">
+          <span class="hud-keep" id="verdict-keep" hidden>&rarr; kept</span>
+          <span class="hud-discard" id="verdict-discard" hidden>&larr; left alone</span>
+          <span class="hud-waiting" id="verdict-waiting">awaiting your call</span>
+          <span class="hud-count" id="demo-count">208 / 480</span>
+        </div>
+      </aside>
+    </header>
+
+    <!-- ============ 01 · THE PILE · the tension ============ -->
+    <section class="band band-light" id="pile">
+      <div class="wrap">
+        <div class="band-head">
+          <span class="band-no">01 - The pile</span>
+          <span class="band-note">Why the folder stays closed</span>
+        </div>
+        <div class="pile-grid">
+          <div>
+            <h2>A shoot doesn&rsquo;t end when you stop shooting.</h2>
+            <p class="pile-lede">
+              It ends weeks later, when someone finally sits down with the folder. Your file
+              manager makes you open a photo, judge it against the one before, drag it somewhere,
+              then remember what you already decided. Ten minutes in you&rsquo;re not culling,
+              you&rsquo;re doing inventory.
+            </p>
+            <div class="steps">
+              <div class="step">
+                <span class="step-key">Open</span>
+                <span class="step-text">A preview window, sized wrong, one photo behind.</span>
+              </div>
+              <div class="step">
+                <span class="step-key">Compare</span>
+                <span class="step-text"
+                  >Three near-identical frames and no way to hold them in your head.</span
+                >
+              </div>
+              <div class="step">
+                <span class="step-key">Drag</span>
+                <span class="step-text"
+                  >A &ldquo;best&rdquo; folder you&rsquo;ll never trust, because you lost count
+                  halfway.</span
+                >
+              </div>
+            </div>
+          </div>
+          <div>
+            <div class="pile-count-row">
+              <span class="pile-count">480</span>
+              <span class="pile-count-note">files in the folder<br />none of them decided</span>
+            </div>
+            <div class="stall-track" aria-hidden="true">
+              <div class="stall-fill"></div>
+            </div>
+            <p class="stall-note">
+              progress, culling by hand: twenty files in, you close the window
+            </p>
+            <div class="contact-sheet" aria-hidden="true">
+              <div class="frame"></div><div class="frame"></div><div class="frame"></div><div class="frame"></div><div class="frame"></div><div class="frame"></div><div class="frame"></div><div class="frame"></div><div class="frame"></div><div class="frame"></div>
+              <div class="frame"></div><div class="frame"></div><div class="frame"></div><div class="frame"></div><div class="frame"></div><div class="frame"></div><div class="frame"></div><div class="frame"></div><div class="frame"></div><div class="frame"></div>
+              <div class="frame"></div><div class="frame"></div><div class="frame"></div><div class="frame"></div><div class="frame"></div><div class="frame"></div><div class="frame"></div><div class="frame"></div><div class="frame"></div><div class="frame"></div>
+              <div class="frame"></div><div class="frame"></div><div class="frame"></div><div class="frame"></div><div class="frame"></div><div class="frame"></div><div class="frame"></div><div class="frame"></div><div class="frame"></div><div class="frame"></div>
+            </div>
+            <p class="sheet-note">placeholder · contact sheet, 480 frames</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ 02 · THE RULE · the reframe ============ -->
+    <section class="band band-dark" id="rule">
+      <div class="wrap">
+        <div class="band-head">
+          <span class="band-no">02 - The rule</span>
+          <span class="band-note">One photo · one decision · no comparing</span>
+        </div>
+        <h2>
+          Stop choosing between photos. Answer a question about <i class="hi">this one</i>.
+        </h2>
+        <div class="rule-grid">
+          <div class="rule-card rule-card-1">
+            <p class="rule-title">The photo gets the screen</p>
+            <p class="rule-text">
+              Full window, measured rather than guessed: no part of a frame ever hides behind the
+              interface. The bars fade after a couple of seconds and return the moment you move.
+            </p>
+            <div class="bars-mock" aria-hidden="true">
+              <div class="bars-mock-bar"></div>
+              <div class="bars-mock-bar"></div>
+            </div>
+          </div>
+          <div class="rule-card rule-card-2">
+            <p class="rule-title">The keys do the work</p>
+            <p class="rule-text">
+              Left leaves it, right keeps it, <kbd class="key-inline">U</kbd> takes back the last
+              call. The next photo is already loaded, so you move as fast as you can look.
+            </p>
+            <div class="keys" aria-hidden="true">
+              <kbd class="key">&larr;</kbd>
+              <kbd class="key key-press">&rarr;</kbd>
+              <kbd class="key key-mono">U</kbd>
+            </div>
+          </div>
+          <div class="rule-card rule-card-3">
+            <p class="rule-title">Nothing moves until you say so</p>
+            <p class="rule-text">
+              Until you press run, a decision is only a line in a file. Close the window, come back
+              next week: the review is still there, mid-roll.
+            </p>
+            <div class="tally">
+              <span class="tally-kept"><span id="demo-kept">13</span> kept</span>
+              <span><span id="demo-discarded">195</span> discarded</span>
+              <span><span id="demo-left">272</span> to go</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ 03 · THE PASS · the mechanics ============ -->
+    <section class="band band-light" id="pass">
+      <div class="wrap">
+        <div class="band-head">
+          <span class="band-no">03 - The pass</span>
+          <span class="band-note">Source · verdict · destination</span>
+        </div>
+        <h2>One folder in, one folder out, nothing in between to learn.</h2>
+        <div class="pass-flow">
+          <div class="pass-line" aria-hidden="true"></div>
+          <div class="pass-dot" aria-hidden="true"></div>
+          <div class="pass-steps">
+            <div>
+              <div class="pass-plate">~/Pictures/2024 · 480 files</div>
+              <h3>Point at a folder</h3>
+              <p>
+                Type the path or browse the disk. It tells you how many photos are inside before
+                you commit, so you know you&rsquo;re in the right place.
+              </p>
+            </div>
+            <div>
+              <div class="pass-plate pass-plate-live">
+                <span class="pass-arrow-dim">&larr;</span>
+                <span class="pass-plate-label">one photo</span>
+                <span>&rarr;</span>
+              </div>
+              <h3>Make the call</h3>
+              <p>
+                Every verdict is written to disk the instant you take it, and can be undone. The
+                counters in the top bar keep score for you.
+              </p>
+            </div>
+            <div>
+              <div class="pass-plate pass-plate-out">2024_keep · 31 files</div>
+              <h3>Collect the keepers</h3>
+              <p>
+                Copy or move, your choice. A new folder appears beside the original, only when you
+                press run, never before.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ 04 · THE LEDGER · the trust ============ -->
+    <section class="band band-dark" id="ledger">
+      <div class="wrap">
+        <div class="band-head">
+          <span class="band-no">04 - The ledger</span>
+          <span class="band-note">What happens to every single file</span>
+        </div>
+        <div class="ledger-grid">
+          <div>
+            <h2>No surprises,<br />no losses,<br />no black box.</h2>
+            <p class="ledger-lede">
+              A discard means &ldquo;left alone&rdquo;: the file isn&rsquo;t moved, marked or
+              renamed. A keep gets copied, and its RAW original rides along by default, because
+              they share a name.
+            </p>
+            <p class="ledger-lede">
+              The log below is the real thing: one entry per file, written the moment you decide.
+            </p>
+          </div>
+          <div class="ledger">
+            <div class="ledger-row ledger-row-1">
+              <span class="ledger-file">IMG_0410.JPG</span>
+              <span class="ledger-verdict">discarded</span>
+              <span class="ledger-dest">untouched</span>
+            </div>
+            <div class="ledger-row ledger-row-2">
+              <span class="ledger-file">IMG_0412.JPG</span>
+              <span class="ledger-verdict is-keep">kept</span>
+              <span class="ledger-dest is-keep">2024_keep</span>
+            </div>
+            <div class="ledger-row ledger-row-3">
+              <span class="ledger-file">IMG_0412.CR2</span>
+              <span class="ledger-verdict">its RAW</span>
+              <span class="ledger-dest is-keep">2024_keep</span>
+            </div>
+            <div class="ledger-row ledger-row-4">
+              <span class="ledger-file">IMG_0413.JPG</span>
+              <span class="ledger-verdict">discarded</span>
+              <span class="ledger-dest">untouched</span>
+            </div>
+            <div class="ledger-row ledger-row-5">
+              <span class="ledger-file">IMG_0414.JPG</span>
+              <span class="ledger-verdict is-keep">kept</span>
+              <span class="ledger-dest is-keep">2024_keep</span>
+            </div>
+            <div class="ledger-row ledger-row-6 ledger-row-last">
+              <span class="ledger-file">CLIP_07.MOV</span>
+              <span class="ledger-verdict">not a photo</span>
+              <span class="ledger-dest">untouched</span>
+            </div>
+            <p class="ledger-note">state.json · written as you go, nothing to save by hand</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ 05 · THE KEEP · the payoff ============ -->
+    <section class="band band-light" id="keep">
+      <div class="wrap">
+        <div class="band-head">
+          <span class="band-no">05 - The keep</span>
+          <span class="band-note">One afternoon, one pass</span>
+        </div>
+        <div class="score-grid">
+          <div class="score-before">
+            <p class="score-label">Before</p>
+            <p class="score">480</p>
+            <p class="score-note">undecided files</p>
+          </div>
+          <div class="drain-track" aria-hidden="true">
+            <div class="drain-tube">
+              <div class="drain-fill"></div>
+            </div>
+          </div>
+          <div>
+            <p class="score-label score-label-after">After</p>
+            <p class="score score-kept">31</p>
+            <p class="score-note">photos worth showing</p>
+          </div>
+        </div>
+        <p class="keep-close">
+          The other 449 aren&rsquo;t deleted, compressed or shuffled. They&rsquo;re still whole,
+          still where you left them, in case tomorrow you change your mind.
+        </p>
+      </div>
+    </section>
+
+    <!-- ============ 06 · THE GUARANTEE · the objection ============ -->
+    <section class="band band-dark" id="guarantee">
+      <div class="wrap">
+        <div class="band-head">
+          <span class="band-no">06 - The guarantee</span>
+          <span class="band-note">Four clauses, not four slogans</span>
+        </div>
+        <h2>
+          This program <span class="underscored">never deletes</span> a photo,
+          <span class="underscored">never touches</span> what you discard,
+          <span class="underscored">never overwrites</span> a file and
+          <span class="underscored">never uploads</span> anything, anywhere.
+        </h2>
+        <div class="clauses">
+          <div class="clause">
+            <span class="clause-no">01</span>
+            <div>
+              <p class="clause-title">No delete exists</p>
+              <p class="clause-text">
+                There&rsquo;s no trash and no &ldquo;are you sure&rdquo;: the action simply
+                isn&rsquo;t in the app.
+              </p>
+            </div>
+          </div>
+          <div class="clause">
+            <span class="clause-no">02</span>
+            <div>
+              <p class="clause-title">Discards stay put</p>
+              <p class="clause-text">
+                Not moved, not tagged, not renamed. A discard is a decision, not an edit.
+              </p>
+            </div>
+          </div>
+          <div class="clause clause-soft">
+            <span class="clause-no">03</span>
+            <div>
+              <p class="clause-title">Nothing overwritten</p>
+              <p class="clause-text clause-text-gap">
+                A taken name lands beside the original, never on top of it. Run the transfer twice
+                and you still lose nothing.
+              </p>
+              <p class="clause-name">IMG_0412<span class="clause-mark">_1</span>.JPG</p>
+            </div>
+          </div>
+          <div class="clause clause-soft">
+            <span class="clause-no">04</span>
+            <div>
+              <p class="clause-title">It stays on your machine</p>
+              <p class="clause-text">
+                Bound to <span class="clause-host">127.0.0.1</span>, with no option to change it.
+                No account, no cloud, no internet.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ 07 · THE FINE PRINT ============ -->
+    <section class="band band-light" id="fine-print">
+      <div class="wrap">
+        <div class="band-head">
+          <span class="band-no">07 - The fine print</span>
+          <span class="band-note">Including the parts we&rsquo;d rather not mention</span>
+        </div>
+        <div class="fine-grid">
+          <div class="fine">
+            <p class="fine-title">Resumes mid-roll</p>
+            <p class="fine-text">
+              Decisions are keyed to file names, so you can review several folders, quit, and pick
+              each one up where you left it.
+            </p>
+          </div>
+          <div class="fine">
+            <p class="fine-title">Copy or move</p>
+            <p class="fine-text">
+              Copy leaves the source folder complete so you can check the result first. Move leaves
+              behind exactly what you discarded.
+            </p>
+          </div>
+          <div class="fine">
+            <p class="fine-title">RAW pairing, optional</p>
+            <p class="fine-text">
+              CR2, NEF, ARW, DNG and friends follow the photo that shares their name. One switch
+              turns it off.
+            </p>
+          </div>
+          <div class="fine">
+            <p class="fine-title">Top level only</p>
+            <p class="fine-text">
+              Subfolders aren&rsquo;t searched and their photos never enter the queue. Point it at
+              the folder that actually holds the shoot.
+            </p>
+          </div>
+          <div class="fine">
+            <p class="fine-title">Undo, not rewrite</p>
+            <p class="fine-text">
+              Undo takes back the most recent call. Changing an older verdict means undoing your
+              way back to it.
+            </p>
+          </div>
+          <div class="fine">
+            <p class="fine-title">No edits, no ratings</p>
+            <p class="fine-text">
+              Videos are ignored, stars don&rsquo;t exist and nothing gets developed here. It does
+              one job and then gets out of the way.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ 08 · THE CLOSE ============ -->
+    <footer class="band band-dark" id="close">
+      <div class="wrap">
+        <div class="close-grid">
+          <div>
+            <p class="band-no close-no">08 - The close</p>
+            <h2>
+              Your next shoot ends the same way.<br /><span class="hi">Be ready for it.</span>
+            </h2>
+            <div class="close-cta">
+              <a class="btn-red" href="https://github.com/LaiqianDS/phototriage"
+                >Download PhotoTriage</a
+              >
+              <span class="close-terms">MIT licence · Python 3.12+<br />Mac · Windows · Linux</span>
+            </div>
+          </div>
+          <div class="cmd-box">
+            <p class="cmd-label">Two lines to first photo</p>
+            <p class="cmd"><code>uv sync</code></p>
+            <p class="cmd cmd-run">
+              <code>uv run phototriage ~/Pictures/2024</code
+              ><span class="caret" aria-hidden="true"></span>
+            </p>
+            <p class="cmd-help">
+              Opens at <span class="cmd-host">127.0.0.1:8000</span>. Right arrow keeps, left arrow
+              leaves. Stop with Ctrl-C. Your decisions are already on disk.
+            </p>
+          </div>
+        </div>
+        <div class="close-foot">
+          <span>PhotoTriage - local photo culling</span>
+          <div class="footer-links">
+            <a href="https://github.com/LaiqianDS/phototriage#readme">Docs</a>
+            <a href="https://github.com/LaiqianDS/phototriage/blob/main/docs/architecture.md"
+              >Architecture</a
+            >
+            <a href="https://github.com/LaiqianDS/phototriage/blob/main/CHANGELOG.md">Changelog</a>
+            <a href="https://github.com/LaiqianDS/phototriage">GitHub</a>
+          </div>
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>
