@@ -14,6 +14,9 @@ MARKUP_IDS = re.compile(r"""\bid=["']([^"']+)["']""")
 # the elements that title and describe a control. All three hold ids.
 MARKUP_REFS = re.compile(r"""\b(?:for|aria-labelledby|aria-describedby)=["']([^"']+)["']""")
 
+# Focused mode hides both bars, so what they report is reported again here.
+HUD_IDS = ("hud-filename", "hud-progress", "hud-kept", "hud-status")
+
 
 def read(name: str) -> str:
     return (WEB_DIR / name).read_text(encoding="utf-8")
@@ -46,3 +49,21 @@ def test_every_label_and_aria_reference_points_at_a_real_element() -> None:
 
     missing = sorted(referenced - defined)
     assert not missing, f"index.html points at ids it does not define: {missing}"
+
+
+def test_the_focused_mode_display_is_defined_and_kept_up_to_date() -> None:
+    """A twin the script never writes is worse than no twin at all.
+
+    It would sit on screen reporting the previous photo, and the failure is
+    silent in both directions: an element the page drops leaves the script
+    writing to `null`, and an element the script stops writing keeps its last
+    value. Only reading the two files together catches either one.
+    """
+    defined = set(MARKUP_IDS.findall(read("index.html")))
+    written = set(SCRIPT_IDS.findall(read("app.js")))
+
+    undefined = sorted(name for name in HUD_IDS if name not in defined)
+    assert not undefined, f"index.html does not define: {undefined}"
+
+    stale = sorted(name for name in HUD_IDS if name not in written)
+    assert not stale, f"app.js never writes to: {stale}"

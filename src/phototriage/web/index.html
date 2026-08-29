@@ -152,6 +152,21 @@
       </div>
     </footer>
 
+    <!-- Focused mode. The bars are gone rather than faded, so these two carry
+         what the bars carried: the four values a decision needs, and the way
+         back out. Both rest on the same timer the bars use. -->
+    <div id="hud" class="hud">
+      <span id="hud-filename" class="hud-name"></span>
+      <span class="hud-sep" aria-hidden="true"></span>
+      <span id="hud-progress" class="hud-tally"></span>
+      <span class="chip keep"><span id="hud-kept">0</span> mantenidas</span>
+      <span id="hud-status" class="status" role="status" aria-live="polite"></span>
+    </div>
+
+    <p class="focus-hint">
+      <kbd aria-hidden="true">Esc</kbd> Salir del modo enfocado
+    </p>
+
     <dialog id="explorer" class="sheet" aria-labelledby="explorer-title">
       <header class="sheet-head">
         <h2 id="explorer-title">Elegir carpeta</h2>

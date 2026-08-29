@@ -22,9 +22,14 @@ async function call(endpoint, body) {
   return payload;
 }
 
+// Written to both places, because focused mode hides the bar the first one
+// lives in and an error nobody can see is the same as no error at all. Only one
+// of the two is ever in the accessibility tree, so nothing is announced twice.
 function report(message, isError = false) {
   el("status").textContent = message;
   el("status").classList.toggle("error", isError);
+  el("hud-status").textContent = message;
+  el("hud-status").classList.toggle("error", isError);
 }
 
 /**
@@ -54,8 +59,12 @@ async function run(action) {
 // ---------------------------------------------------------------- review ---
 
 function render(state) {
-  el("progress").textContent = `${state.reviewed} / ${state.total}`;
+  // The tally and the kept count reach the bar and the focused-mode pill alike.
+  const tally = `${state.reviewed} / ${state.total}`;
+  el("progress").textContent = tally;
+  el("hud-progress").textContent = tally;
   el("kept").textContent = state.kept;
+  el("hud-kept").textContent = state.kept;
   el("discarded").textContent = state.discarded;
   const done = state.total === 0 ? 0 : (state.reviewed / state.total) * 100;
   el("progress-fill").style.width = `${done}%`;
@@ -75,6 +84,7 @@ function render(state) {
   el("done").hidden = !chosen || state.total === 0 || state.current !== null;
   el("viewer").hidden = state.current === null;
   el("filename").textContent = state.current ?? "";
+  el("hud-filename").textContent = state.current ?? "";
 
   if (state.current !== null) {
     el("photo").src = imageUrl(state.current);
@@ -160,6 +170,40 @@ const fitting = new ResizeObserver(fitStage);
 for (const id of ["topbar", "bottombar", "keep"]) {
   fitting.observe(el(id));
 }
+
+// --------------------------------------------------------- focused mode ---
+
+/**
+ * Give the photo the whole window.
+ *
+ * The bars rest; here they go. What is left is what the decision in front of
+ * the user needs, so the controls that belong to before it and after it, the
+ * source folder and the transfer, stay behind.
+ *
+ * The browser goes fullscreen along with it when it will. The request needs a
+ * user gesture and a document that is allowed to ask, and neither is worth
+ * refusing focused mode over: a maximised window is the fallback.
+ */
+async function enterFocused() {
+  document.body.classList.add("focused");
+  try {
+    await document.documentElement.requestFullscreen();
+  } catch {
+    // Windowed focused mode is the fallback, not a failure to report.
+  }
+}
+
+function leaveFocused() {
+  document.body.classList.remove("focused");
+  if (document.fullscreenElement !== null) document.exitFullscreen();
+}
+
+// Escape leaves fullscreen without the keypress ever reaching the page, and the
+// window chrome offers its own way out as well. So the class follows the
+// browser rather than the other way round.
+document.addEventListener("fullscreenchange", () => {
+  if (document.fullscreenElement === null) document.body.classList.remove("focused");
+});
 
 // -------------------------------------------------------------- explorer ---
 
@@ -284,6 +328,13 @@ document.addEventListener("keydown", (event) => {
     ArrowLeft: () => decide("discard"),
     ArrowRight: () => decide("keep"),
     u: undo,
+    // Nothing to look at closely when there is no photo, which is the same
+    // condition that leaves the verdict buttons disabled.
+    f: () => {
+      if (!el("keep").disabled) enterFocused();
+    },
+    // Harmless outside focused mode, where it removes a class that is not set.
+    Escape: leaveFocused,
   };
   const shortcut = shortcuts[event.key.length === 1 ? event.key.toLowerCase() : event.key];
   if (shortcut) {

@@ -22,8 +22,13 @@ That is what keeps the photo clear of them at any window size, without a fixed n
 Only the bars fade when the mouse and the keyboard go quiet.
 The verdict buttons never fade, and the room held for the chrome does not change when a bar does.
 
-Resting and the choice of light or dark are matters for the browser alone.
-Neither one makes a request, the server knows about neither, and the theme is remembered in `localStorage` rather than in the state file.
+Focused mode goes further than that fade: it takes the chrome away instead of dimming it, gives the photo the whole window, and asks the browser for fullscreen.
+The bars are hidden rather than removed, so the sizes the script measured survive and leaving the mode does not have to measure again before the photo settles.
+Fullscreen is asked for and not required, because the request can be refused and a maximised window is a good enough second best.
+
+Resting, focused mode and the choice of light or dark are matters for the browser alone.
+None of them makes a request, the server knows about none of them, and the theme is remembered in `localStorage` rather than in the state file.
+Focused mode is remembered nowhere at all, so every run starts outside it.
 
 ## Module map
 

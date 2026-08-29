@@ -45,6 +45,10 @@
   --discard-tint: rgb(196 40 27 / 0.1);
   --discard-tint-hover: rgb(196 40 27 / 0.18);
   --discard-line: rgb(196 40 27 / 0.28);
+  /* Focused mode washes the verdict straight onto the photo instead of into a
+     bordered card, so it needs more colour than the tints above carry. */
+  --keep-zone: rgb(14 122 60 / 0.2);
+  --discard-zone: rgb(196 40 27 / 0.2);
   --focus: #0066cc;
   --fill: #1d1d1f;
   --fill-hover: #38383c;
@@ -78,6 +82,8 @@
   --discard-tint: rgb(255 69 58 / 0.14);
   --discard-tint-hover: rgb(255 69 58 / 0.22);
   --discard-line: rgb(255 69 58 / 0.32);
+  --keep-zone: rgb(48 209 88 / 0.2);
+  --discard-zone: rgb(255 69 58 / 0.2);
   --focus: #0a84ff;
   --fill: #f2f2f5;
   --fill-hover: #ffffff;
@@ -623,10 +629,6 @@ kbd {
   color: var(--discard);
 }
 
-.edge.discard:hover:not(:disabled) {
-  background-image: linear-gradient(var(--discard-tint-hover), var(--discard-tint-hover));
-}
-
 .edge.keep {
   right: var(--inset);
   border-color: var(--keep-line);
@@ -634,8 +636,203 @@ kbd {
   color: var(--keep);
 }
 
-.edge.keep:hover:not(:disabled) {
+/* The flat tint belongs to the card. Focused mode replaces the card with a
+   directional wash, and these are more specific than the rules that draw it, so
+   without the guard a hover there would flatten the gradient back out. */
+body:not(.focused) .edge.discard:hover:not(:disabled) {
+  background-image: linear-gradient(var(--discard-tint-hover), var(--discard-tint-hover));
+}
+
+body:not(.focused) .edge.keep:hover:not(:disabled) {
   background-image: linear-gradient(var(--keep-tint-hover), var(--keep-tint-hover));
+}
+
+/* ---------------------------------------------------------- focused mode ---*/
+
+/* Not the resting state, which only fades the bars and keeps their room. Here
+   the chrome is gone and the photo takes the whole window, because the question
+   in front of the user is about the photo and nothing else. Three things stay:
+   the progress hairline, the two verdict zones, and one pill. */
+
+.hud,
+.focus-hint {
+  display: none;
+}
+
+body.focused .stage {
+  inset: 0;
+}
+
+/* The frame belongs to a photo sitting on a page. In here there is no page. */
+body.focused #photo {
+  border-radius: 0;
+  box-shadow: none;
+}
+
+/* Hidden rather than removed: `visibility` takes the bars out of the tab order
+   and out of the accessibility tree, and still leaves the heights `fitStage`
+   measured, so leaving focused mode does not have to measure again first. */
+body.focused .bar {
+  visibility: hidden;
+}
+
+/* The one control that never leaves. It lives inside the top bar, so it turns
+   its own visibility back on and moves to the top edge of the window. */
+body.focused .topbar .progress {
+  visibility: visible;
+  top: 0;
+  bottom: auto;
+}
+
+/* The cards lose their edges and become a wash off the side of the window. */
+body.focused .edge {
+  top: 0;
+  bottom: 0;
+  width: 6.5rem;
+  min-height: 0;
+  padding: 0;
+  translate: none;
+  border: 0;
+  border-radius: 0;
+  background-color: transparent;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  box-shadow: none;
+  opacity: 0.62;
+}
+
+body.focused .edge.discard {
+  left: 0;
+  background-image: linear-gradient(90deg, var(--discard-zone), transparent);
+}
+
+body.focused .edge.keep {
+  right: 0;
+  background-image: linear-gradient(270deg, var(--keep-zone), transparent);
+}
+
+/* A scale would drag a full-height wash around under the pointer, so the press
+   is carried by brightness instead. */
+body.focused .edge:hover:not(:disabled) {
+  opacity: 1;
+}
+
+body.focused .edge:active:not(:disabled) {
+  transform: none;
+  opacity: 1;
+}
+
+body.focused .edge:disabled {
+  opacity: 0.35;
+}
+
+body.focused .edge-icon {
+  width: 1.875rem;
+  height: 1.875rem;
+}
+
+/* Off the layout, still the accessible name of the button. `display: none` here
+   would leave a button that reads to a screen reader as nothing at all. */
+body.focused .edge-label {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* Kept at every width here, unlike on the cards: it is the only label left. */
+body.focused .edge-key {
+  display: inline;
+  font-size: 0.75rem;
+}
+
+/* Everything the two bars were carrying, in one pill. */
+body.focused .hud {
+  position: fixed;
+  bottom: 1.375rem;
+  left: 50%;
+  translate: -50% 0;
+  z-index: 4;
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+  padding: 0.5625rem var(--space-4);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-full);
+  background: var(--bar);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  font-size: 0.8125rem;
+}
+
+.hud-name {
+  font-weight: 500;
+}
+
+.hud-sep {
+  width: 1px;
+  height: 0.875rem;
+  background: var(--bar-line);
+}
+
+.hud-tally {
+  color: var(--bar-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+/* The status line is usually empty, and an empty child would still spend a gap.
+   It is in the pill at all because focused mode hides the bar it normally sits
+   in, and an error nobody can see is the same as no error at all. */
+#hud-status:empty {
+  display: none;
+}
+
+body.focused .focus-hint {
+  position: fixed;
+  top: 1.25rem;
+  right: 1.25rem;
+  z-index: 4;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0.4375rem var(--space-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-full);
+  background: var(--bar);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  color: var(--bar-muted);
+  font-size: 0.8125rem;
+}
+
+/* Both come and go with the bars, on the same timer and the same rule. The
+   verdict zones do not, for the same reason the cards never faded. */
+body.resting .hud,
+body.resting .focus-hint {
+  opacity: 0;
+  pointer-events: none;
+}
+
+body.resting .hud {
+  translate: -50% 0.375rem;
+}
+
+body.resting .focus-hint {
+  translate: 0 -0.375rem;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .hud,
+  .focus-hint {
+    transition:
+      opacity 240ms ease,
+      translate 240ms ease;
+  }
 }
 
 /* ---------------------------------------------------------------- sheets ---*/
