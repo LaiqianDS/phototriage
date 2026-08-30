@@ -73,6 +73,17 @@ The photo does not grow when they fade, because their room stays reserved.
 Discard and keep are two large buttons on the left and right edges of the window, on the sides the arrow keys point to.
 They never fade.
 
+**Focused mode.**
+`F` gives the photo the whole window.
+The bars go, along with the room reserved for them, the photo loses its rounded corners and its shadow, and the browser goes fullscreen when it is allowed to.
+Three things are left: the progress line, now along the top edge of the window, the two verdicts as colour washed off the left and right edges, and one pill carrying the file name, the counters and any message.
+The pill fades and comes back exactly like the bars, and the two verdicts never fade, exactly like the buttons they replace.
+`Escape` leaves, and so does whatever way out of fullscreen your browser offers.
+The arrow keys and `U` work unchanged.
+The source folder, the settings and the run button stay behind, because they belong to before the review and after it, not to the photo in front of you.
+`F` does nothing when there is no photo on screen.
+There is no button for it.
+
 **The dialogs.**
 The browse button and the settings button each open a dialog over the whole window.
 `Escape` closes either one, as does its own close button.
@@ -138,8 +149,10 @@ Until then, a decision is only a line in a file.
 | Left arrow | Discard the current image |
 | Right arrow | Keep the current image |
 | `U` | Undo the most recent decision |
+| `F` | Enter focused mode, when there is a photo on screen |
+| `Escape` | Leave focused mode |
 
-`U` works in either case.
+`U` and `F` work in either case.
 
 Shortcuts are ignored while the folder browser or the settings dialog is open, and while the focus is in a text field or on the copy and move control.
 There the arrow keys move between `Copiar` and `Mover` instead.
@@ -316,6 +329,9 @@ They are written down so that you do not meet them by surprise.
 - **A decision can be undone, not changed.**
   There is no way to rewrite the verdict of a named image.
   Undo removes the most recent decision, so correcting an older one means undoing everything taken after it.
+- **Focused mode is reached from the keyboard only.**
+  `F` enters it and nothing on screen says so.
+  A pointer alone cannot get in, and once in, cannot get out either, except through the browser's own way out of fullscreen.
 - **Only the top level of the source folder is reviewed.**
   Images one level down are not in the queue and are never transferred.
 - **Video files are ignored.**
