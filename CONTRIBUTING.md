@@ -70,7 +70,7 @@ uv run ruff format .
 ```
 
 Continuous integration runs the same three commands, with `ruff format --check` instead of `ruff format`.
-Run them before you open a pull request.
+Run them before you merge.
 
 The workflow also runs `uv sync --locked`, which fails when `pyproject.toml` and `uv.lock` disagree.
 If you change a dependency, commit the updated `uv.lock` with it.
@@ -106,7 +106,7 @@ If you change a dependency, commit the updated `uv.lock` with it.
 
 - **Dependencies are two: FastAPI and uvicorn.**
   Adding a third is a real decision, not a detail.
-  Say in the pull request why the standard library cannot do it.
+  Say in the merge commit why the standard library cannot do it.
   In particular, the server sends image bytes untouched so that no image library is needed at all.
 - **The state file has a schema version.**
   Changing the shape of what `Store` writes means raising `SCHEMA_VERSION` in `store.py`.
@@ -142,17 +142,57 @@ git switch -c feat/zoom-to-100
 
 Prefixes in use: `feat/`, `fix/`, `docs/`, `refactor/`, `test/`, `chore/`.
 
-Open the pull request against `dev`.
+Merge it back into `dev` yourself when it is finished, and keep the merge
+commit:
+
+```sh
+git switch dev
+git merge --no-ff feat/zoom-to-100
+git branch -d feat/zoom-to-100
+```
+
+`--no-ff` is the whole point of the command.
+A fast-forward would spread the branch out as loose commits and lose the fact
+that they were one piece of work, which is exactly what you want back when you
+are reading the history to find out why something was done.
+
 When `dev` is ready to release, it is merged into `main`, the version is raised
 in `pyproject.toml` and `__init__.py`, `CHANGELOG.md` gets its entry, and the
 commit on `main` is tagged.
+Pushing `main` is also what publishes the site, because the Pages workflow
+watches that branch and no other.
 
-## Pull requests
+## Finishing a change
 
-- One change per pull request.
+Work by the maintainers goes straight into `dev`.
+There is no pull request step and no review queue: the review is the one you
+carry out on yourself before you merge, and the merge commit message is where
+it is written down.
+
+A patch from outside still arrives as a pull request, because that is the only
+way to offer one.
+The four parts below are what its description should carry, all the same.
+
+- One change per branch.
 - Add a test that fails without your change.
-- Update the documentation the change touches, in the same pull request.
-- Fill in the template, including the last section.
-  Saying what you did not verify is worth more than saying the tests pass.
-- Continuous integration runs on every push and every pull request.
-  A red run blocks the merge.
+- Update the documentation the change touches, in the same branch.
+- Continuous integration runs on every push.
+  Do not merge a branch whose last run is red.
+
+Write the merge commit in four parts.
+The last one is the one that earns its place:
+
+1. **What this changes.**
+   One or two sentences, for a reader of the log.
+2. **Why.**
+   The problem, not the solution.
+   Name the roadmap entry or the issue if there is one.
+3. **How it was verified.**
+   Not "tests pass".
+   What you actually ran and what you saw.
+   For a change to the interface, name the browser and the window size.
+4. **The weakest part.**
+   What you did not verify, and the conditions under which this breaks.
+   Leave nothing out because it is inconvenient.
+   Everything above it can be reconstructed from the diff by whoever comes
+   next. This cannot.
