@@ -4,6 +4,28 @@ All notable changes to this project are recorded here.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and the project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.0] - 2026-08-30
+
+### Added
+
+- Focused mode.
+  `F` gives the photo the whole window: the bars go, along with the room held
+  for them, and the browser goes fullscreen when it is allowed to.
+  What is left is the progress line, moved to the top edge of the window, the
+  two verdicts as colour washed off the left and right edges, and one pill
+  carrying the file name, the counters and any message.
+  `Escape` leaves.
+  It is reached from the keyboard only, and nothing on screen announces it.
+- A landing page under `site/`, published to GitHub Pages from `main` at
+  <https://laiqiands.github.io/phototriage/>.
+
+### Changed
+
+- Branches merge straight into `dev` with `--no-ff` instead of going through a
+  pull request.
+  The pull request template is gone, and its four headings are now the shape
+  asked of a merge commit message in `CONTRIBUTING.md`.
+
 ## [0.1.0] - 2026-08-14
 
 First release.
@@ -43,4 +65,5 @@ First release.
   network.
 - Command line: `phototriage [source] [--state-file PATH] [--port N]`.
 
+[0.2.0]: https://github.com/LaiqianDS/phototriage/releases/tag/v0.2.0
 [0.1.0]: https://github.com/LaiqianDS/phototriage/releases/tag/v0.1.0

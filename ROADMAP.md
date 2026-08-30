@@ -1,6 +1,6 @@
 # Roadmap
 
-What is planned after 0.1.0, in the order it is worth doing.
+What is planned after 0.2.0, in the order it is worth doing.
 
 This file records intent, not promises.
 The [Known limits](README.md#known-limits) section of the README describes what
@@ -20,7 +20,7 @@ If it is fine, zoom comes first.
 If it stutters, thumbnails come first, and that reopens the question of adding an
 image library.
 
-## 0.1.1: what the first real use turns up
+## 0.2.1: what the first real use turns up
 
 Fixes for whatever a session on real photos and a second browser reveal.
 
@@ -30,7 +30,21 @@ only Chromium has been exercised.
 Safari matters most, because it is the default browser on the machine this was
 built for.
 
-## 0.2.0: make it a culling tool
+Focused mode adds two more things to check there.
+It asks for fullscreen through `requestFullscreen`, which Safari only spells
+without a prefix from 16.4, so an older Safari gets focused mode in a window
+instead; the code treats a refusal as normal and does not report it.
+It also turns the progress line back on with `visibility: visible` inside a bar
+that is hidden and carries `backdrop-filter`, and whether a browser paints that
+child without painting the parent's blur is the one thing that would show as a
+smear across the top edge.
+
+The landing page has been seen in Firefox alone, and never with the Google
+Fonts request blocked.
+Instrument Serif is much narrower than Georgia, its fallback, so the largest
+headings are the place to look first.
+
+## 0.3.0: make it a culling tool
 
 **Zoom to 100 percent.**
 This is the largest gap.
@@ -57,7 +71,7 @@ A failure part way through answers with the error envelope, but not with the
 count of what was transferred before it stopped.
 It should collect the failures, carry on with the rest, and report both.
 
-## 0.3.0: confidence and comfort
+## 0.4.0: confidence and comfort
 
 **Preview before running.**
 The confirmation says nothing about how many files, how many gigabytes, or
