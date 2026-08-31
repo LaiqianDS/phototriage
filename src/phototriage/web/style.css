@@ -835,6 +835,44 @@ body.resting .focus-hint {
   }
 }
 
+/* ------------------------------------------------------------------ zoom ---*/
+
+/* Fitted to the window, every photo looks sharp: the browser is scaling it
+   down, and scaling down hides softness. Whether the photo is actually sharp is
+   the one question a review asks, and only one image pixel per screen pixel
+   answers it. The width that produces is set by the script, because it depends
+   on `devicePixelRatio`, which CSS cannot read.
+
+   Independent of focused mode. Either can be on without the other, and both
+   together is the view this feature exists for. */
+
+/* The centring is handed over to the photo's own margins for as long as the
+   zoom lasts. A photo larger than the window is what this state is for, and a
+   centred flex item that overflows spills equally to both sides: the half that
+   goes past the start edge is then unreachable, because a scroll container has
+   no negative offset to scroll to. Auto margins take the free space while there
+   is any and collapse to zero when there is none, which leaves the photo
+   centred while it fits and against the start edge once it does not. */
+body.zoomed .viewer {
+  justify-content: flex-start;
+  align-items: flex-start;
+  overflow: auto;
+  /* The photo is the end of the scroll. Nothing behind it moves when a pan
+     reaches an edge. */
+  overscroll-behavior: contain;
+  cursor: grab;
+}
+
+body.zoomed .viewer:active {
+  cursor: grabbing;
+}
+
+body.zoomed #photo {
+  max-width: none;
+  max-height: none;
+  margin: auto;
+}
+
 /* ---------------------------------------------------------------- sheets ---*/
 
 .sheet {
