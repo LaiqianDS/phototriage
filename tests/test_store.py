@@ -176,6 +176,25 @@ def test_search_subfolders_is_off_by_default_and_survives_a_round_trip(tmp_path:
     assert Store.load(path).search_subfolders is True
 
 
+def test_pair_videos_is_off_by_default_and_survives_a_round_trip(tmp_path: Path) -> None:
+    """Off, unlike the RAW switch.
+
+    A RAW is the original of the photo and leaving it behind is nearly always
+    wrong. A video of the same name is sometimes the other half of a live
+    photo and sometimes a clip that happens to share it, and reading an older
+    file as on would make the next move in that folder take files out of it
+    that the last move left alone.
+    """
+    path = tmp_path / "state.json"
+    store = Store(path)
+    assert store.pair_videos is False
+
+    store.pair_videos = True
+    store.save()
+
+    assert Store.load(path).pair_videos is True
+
+
 def test_search_subfolders_defaults_to_off_when_the_file_predates_it(tmp_path: Path) -> None:
     """An older file has no such key, and it must keep the reach it was written with.
 

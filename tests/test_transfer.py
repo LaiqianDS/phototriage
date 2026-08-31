@@ -6,6 +6,7 @@ from collections.abc import Callable
 from pathlib import Path
 
 from phototriage import transfer
+from phototriage.config import RAW_EXTS, VIDEO_EXTS, companion_exts
 from phototriage.review import Verdict
 
 
@@ -140,6 +141,53 @@ def test_build_plan_takes_a_shared_raw_once(
     assert names(plan) == ["IMG_1.png", "IMG_1.CR2", "IMG_1.jpg"]
 
 
+def test_companion_exts_is_the_union_of_the_two_switches() -> None:
+    """The plan is told which extensions follow an image, not which switch is on.
+
+    Two booleans carried all the way down would have to be read together at the
+    bottom to answer one question, and a third kind of companion would add a
+    third.
+    """
+    assert companion_exts(pair_raws=False, pair_videos=False) == frozenset()
+    assert companion_exts(pair_raws=True, pair_videos=False) == RAW_EXTS
+    assert companion_exts(pair_raws=False, pair_videos=True) == VIDEO_EXTS
+    assert companion_exts(pair_raws=True, pair_videos=True) == RAW_EXTS | VIDEO_EXTS
+
+
+def test_build_plan_carries_a_video_that_shares_the_name_of_a_kept_image(
+    source: Path, write_image: Callable[[Path], Path]
+) -> None:
+    """A phone writes the two halves of a live photo under one name."""
+    write_image(source / "IMG_1.png")
+    (source / "IMG_1.MOV").write_bytes(b"clip")
+
+    both = companion_exts(pair_raws=True, pair_videos=True)
+
+    assert names(transfer.build_plan(source, {"IMG_1.png": Verdict.KEEP})) == ["IMG_1.png"]
+    assert names(transfer.build_plan(source, {"IMG_1.png": Verdict.KEEP}, both)) == [
+        "IMG_1.png",
+        "IMG_1.MOV",
+    ]
+
+
+def test_build_plan_leaves_a_video_of_its_own_name_behind(
+    source: Path, write_image: Callable[[Path], Path]
+) -> None:
+    """A clip is never reviewed, so it can only travel as the half of a name.
+
+    `MVI_0042.MOV` with no image beside it is nobody's companion, and the
+    switch does not turn it into one.
+    """
+    write_image(source / "IMG_1.png")
+    (source / "MVI_0042.MOV").write_bytes(b"clip")
+
+    plan = transfer.build_plan(
+        source, {"IMG_1.png": Verdict.KEEP}, companion_exts(pair_raws=True, pair_videos=True)
+    )
+
+    assert names(plan) == ["IMG_1.png"]
+
+
 def test_build_plan_reaches_into_subfolders_only_when_asked(
     source: Path, write_image: Callable[[Path], Path]
 ) -> None:
@@ -197,6 +245,6 @@ def test_build_plan_leaves_the_raw_behind_when_pairing_is_off(
     write_image(source / "IMG_1.png")
     (source / "IMG_1.CR2").write_bytes(b"raw")
 
-    plan = transfer.build_plan(source, {"IMG_1.png": Verdict.KEEP}, pair_raws=False)
+    plan = transfer.build_plan(source, {"IMG_1.png": Verdict.KEEP}, companions=frozenset())
 
     assert names(plan) == ["IMG_1.png"]

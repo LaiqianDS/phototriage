@@ -126,6 +126,7 @@ The controls are:
 | Status line | Bottom bar | The result of the last action, or the error it ran into. |
 | Subfolder switch (`Buscar en subcarpetas`) | Settings dialog | Whether the review reaches into the folders inside the source. Off by default. |
 | RAW switch (`Mover los RAW junto a la imagen`) | Settings dialog | Whether a RAW original travels with the image that shares its name. On by default. |
+| Video switch (`Mover los vídeos junto a la imagen`) | Settings dialog | Whether a video travels with the image that shares its name. Off by default. |
 | Destination field (`Carpeta destino`) | Settings dialog | Sets where the kept images will go. |
 
 A control that has nothing to act on is disabled.
@@ -201,7 +202,9 @@ These extensions count as reviewable images: `.jpg`, `.jpeg`, `.png`, `.webp`, `
 Case does not matter, so `IMG_1.JPG` is reviewed like `img_1.jpg`.
 
 Nothing else is part of the queue.
-A video file is neither reviewed nor paired with an image, so a clip that sits next to the photos is left where it is, whatever you decide about the images around it.
+A video file is never reviewed, whatever you decide about the images around it.
+It can still travel with a kept image that shares its name, which is what the video switch is for.
+See [Videos](#videos).
 
 The queue is sorted by name, ignoring case, so a camera that numbers its files gives you the images in the order you took them.
 With the subfolder switch on the name includes the folder, so the queue walks one folder at a time, in order, rather than interleaving the days.
@@ -290,6 +293,24 @@ A state file written before this option existed reads as "on".
 Turning the switch off changes nothing that has already been transferred.
 It changes what the next run does.
 
+## Videos
+
+A video is never reviewed.
+It cannot be shown in the viewer, and it is not part of the queue.
+
+It can travel with a kept image that shares its name, the way a phone writes `IMG_0042.MOV` beside `IMG_0042.HEIC` for a live photo.
+Open the settings dialog with the settings button (`Ajustes`) and turn on the switch `Mover los vídeos junto a la imagen`.
+
+These extensions count as video: `.mov`, `.mp4`, `.m4v`, `.avi`, `.mts` and `.m2ts`.
+Pairing works exactly like it does for RAW files, by name and inside one folder, so `IMG_0042.MOV` follows `IMG_0042.JPG` and `MVI_0042.MOV` follows nothing at all.
+
+The switch is off when you first start the app, and a state file written before it existed reads as off.
+That is the opposite of the RAW switch, on purpose.
+A RAW file is the original of the photo beside it, so leaving it behind is almost always a mistake.
+A video of the same name is sometimes the other half of a live photo and sometimes an unrelated clip, and turning it on for you would mean the next run in move mode takes files out of your source folder that the last one left alone.
+
+Like the other two, the choice is global rather than a property of one folder, and it is saved with your decisions.
+
 ## Where the kept images go
 
 The destination is a sibling of the source folder with a `_keep` suffix.
@@ -319,7 +340,7 @@ Every decision is written to disk as soon as you take it.
 There is nothing to save by hand, and closing the browser or stopping the server loses nothing.
 
 Decisions live in one JSON file, by default `~/.phototriage/state.json`.
-The file holds one review per source folder, the folder you opened last, and the two switches.
+The file holds one review per source folder, the folder you opened last, and the three switches.
 So you can review several folders, switch between them, close the app, and resume each one where you left it.
 Starting the app without a folder argument reopens the last folder you reviewed.
 
@@ -374,8 +395,9 @@ They are written down so that you do not meet them by surprise.
 - **A destination inside the source folder feeds itself.**
   With the subfolder switch on, a copy run into a destination below the source puts the copies back in the queue, and the counters grow with your own work.
   Keep the destination outside the folder you are reviewing, which the default already does.
-- **Video files are ignored.**
-  They are not reviewed, and they are not paired with an image the way a RAW file is.
+- **A video is never reviewed.**
+  It has no place in the queue, so a clip is only ever transferred as the companion of a kept image of the same name, and only with the video switch on.
+  A clip named on its own, like `MVI_0042.MOV`, stays where it is whatever you do.
 - **Two browser windows share one review.**
   The server holds a single active review, so choosing a folder in one window changes what the other one shows.
 - **Two servers sharing one state file overwrite each other.**

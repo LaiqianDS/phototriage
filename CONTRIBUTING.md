@@ -119,7 +119,7 @@ If you change a dependency, commit the updated `uv.lock` with it.
   thing in every folder.
   Something that belongs to one source folder, such as the destination, belongs
   on `Review` instead.
-  The reason is in [docs/architecture.md](docs/architecture.md#the-raw-preference-is-global-not-per-source-folder).
+  The reason is in [docs/architecture.md](docs/architecture.md#the-preferences-are-global-not-per-source-folder).
 - **Nothing is ever deleted.**
   No route, and no function under `transfer.py`, may remove a file from the source folder except by moving it to the destination the user chose.
 - **The server binds `127.0.0.1`.**

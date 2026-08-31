@@ -78,6 +78,7 @@ function render(state) {
   }
   el("pair-raws").checked = state.pair_raws;
   el("search-subfolders").checked = state.search_subfolders;
+  el("pair-videos").checked = state.pair_videos;
 
   const chosen = state.source !== null;
   el("idle").hidden = chosen;
@@ -114,6 +115,7 @@ const setPairRaws = (pairRaws) => run(() => call("settings", { pair_raws: pairRa
 // Each switch sends only itself. The route leaves out what it is not told, so
 // one control can never carry a stale reading of the other along with it.
 const setSearchSubfolders = (deep) => run(() => call("settings", { search_subfolders: deep }));
+const setPairVideos = (pairVideos) => run(() => call("settings", { pair_videos: pairVideos }));
 
 function apply() {
   const mode = el("mode-move").checked ? "move" : "copy";
@@ -405,6 +407,7 @@ el("pair-raws").addEventListener("change", (event) => setPairRaws(event.target.c
 el("search-subfolders").addEventListener("change", (event) =>
   setSearchSubfolders(event.target.checked),
 );
+el("pair-videos").addEventListener("change", (event) => setPairVideos(event.target.checked));
 
 el("browse").addEventListener("click", () => {
   explorer.showModal();

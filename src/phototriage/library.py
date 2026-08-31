@@ -5,7 +5,7 @@ from __future__ import annotations
 from collections.abc import Iterator
 from pathlib import Path
 
-from .config import IMAGE_EXTS, RAW_EXTS
+from .config import IMAGE_EXTS
 
 
 def ordered(names: list[str]) -> list[str]:
@@ -116,20 +116,22 @@ def resolve_image(source: Path, name: str, deep: bool = False) -> Path | None:
     return candidate if inside else None
 
 
-def raw_index(source: Path, deep: bool = False) -> dict[Path, list[Path]]:
-    """Map each path without its extension to the RAW files that share it.
+def companion_index(
+    source: Path, extensions: frozenset[str], deep: bool = False
+) -> dict[Path, list[Path]]:
+    """Map each path without its extension to the files of `extensions` beside it.
 
     So `/shoot/IMG_1` to `/shoot/IMG_1.CR2`, keyed by the whole path rather than
     by the bare stem: an `IMG_1.CR2` in one subfolder must never be paired with
     the `IMG_1.jpg` of another, and two days of the same card number them alike.
 
-    Built once per plan so that pairing an image with its RAW original stays a
-    dictionary lookup instead of a folder scan.
+    Built once per plan so that pairing an image with whatever follows it stays
+    a dictionary lookup instead of a folder scan.
     """
     index: dict[Path, list[Path]] = {}
     if not source.is_dir():
         return index
     for entry in sorted(walk(source) if deep else source.iterdir()):
-        if entry.is_file() and entry.suffix.lower() in RAW_EXTS:
+        if entry.is_file() and entry.suffix.lower() in extensions:
             index.setdefault(entry.with_suffix(""), []).append(entry)
     return index

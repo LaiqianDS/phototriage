@@ -6,6 +6,7 @@ from collections.abc import Callable
 from pathlib import Path
 
 from phototriage import library
+from phototriage.config import RAW_EXTS
 
 
 def test_list_images_ignores_case_when_ordering(
@@ -183,7 +184,7 @@ def test_resolve_image_rejects_a_missing_file(source: Path) -> None:
     assert library.resolve_image(source, "absent.png") is None
 
 
-def test_raw_index_pairs_an_uppercase_raw_with_a_lowercase_image(source: Path) -> None:
+def test_companion_index_pairs_an_uppercase_raw_with_a_lowercase_image(source: Path) -> None:
     """Lock down the extension comparison.
 
     An earlier version matched the suffix without lowering it, so a camera that
@@ -192,29 +193,31 @@ def test_raw_index_pairs_an_uppercase_raw_with_a_lowercase_image(source: Path) -
     raw = source / "IMG_1.CR2"
     raw.write_bytes(b"raw")
 
-    assert library.raw_index(source) == {source / "IMG_1": [raw]}
+    assert library.companion_index(source, RAW_EXTS) == {source / "IMG_1": [raw]}
 
 
-def test_raw_index_groups_several_raws_under_one_path(source: Path) -> None:
+def test_companion_index_groups_several_raws_under_one_path(source: Path) -> None:
     for name in ("IMG_1.CR2", "IMG_1.dng"):
         (source / name).write_bytes(b"raw")
 
-    assert sorted(path.name for path in library.raw_index(source)[source / "IMG_1"]) == [
+    assert sorted(
+        path.name for path in library.companion_index(source, RAW_EXTS)[source / "IMG_1"]
+    ) == [
         "IMG_1.CR2",
         "IMG_1.dng",
     ]
 
 
-def test_raw_index_leaves_out_images_and_other_files(
+def test_companion_index_leaves_out_images_and_other_files(
     source: Path, write_image: Callable[[Path], Path]
 ) -> None:
     write_image(source / "IMG_1.png")
     (source / "IMG_1.txt").write_text("")
 
-    assert library.raw_index(source) == {}
+    assert library.companion_index(source, RAW_EXTS) == {}
 
 
-def test_raw_index_keeps_every_raw_in_its_own_folder(
+def test_companion_index_keeps_every_raw_in_its_own_folder(
     source: Path, write_image: Callable[[Path], Path]
 ) -> None:
     """Two days of the same card number their files alike.
@@ -229,13 +232,13 @@ def test_raw_index_keeps_every_raw_in_its_own_folder(
         raw.parent.mkdir(parents=True, exist_ok=True)
         raw.write_bytes(b"raw")
 
-    index = library.raw_index(source, deep=True)
+    index = library.companion_index(source, RAW_EXTS, deep=True)
 
     assert index == {first.with_suffix(""): [first], second.with_suffix(""): [second]}
 
 
-def test_raw_index_returns_nothing_for_a_missing_folder(tmp_path: Path) -> None:
-    assert library.raw_index(tmp_path / "absent") == {}
+def test_companion_index_returns_nothing_for_a_missing_folder(tmp_path: Path) -> None:
+    assert library.companion_index(tmp_path / "absent", RAW_EXTS) == {}
 
 
 def test_ordered_breaks_ties_between_names_that_differ_only_in_case() -> None:

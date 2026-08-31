@@ -63,6 +63,7 @@ Returned by `/api/state`, `/api/source`, `/api/destination`, `/api/settings`, `/
 | `upcoming` | string or null | Name of the next one after `current`, for preloading. `null` when there is no next one. |
 | `pair_raws` | boolean | Whether a RAW original is transferred with the image that shares its name. `true` by default. |
 | `search_subfolders` | boolean | Whether the review reaches into the subfolders of the source. `false` by default. |
+| `pair_videos` | boolean | Whether a video is transferred with the image that shares its name. `false` by default. |
 
 A name is relative to the source folder and always uses forward slashes.
 With `search_subfolders` off it is a file name, `IMG_1.jpg`.
@@ -72,8 +73,8 @@ The counters are read from the source folder on every request.
 A file removed from the folder stops being counted, even though its decision is still recorded.
 This is why `total` and `kept` fall after a run in move mode.
 
-With no folder open, every field is `null` or `0`, except `pair_raws` and `search_subfolders`.
-Those two are global preferences rather than properties of a review, so they are reported whether a folder is open or not.
+With no folder open, every field is `null` or `0`, except `pair_raws`, `search_subfolders` and `pair_videos`.
+Those three are global preferences rather than properties of a review, so they are reported whether a folder is open or not.
 
 ### Listing
 
@@ -178,6 +179,7 @@ Set the preferences.
 | --- | --- | --- |
 | `pair_raws` | boolean | Optional. `true` transfers a RAW original with the image that shares its name, `false` transfers the image alone. |
 | `search_subfolders` | boolean | Optional. `true` reviews the whole tree under the source folder, `false` only the files directly inside it. |
+| `pair_videos` | boolean | Optional. `true` transfers a video with the image that shares its name, `false` leaves it in the source folder. |
 
 | Status | Cause |
 | --- | --- |
@@ -189,9 +191,9 @@ Each control therefore sends only itself, and a window with a stale reading of o
 
 The preferences are global.
 They are not tied to a source folder, so this route needs no open review and answers 200 with no folder open.
-They are written to the state file straight away, under the keys `pair_raws` and `search_subfolders`, and they survive a restart.
+They are written to the state file straight away, under the keys `pair_raws`, `search_subfolders` and `pair_videos`, and they survive a restart.
 
-`pair_raws` changes what the next `POST /api/apply` transfers.
+`pair_raws` and `pair_videos` change what the next `POST /api/apply` transfers.
 `search_subfolders` changes the queue as well, from the next response onwards, and with it every name in it.
 Nothing already transferred is affected by either.
 
@@ -238,7 +240,7 @@ It cancels the decision, not the transfer: a file already copied or moved stays 
 
 ### `POST /api/apply`
 
-Transfer the kept images to the destination, with their RAW originals when `pair_raws` is on.
+Transfer the kept images to the destination, with the files that share their name: RAW originals when `pair_raws` is on, videos when `pair_videos` is on.
 
 ```json
 { "mode": "copy" }
@@ -256,7 +258,7 @@ Response:
 
 | Field | Type | Meaning |
 | --- | --- | --- |
-| `transferred` | integer | Files sent to the destination, images and RAW files together. |
+| `transferred` | integer | Files sent to the destination, images and their companions together. |
 | `destination` | string | The folder they went to. |
 
 | Status | Cause |
@@ -267,8 +269,9 @@ Response:
 | 500 | The destination could not be created, or a file could not be copied or moved. `La transferencia se interrumpió: ...` Files transferred before the failure stay in the destination, and the count is not reported. |
 
 Notes.
-The plan is built from the verdicts and from `pair_raws` and `search_subfolders` as they stand at the moment of the request.
-With `pair_raws` off, no RAW file is in the plan.
+The plan is built from the verdicts and from the three preferences as they stand at the moment of the request.
+With `pair_raws` off, no RAW file is in the plan, and with `pair_videos` off, no video is.
+A file only travels when a kept image shares its name inside the same folder, so a clip named on its own is never transferred.
 With `search_subfolders` off, an image inside a subfolder is not in the plan either, even when a decision about it survives from a run with the option on: what is transferred is what the queue holds.
 A kept image from a subfolder keeps that subfolder inside the destination, so `2024-08-30/IMG_1.jpg` arrives as `2024-08-30/IMG_1.jpg`, and two folders that name a photo alike cannot collapse onto one name.
 A kept image whose file is no longer in the source folder is skipped, so the plan is always executable.
