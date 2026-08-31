@@ -42,6 +42,7 @@ class State(BaseModel):
     current: str | None
     upcoming: str | None
     pair_raws: bool
+    search_subfolders: bool
 
 
 class Listing(BaseModel):
@@ -58,7 +59,14 @@ class FolderRequest(BaseModel):
 
 
 class SettingsRequest(BaseModel):
-    pair_raws: bool
+    """A change to the preferences, naming only the ones that change.
+
+    An omitted field is left as it is, so a window with a stale view of one
+    switch cannot move it by touching the other.
+    """
+
+    pair_raws: bool | None = None
+    search_subfolders: bool | None = None
 
 
 class DecideRequest(BaseModel):
@@ -134,8 +142,9 @@ def create_app(store: Store, source: Path | None = None) -> FastAPI:
                 current=None,
                 upcoming=None,
                 pair_raws=store.pair_raws,
+                search_subfolders=store.search_subfolders,
             )
-        images = library.list_images(folder)
+        images = library.list_images(folder, store.search_subfolders)
         verdicts = review.verdicts
         pending = [name for name in images if name not in verdicts]
         reviewed = [verdicts[name] for name in images if name in verdicts]
@@ -149,6 +158,7 @@ def create_app(store: Store, source: Path | None = None) -> FastAPI:
             current=pending[0] if pending else None,
             upcoming=pending[1] if len(pending) > 1 else None,
             pair_raws=store.pair_raws,
+            search_subfolders=store.search_subfolders,
         )
 
     def require_review() -> tuple[Path, Review]:
@@ -196,7 +206,10 @@ def create_app(store: Store, source: Path | None = None) -> FastAPI:
 
     @app.post("/api/settings")
     def set_settings(request: SettingsRequest) -> State:
-        store.pair_raws = request.pair_raws
+        if request.pair_raws is not None:
+            store.pair_raws = request.pair_raws
+        if request.search_subfolders is not None:
+            store.search_subfolders = request.search_subfolders
         store.save()
         return snapshot()
 
@@ -220,9 +233,11 @@ def create_app(store: Store, source: Path | None = None) -> FastAPI:
     @app.post("/api/apply")
     def apply(request: ApplyRequest) -> ApplyResponse:
         folder, review = require_review()
-        plan = transfer.build_plan(folder, review.verdicts, store.pair_raws)
+        plan = transfer.build_plan(
+            folder, review.verdicts, store.pair_raws, store.search_subfolders
+        )
         try:
-            transferred = transfer.execute(plan, review.destination, request.mode)
+            transferred = transfer.execute(plan, folder, review.destination, request.mode)
         except OSError as error:
             # An unwritable destination or a full disk stops the run partway.
             # Without this, the failure leaves FastAPI to answer in plain text
@@ -233,10 +248,13 @@ def create_app(store: Store, source: Path | None = None) -> FastAPI:
             ) from error
         return ApplyResponse(transferred=transferred, destination=str(review.destination))
 
-    @app.get("/api/image/{name}")
+    # `:path` because a name reaching into a subfolder carries a separator, and
+    # the default converter stops at one. What may be read is decided by
+    # `resolve_image`, not by the shape of the route.
+    @app.get("/api/image/{name:path}")
     def read_image(name: str) -> FileResponse:
         folder, _ = require_review()
-        path = library.resolve_image(folder, name)
+        path = library.resolve_image(folder, name, store.search_subfolders)
         if path is None:
             raise HTTPException(status_code=404, detail=f"No existe la imagen {name}.")
         return FileResponse(path)

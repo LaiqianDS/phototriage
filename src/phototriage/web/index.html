@@ -186,6 +186,23 @@
       </header>
 
       <div class="setting">
+        <label class="switch" for="search-subfolders">
+          <input
+            id="search-subfolders"
+            type="checkbox"
+            role="switch"
+            aria-describedby="search-subfolders-note"
+          />
+          <span class="switch-track" aria-hidden="true"></span>
+          <span class="switch-text">Buscar en subcarpetas</span>
+        </label>
+        <p id="search-subfolders-note" class="note">
+          Activado, la revisión incluye las imágenes que hay dentro de las carpetas del origen.
+          Cada imagen mantenida conserva su subcarpeta en el destino.
+        </p>
+      </div>
+
+      <div class="setting">
         <label class="switch" for="pair-raws">
           <input id="pair-raws" type="checkbox" role="switch" aria-describedby="pair-raws-note" />
           <span class="switch-track" aria-hidden="true"></span>

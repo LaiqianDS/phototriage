@@ -59,16 +59,21 @@ Returned by `/api/state`, `/api/source`, `/api/destination`, `/api/settings`, `/
 | `reviewed` | integer | Images in the folder that have a decision. |
 | `kept` | integer | Of those, how many were kept. |
 | `discarded` | integer | Of those, how many were discarded. |
-| `current` | string or null | File name of the image to review now, the first one without a decision. `null` when the queue is empty. |
-| `upcoming` | string or null | File name of the next one after `current`, for preloading. `null` when there is no next one. |
+| `current` | string or null | Name of the image to review now, the first one without a decision. `null` when the queue is empty. |
+| `upcoming` | string or null | Name of the next one after `current`, for preloading. `null` when there is no next one. |
 | `pair_raws` | boolean | Whether a RAW original is transferred with the image that shares its name. `true` by default. |
+| `search_subfolders` | boolean | Whether the review reaches into the subfolders of the source. `false` by default. |
+
+A name is relative to the source folder and always uses forward slashes.
+With `search_subfolders` off it is a file name, `IMG_1.jpg`.
+With it on, an image inside a subfolder is named `2024-08-30/IMG_1.jpg`, while an image directly inside the source folder keeps the same name it had before.
 
 The counters are read from the source folder on every request.
 A file removed from the folder stops being counted, even though its decision is still recorded.
 This is why `total` and `kept` fall after a run in move mode.
 
-With no folder open, every field is `null` or `0`, except `pair_raws`.
-That one is a global preference rather than a property of a review, so it is reported whether a folder is open or not.
+With no folder open, every field is `null` or `0`, except `pair_raws` and `search_subfolders`.
+Those two are global preferences rather than properties of a review, so they are reported whether a folder is open or not.
 
 ### Listing
 
@@ -80,7 +85,7 @@ Returned by `/api/browse`.
 | `path` | string | Absolute path of the folder that was listed. |
 | `parent` | string or null | Absolute path of the parent folder, or `null` at the filesystem root. |
 | `folders` | array of strings | Names of the visible subfolders, sorted ignoring case. Names starting with a dot are left out. |
-| `images` | integer | Reviewable images directly inside this folder. Subfolders are not counted. |
+| `images` | integer | Reviewable images directly inside this folder. Subfolders are never counted, not even with `search_subfolders` on, because the browser would then have to walk the whole tree under every folder it lists. |
 
 ## Routes
 
@@ -163,7 +168,7 @@ The decisions already taken are not affected.
 
 ### `POST /api/settings`
 
-Set the RAW pairing preference.
+Set the preferences.
 
 ```json
 { "pair_raws": false }
@@ -171,19 +176,24 @@ Set the RAW pairing preference.
 
 | Field | Type | Notes |
 | --- | --- | --- |
-| `pair_raws` | boolean | Required. `true` transfers a RAW original with the image that shares its name, `false` transfers the image alone. |
+| `pair_raws` | boolean | Optional. `true` transfers a RAW original with the image that shares its name, `false` transfers the image alone. |
+| `search_subfolders` | boolean | Optional. `true` reviews the whole tree under the source folder, `false` only the files directly inside it. |
 
 | Status | Cause |
 | --- | --- |
-| 200 | A [State](#state) object with the new `pair_raws`. |
-| 422 | `pair_raws` is missing, cannot be read as a boolean, or the body is not JSON. |
+| 200 | A [State](#state) object with the preferences as they now stand. |
+| 422 | A field is present but cannot be read as a boolean, or the body is not JSON. |
 
-The preference is global.
-It is not tied to a source folder, so this route needs no open review and answers 200 with no folder open.
-It is written to the state file straight away, under the key `pair_raws`, and it survives a restart.
+A field that is left out is left alone, and a body of `{}` changes nothing.
+Each control therefore sends only itself, and a window with a stale reading of one preference cannot carry it over the other.
 
-It changes what the next `POST /api/apply` transfers.
-Nothing already transferred is affected.
+The preferences are global.
+They are not tied to a source folder, so this route needs no open review and answers 200 with no folder open.
+They are written to the state file straight away, under the keys `pair_raws` and `search_subfolders`, and they survive a restart.
+
+`pair_raws` changes what the next `POST /api/apply` transfers.
+`search_subfolders` changes the queue as well, from the next response onwards, and with it every name in it.
+Nothing already transferred is affected by either.
 
 ### `POST /api/decide`
 
@@ -257,8 +267,10 @@ Response:
 | 500 | The destination could not be created, or a file could not be copied or moved. `La transferencia se interrumpió: ...` Files transferred before the failure stay in the destination, and the count is not reported. |
 
 Notes.
-The plan is built from the verdicts and from `pair_raws` as it stands at the moment of the request.
+The plan is built from the verdicts and from `pair_raws` and `search_subfolders` as they stand at the moment of the request.
 With `pair_raws` off, no RAW file is in the plan.
+With `search_subfolders` off, an image inside a subfolder is not in the plan either, even when a decision about it survives from a run with the option on: what is transferred is what the queue holds.
+A kept image from a subfolder keeps that subfolder inside the destination, so `2024-08-30/IMG_1.jpg` arrives as `2024-08-30/IMG_1.jpg`, and two folders that name a photo alike cannot collapse onto one name.
 A kept image whose file is no longer in the source folder is skipped, so the plan is always executable.
 A RAW file shared by two kept images is transferred once.
 No file in the destination is overwritten: a name already taken becomes `name_1`, `name_2`, and so on.
@@ -272,12 +284,12 @@ The bytes of one image from the source folder.
 
 | Parameter | In | Type | Notes |
 | --- | --- | --- | --- |
-| `name` | path | string | File name inside the source folder, URL-encoded. Not a path: anything that resolves outside the folder is refused. |
+| `name` | path | string | Name of an image inside the source folder, URL-encoded. A name from a subfolder carries a separator, so `2024-08-30/IMG_1.jpg` is sent as `2024-08-30%2FIMG_1.jpg`. Anything that resolves outside the source folder is refused, and so is a subfolder while `search_subfolders` is off. |
 
 | Status | Cause |
 | --- | --- |
 | 200 | The file. `Content-Type` is guessed from the extension, and range requests are supported. |
-| 404 | The file does not exist, is not a reviewable image type, or resolves outside the source folder, including through a symbolic link. `No existe la imagen ...` |
+| 404 | The file does not exist, is not a reviewable image type, is out of the reach the review was given, or resolves outside the source folder, including through a symbolic link. `No existe la imagen ...` |
 | 409 | No source folder is open. `Elige una carpeta origen.` |
 
 The file is sent exactly as it is on disk.

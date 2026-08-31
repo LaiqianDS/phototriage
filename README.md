@@ -124,6 +124,7 @@ The controls are:
 | Run button (`Ejecutar`) | Bottom bar | Asks you to confirm, then transfers the kept images to the destination. |
 | File name | Bottom bar | The name of the image on screen. |
 | Status line | Bottom bar | The result of the last action, or the error it ran into. |
+| Subfolder switch (`Buscar en subcarpetas`) | Settings dialog | Whether the review reaches into the folders inside the source. Off by default. |
 | RAW switch (`Mover los RAW junto a la imagen`) | Settings dialog | Whether a RAW original travels with the image that shares its name. On by default. |
 | Destination field (`Carpeta destino`) | Settings dialog | Sets where the kept images will go. |
 
@@ -137,12 +138,13 @@ Keep and discard are disabled when there is no image to review, undo when no dec
    The browser starts at the folder in the source field, or at your home folder when that field is empty.
    `Subir un nivel` takes you up, and a folder name takes you into it.
    It reports how many images are in the folder you are looking at, which tells you that you are in the right place before you open it.
+   That count is of the images directly inside it, even when the subfolder switch is on, because counting the whole tree under every folder you pass through would make walking the disk slow.
    `Usar esta carpeta` opens the folder you are looking at, and `Cancelar` leaves the review as it was.
 2. Check the destination.
    It lives in the settings dialog, behind the settings button (`Ajustes`) in the top bar, because it is configuration rather than review.
    It is filled in for you and you can edit it.
-   The same dialog holds the RAW switch.
-   See [Where the kept images go](#where-the-kept-images-go) and [RAW pairing](#raw-pairing).
+   The same dialog holds the subfolder switch and the RAW switch.
+   See [Where the kept images go](#where-the-kept-images-go), [Which files are reviewed](#which-files-are-reviewed) and [RAW pairing](#raw-pairing).
 3. Review the images.
    One image is on screen at a time, as large as the window allows, and its file name is in the bottom bar.
    The counters in the top bar show how many images you have reviewed out of the total, how many you kept, and how many you discarded.
@@ -180,7 +182,20 @@ A key pressed while the previous decision is still in flight is dropped rather t
 ## Which files are reviewed
 
 Files directly inside the source folder are reviewed.
-Subfolders are not searched, and their images are not part of the queue.
+Subfolders are not searched until you ask for it.
+
+**Searching subfolders.**
+Open the settings dialog with the settings button (`Ajustes`) and turn on the switch `Buscar en subcarpetas`.
+The queue then holds every image in the tree under the source folder, which is what a camera or a phone that imports one folder per day leaves you with.
+An image inside a subfolder is named by its path, `2024-08-30/IMG_1.jpg`, and that name is what you see in the bottom bar.
+An image directly inside the source folder keeps the name it always had, so turning the switch on adds images to a review without disturbing the decisions already in it.
+
+Folders whose name starts with a dot are left out, like they are in the folder browser.
+A folder that is a symbolic link is not followed, so a link pointing back at a folder above it cannot make the queue run for ever.
+The switch is off when you first start the app, because a picture library opened with it on becomes one queue of everything you own.
+
+Like the RAW switch, the choice is global rather than a property of one folder, and it is saved with your decisions.
+A state file written before this option existed reads as "off", so an upgrade never adds images to a review by itself.
 
 These extensions count as reviewable images: `.jpg`, `.jpeg`, `.png`, `.webp`, `.gif`, `.bmp` and `.tiff`.
 Case does not matter, so `IMG_1.JPG` is reviewed like `img_1.jpg`.
@@ -188,7 +203,8 @@ Case does not matter, so `IMG_1.JPG` is reviewed like `img_1.jpg`.
 Nothing else is part of the queue.
 A video file is neither reviewed nor paired with an image, so a clip that sits next to the photos is left where it is, whatever you decide about the images around it.
 
-The queue is sorted by file name, ignoring case, so a camera that numbers its files gives you the images in the order you took them.
+The queue is sorted by name, ignoring case, so a camera that numbers its files gives you the images in the order you took them.
+With the subfolder switch on the name includes the folder, so the queue walks one folder at a time, in order, rather than interleaving the days.
 The folder is read again on every action, so an image you add or remove while the app runs is picked up without a restart.
 
 ## Copy or move
@@ -280,6 +296,10 @@ The destination is a sibling of the source folder with a `_keep` suffix.
 Reviewing `~/Pictures/2024` collects into `~/Pictures/2024_keep`.
 A sibling gives every source folder its own destination, so reviewing several folders never mixes the results.
 
+A kept image from a subfolder takes that subfolder with it: `2024-08-30/IMG_1.jpg` arrives as `2024-08-30/IMG_1.jpg` inside the destination.
+Emptying the tree into one folder would put the `IMG_1.jpg` of two different days on one name, where the second becomes `IMG_1_1.jpg` and no longer says which day it came from.
+In move mode that reading cannot be recovered afterwards, because the folder it came from is the only place it was written down.
+
 Type another path in the destination field (`Carpeta destino`), in the settings dialog, to change it.
 The path must be absolute.
 A relative path is refused, because resolving it against the folder the server was started from would scatter your images somewhere you never named.
@@ -299,11 +319,11 @@ Every decision is written to disk as soon as you take it.
 There is nothing to save by hand, and closing the browser or stopping the server loses nothing.
 
 Decisions live in one JSON file, by default `~/.phototriage/state.json`.
-The file holds one review per source folder, the folder you opened last, and the RAW switch.
+The file holds one review per source folder, the folder you opened last, and the two switches.
 So you can review several folders, switch between them, close the app, and resume each one where you left it.
 Starting the app without a folder argument reopens the last folder you reviewed.
 
-Inside a review, a decision is stored under the file name of the image, not under its position in the queue.
+Inside a review, a decision is stored under the name of the image, not under its position in the queue.
 Adding or removing images between runs therefore does not shift the queue.
 An image you already decided about stays decided.
 A decision about an image that is no longer in the folder is kept in the file, and is skipped when the transfer runs.
@@ -351,8 +371,9 @@ They are written down so that you do not meet them by surprise.
 - **The zoom is reached from the keyboard only, and lasts one photo.**
   `Space` enters and leaves it, and nothing on screen says it is there.
   It is undone as soon as the photo changes, so checking the sharpness of a burst means pressing `Space` again on every frame.
-- **Only the top level of the source folder is reviewed.**
-  Images one level down are not in the queue and are never transferred.
+- **A destination inside the source folder feeds itself.**
+  With the subfolder switch on, a copy run into a destination below the source puts the copies back in the queue, and the counters grow with your own work.
+  Keep the destination outside the folder you are reviewing, which the default already does.
 - **Video files are ignored.**
   They are not reviewed, and they are not paired with an image the way a RAW file is.
 - **Two browser windows share one review.**
@@ -364,7 +385,7 @@ They are written down so that you do not meet them by surprise.
 ## Troubleshooting
 
 **The app says `Esa carpeta no tiene imágenes.`**
-Only files directly inside the folder are reviewed, so check that the images are not one level down in a subfolder.
+Only files directly inside the folder are reviewed unless you ask for more, so if the images are one level down, in a folder per day, turn on `Buscar en subcarpetas` in the settings dialog.
 Check the extension as well: a file type outside the list in [Which files are reviewed](#which-files-are-reviewed) is not part of the queue.
 A folder that holds only RAW files looks empty, because a RAW file is transferred with an image and is never reviewed on its own.
 

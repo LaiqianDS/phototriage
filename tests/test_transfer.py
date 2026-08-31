@@ -71,7 +71,7 @@ def test_execute_creates_the_destination_folder(
     plan = [write_image(source / "keep.png")]
     destination = tmp_path / "made" / "on" / "demand"
 
-    transferred = transfer.execute(plan, destination, transfer.Mode.COPY)
+    transferred = transfer.execute(plan, source, destination, transfer.Mode.COPY)
 
     assert transferred == 1
     assert destination.is_dir()
@@ -86,7 +86,7 @@ def test_execute_in_copy_mode_leaves_the_source_intact(
     destination = tmp_path / "source_keep"
 
     plan = transfer.build_plan(source, {"keep.png": Verdict.KEEP, "drop.png": Verdict.DISCARD})
-    transferred = transfer.execute(plan, destination, transfer.Mode.COPY)
+    transferred = transfer.execute(plan, source, destination, transfer.Mode.COPY)
 
     assert transferred == 2
     assert sorted(path.name for path in destination.iterdir()) == ["keep.CR2", "keep.png"]
@@ -106,7 +106,7 @@ def test_execute_in_move_mode_leaves_only_the_discarded_behind(
     destination = tmp_path / "source_keep"
 
     plan = transfer.build_plan(source, {"keep.png": Verdict.KEEP, "drop.png": Verdict.DISCARD})
-    transferred = transfer.execute(plan, destination, transfer.Mode.MOVE)
+    transferred = transfer.execute(plan, source, destination, transfer.Mode.MOVE)
 
     assert transferred == 2
     assert sorted(path.name for path in destination.iterdir()) == ["keep.CR2", "keep.png"]
@@ -121,7 +121,7 @@ def test_execute_never_overwrites_a_taken_name(
     destination.mkdir()
     (destination / "photo.png").write_text("older")
 
-    transfer.execute([source / "photo.png"], destination, transfer.Mode.COPY)
+    transfer.execute([source / "photo.png"], source, destination, transfer.Mode.COPY)
 
     assert (destination / "photo.png").read_text() == "older"
     assert (destination / "photo_1.png").read_bytes() == (source / "photo.png").read_bytes()
@@ -138,6 +138,57 @@ def test_build_plan_takes_a_shared_raw_once(
     plan = transfer.build_plan(source, {"IMG_1.png": Verdict.KEEP, "IMG_1.jpg": Verdict.KEEP})
 
     assert names(plan) == ["IMG_1.png", "IMG_1.CR2", "IMG_1.jpg"]
+
+
+def test_build_plan_reaches_into_subfolders_only_when_asked(
+    source: Path, write_image: Callable[[Path], Path]
+) -> None:
+    """The transfer has the reach the queue had, and no more.
+
+    A decision about `inner/IMG_1.png` can survive in the state file from a run
+    with the switch on. With it off that image is not in the queue, so it must
+    not be transferred either: what is on screen and what is copied have to be
+    the same set.
+    """
+    write_image(source / "inner" / "IMG_1.png")
+    verdicts = {"inner/IMG_1.png": Verdict.KEEP}
+
+    assert transfer.build_plan(source, verdicts) == []
+    assert names(transfer.build_plan(source, verdicts, deep=True)) == ["IMG_1.png"]
+
+
+def test_execute_keeps_the_subfolder_a_photo_came_from(
+    source: Path, tmp_path: Path, write_image: Callable[[Path], Path]
+) -> None:
+    write_image(source / "2024-08-30" / "IMG_1.png")
+    destination = tmp_path / "source_keep"
+
+    plan = transfer.build_plan(source, {"2024-08-30/IMG_1.png": Verdict.KEEP}, deep=True)
+    transfer.execute(plan, source, destination, transfer.Mode.COPY)
+
+    assert (destination / "2024-08-30" / "IMG_1.png").is_file()
+
+
+def test_execute_does_not_put_two_days_of_photos_on_one_name(
+    source: Path, tmp_path: Path, write_image: Callable[[Path], Path]
+) -> None:
+    """Flattening would answer this with `IMG_1.png` and `IMG_1_1.png`.
+
+    Both names would be real files and neither would say which day it came
+    from, and in move mode the folder that said so is gone.
+    """
+    for day in ("2024-08-30", "2024-08-31"):
+        write_image(source / day / "IMG_1.png")
+    destination = tmp_path / "source_keep"
+    verdicts = {"2024-08-30/IMG_1.png": Verdict.KEEP, "2024-08-31/IMG_1.png": Verdict.KEEP}
+
+    plan = transfer.build_plan(source, verdicts, deep=True)
+    transferred = transfer.execute(plan, source, destination, transfer.Mode.MOVE)
+
+    assert transferred == 2
+    assert sorted(path.name for path in destination.rglob("*.png")) == ["IMG_1.png", "IMG_1.png"]
+    assert (destination / "2024-08-30" / "IMG_1.png").is_file()
+    assert (destination / "2024-08-31" / "IMG_1.png").is_file()
 
 
 def test_build_plan_leaves_the_raw_behind_when_pairing_is_off(
