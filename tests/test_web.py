@@ -27,6 +27,15 @@ def read(name: str) -> str:
     return (WEB_DIR / name).read_text(encoding="utf-8")
 
 
+def declarations(stylesheet: str, selector: str) -> str:
+    """The body of the one rule written against exactly `selector`."""
+    opening = f"\n{selector} {{"
+    start = stylesheet.find(opening)
+    assert start != -1, f"style.css has no rule for `{selector}`"
+    start += len(opening)
+    return stylesheet[start : stylesheet.index("}", start)]
+
+
 def test_every_id_the_script_asks_for_exists_in_the_page() -> None:
     """The two files are the only pair nothing else checks.
 
@@ -72,6 +81,33 @@ def test_the_focused_mode_display_is_defined_and_kept_up_to_date() -> None:
 
     stale = sorted(name for name in HUD_IDS if name not in written)
     assert not stale, f"app.js never writes to: {stale}"
+
+
+def test_focused_mode_paints_no_colour_of_its_own_over_the_photo() -> None:
+    """The verdict colour belongs to the card, and in here there is no card.
+
+    The two edge buttons carry a flat tint as cards. Focused mode turns them
+    into full height strips down the sides of the photo, where any colour of
+    ours shifts the colour the eye reads at that edge of the image, and reading
+    colour is half of what a review is for.
+
+    What holds the line is one declaration cancelling a background the button
+    already has, so deleting it brings the tint back with nothing on screen to
+    explain it and nothing anywhere to complain.
+    """
+    stylesheet = read("style.css")
+    edge = declarations(stylesheet, "body.focused .edge")
+
+    assert "background-image: none" in edge, "the tint of the card reaches the photo"
+    assert "background-color: transparent" in edge, "the surface of the card reaches the photo"
+
+    for side in ("discard", "keep"):
+        painted = [
+            line.strip()
+            for line in declarations(stylesheet, f"body.focused .edge.{side}").splitlines()
+            if "background" in line
+        ]
+        assert not painted, f"body.focused .edge.{side} paints over the photo: {painted}"
 
 
 def test_every_state_on_the_body_is_drawn_by_the_stylesheet() -> None:

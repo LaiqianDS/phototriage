@@ -78,7 +78,8 @@ They never fade.
 **Focused mode.**
 `F` gives the photo the whole window.
 The bars go, along with the room reserved for them, the photo loses its rounded corners and its shadow, and the browser goes fullscreen when it is allowed to.
-Three things are left: the progress line, now along the top edge of the window, the two verdicts as colour washed off the left and right edges, and one pill carrying the file name, the counters and any message.
+Three things are left: the progress line, now along the top edge of the window, the two verdict buttons reduced to their icons on the left and right edges, and one pill carrying the file name, the counters and any message.
+Nothing of the interface is painted over the photo, not even a tint along an edge to name the verdict on that side, because a colour next to the image changes the colour you read in it and judging colour is half of what the review is for.
 The pill fades and comes back exactly like the bars, and the two verdicts never fade, exactly like the buttons they replace.
 `Escape` leaves, and so does whatever way out of fullscreen your browser offers.
 The arrow keys and `U` work unchanged.

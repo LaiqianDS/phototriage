@@ -45,10 +45,6 @@
   --discard-tint: rgb(196 40 27 / 0.1);
   --discard-tint-hover: rgb(196 40 27 / 0.18);
   --discard-line: rgb(196 40 27 / 0.28);
-  /* Focused mode washes the verdict straight onto the photo instead of into a
-     bordered card, so it needs more colour than the tints above carry. */
-  --keep-zone: rgb(14 122 60 / 0.2);
-  --discard-zone: rgb(196 40 27 / 0.2);
   --focus: #0066cc;
   --fill: #1d1d1f;
   --fill-hover: #38383c;
@@ -82,8 +78,6 @@
   --discard-tint: rgb(255 69 58 / 0.14);
   --discard-tint-hover: rgb(255 69 58 / 0.22);
   --discard-line: rgb(255 69 58 / 0.32);
-  --keep-zone: rgb(48 209 88 / 0.2);
-  --discard-zone: rgb(255 69 58 / 0.2);
   --focus: #0a84ff;
   --fill: #f2f2f5;
   --fill-hover: #ffffff;
@@ -652,7 +646,8 @@ body:not(.focused) .edge.keep:hover:not(:disabled) {
 /* Not the resting state, which only fades the bars and keeps their room. Here
    the chrome is gone and the photo takes the whole window, because the question
    in front of the user is about the photo and nothing else. Three things stay:
-   the progress hairline, the two verdict zones, and one pill. */
+   the progress hairline, the two verdict buttons reduced to their icons, and
+   one pill. */
 
 .hud,
 .focus-hint {
@@ -684,7 +679,11 @@ body.focused .topbar .progress {
   bottom: auto;
 }
 
-/* The cards lose their edges and become a wash off the side of the window. */
+/* The cards lose everything but their icon. Nothing of ours is painted over the
+   photo: a tint along an edge moves the colour the eye reads there, and judging
+   colour is half of what the review is for. `background-image: none` is the
+   line that does it, because the flat tint on `.edge.discard` would otherwise
+   still show through the transparent background colour. */
 body.focused .edge {
   top: 0;
   bottom: 0;
@@ -695,6 +694,7 @@ body.focused .edge {
   border: 0;
   border-radius: 0;
   background-color: transparent;
+  background-image: none;
   backdrop-filter: none;
   -webkit-backdrop-filter: none;
   box-shadow: none;
@@ -703,16 +703,14 @@ body.focused .edge {
 
 body.focused .edge.discard {
   left: 0;
-  background-image: linear-gradient(90deg, var(--discard-zone), transparent);
 }
 
 body.focused .edge.keep {
   right: 0;
-  background-image: linear-gradient(270deg, var(--keep-zone), transparent);
 }
 
-/* A scale would drag a full-height wash around under the pointer, so the press
-   is carried by brightness instead. */
+/* A scale would drag a full-height button around under the pointer, so the
+   press is carried by brightness instead. */
 body.focused .edge:hover:not(:disabled) {
   opacity: 1;
 }
@@ -810,8 +808,8 @@ body.focused .focus-hint {
   font-size: 0.8125rem;
 }
 
-/* Both come and go with the bars, on the same timer and the same rule. The
-   verdict zones do not, for the same reason the cards never faded. */
+/* Both come and go with the bars, on the same timer and the same rule. The two
+   verdicts do not, for the same reason the cards never faded. */
 body.resting .hud,
 body.resting .focus-hint {
   opacity: 0;
