@@ -17,6 +17,11 @@ MARKUP_REFS = re.compile(r"""\b(?:for|aria-labelledby|aria-describedby)=["']([^"
 # Focused mode hides both bars, so what they report is reported again here.
 HUD_IDS = ("hud-filename", "hud-progress", "hud-kept", "hud-status")
 
+# The states the script drives from the body element. The stylesheet is the
+# whole of what each one does, so the two files have to agree on the name.
+BODY_STATES = ("resting", "focused", "zoomed")
+BODY_CLASSES = re.compile(r"""document\.body\.classList\.\w+\(\s*["']([^"']+)["']""")
+
 
 def read(name: str) -> str:
     return (WEB_DIR / name).read_text(encoding="utf-8")
@@ -67,3 +72,21 @@ def test_the_focused_mode_display_is_defined_and_kept_up_to_date() -> None:
 
     stale = sorted(name for name in HUD_IDS if name not in written)
     assert not stale, f"app.js never writes to: {stale}"
+
+
+def test_every_state_on_the_body_is_drawn_by_the_stylesheet() -> None:
+    """A class name is the whole contract between the script and the stylesheet.
+
+    Resting, focused mode and zoom are each one class on `body` and a set of
+    rules that answer it. Rename either side and the key still works, the class
+    still lands, and nothing on screen moves. Nothing throws, so only reading
+    the two files together catches it.
+    """
+    driven = set(BODY_CLASSES.findall(read("app.js")))
+    stylesheet = read("style.css")
+
+    absent = sorted(name for name in BODY_STATES if name not in driven)
+    assert not absent, f"app.js never puts these on the body: {absent}"
+
+    unstyled = sorted(name for name in driven if f"body.{name}" not in stylesheet)
+    assert not unstyled, f"style.css has no rule for: {unstyled}"

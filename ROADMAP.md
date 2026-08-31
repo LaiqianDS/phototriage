@@ -16,8 +16,8 @@ JPEG is decoded in full to be painted at around 800 pixels wide.
 
 A review session over a folder of camera files will show whether that is fine or
 not, and the answer decides the order of everything below.
-If it is fine, zoom comes first.
-If it stutters, thumbnails come first, and that reopens the question of adding an
+Zoom is in, so what is left to learn is whether the decode stutters.
+If it does, thumbnails come next, and that reopens the question of adding an
 image library.
 
 ## 0.2.1: what the first real use turns up
@@ -45,13 +45,6 @@ Instrument Serif is much narrower than Georgia, its fallback, so the largest
 headings are the place to look first.
 
 ## 0.3.0: make it a culling tool
-
-**Zoom to 100 percent.**
-This is the largest gap.
-Fitted to the window every photo looks good, and the question a review actually
-asks is whether the photo is sharp, which only a 1:1 view answers.
-Space to toggle, drag to pan.
-Without it the app sorts photos but does not let you judge them.
 
 **Search subfolders.**
 `library.list_images` reads one level with `iterdir()`.

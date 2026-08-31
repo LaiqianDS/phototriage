@@ -86,6 +86,17 @@ The source folder, the settings and the run button stay behind, because they bel
 `F` does nothing when there is no photo on screen.
 There is no button for it.
 
+**Zoom.**
+`Space` shows the photo at one image pixel per screen pixel, and `Space` again puts it back inside the window.
+Fitted to the window a soft photo still looks sharp, because the browser is scaling it down, so this is the view that answers whether a photo is really sharp.
+Drag it with the mouse to move around the frame, or pan with the trackpad or the wheel.
+On a screen of double density, such as a Retina display, the photo is drawn at half of its width in pixels.
+That is what one image pixel per screen pixel means there, and it is what stops the browser enlarging the image and adding a softness the file does not have.
+A photo already smaller than that is never shrunk by the zoom.
+The zoom is undone as soon as the photo changes, so every decision starts from the whole frame.
+It works inside focused mode and outside it, and leaving focused mode leaves it as it was.
+There is no button for it.
+
 **The dialogs.**
 The browse button and the settings button each open a dialog over the whole window.
 `Escape` closes either one, as does its own close button.
@@ -152,12 +163,14 @@ Until then, a decision is only a line in a file.
 | Right arrow | Keep the current image |
 | `U` | Undo the most recent decision |
 | `F` | Enter focused mode, when there is a photo on screen |
+| `Space` | Zoom to one image pixel per screen pixel, and back, when there is a photo on screen |
 | `Escape` | Leave focused mode |
 
 `U` and `F` work in either case.
 
 Shortcuts are ignored while the folder browser or the settings dialog is open, and while the focus is in a text field or on the copy and move control.
 There the arrow keys move between `Copiar` and `Mover` instead.
+`Space` is also left alone while the focus is on a button, where it presses that button.
 There are no other shortcuts.
 
 One action runs at a time.
@@ -334,6 +347,9 @@ They are written down so that you do not meet them by surprise.
 - **Focused mode is reached from the keyboard only.**
   `F` enters it and nothing on screen says so.
   A pointer alone cannot get in, and once in, cannot get out either, except through the browser's own way out of fullscreen.
+- **The zoom is reached from the keyboard only, and lasts one photo.**
+  `Space` enters and leaves it, and nothing on screen says it is there.
+  It is undone as soon as the photo changes, so checking the sharpness of a burst means pressing `Space` again on every frame.
 - **Only the top level of the source folder is reviewed.**
   Images one level down are not in the queue and are never transferred.
 - **Video files are ignored.**
@@ -383,6 +399,11 @@ Type the full path, or use `~`.
 **The RAW files did not travel with the images.**
 Check the switch `Mover los RAW junto a la imagen` in the settings dialog.
 Check the names as well: a RAW file is paired by stem, so `IMG_0042.CR2` follows `IMG_0042.JPG` but `IMG_42.CR2` does not.
+
+**The photo is suddenly much larger than the window.**
+`Space` shows it at one image pixel per screen pixel.
+Drag it to look around the frame, and press `Space` again to fit it back in the window.
+Taking any decision fits it back as well.
 
 **The bars disappeared.**
 They fade after about two and a half seconds without input.

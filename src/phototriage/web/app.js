@@ -85,6 +85,7 @@ function render(state) {
   el("viewer").hidden = state.current === null;
   el("filename").textContent = state.current ?? "";
   el("hud-filename").textContent = state.current ?? "";
+  fitNewPhoto(state.current);
 
   if (state.current !== null) {
     el("photo").src = imageUrl(state.current);
@@ -169,6 +170,95 @@ function fitStage() {
 const fitting = new ResizeObserver(fitStage);
 for (const id of ["topbar", "bottombar", "keep"]) {
   fitting.observe(el(id));
+}
+
+// ------------------------------------------------------------------ zoom ---
+
+const viewer = el("viewer");
+
+/** The photo the viewer is pointed at, so a change of photo can be noticed. */
+let shown = null;
+
+/**
+ * Show the photo at one image pixel per screen pixel.
+ *
+ * Fitted to the window a soft photo still looks sharp, because the browser is
+ * scaling it down. Whether it is sharp is the question the review asks, and
+ * only this view answers it.
+ *
+ * `devicePixelRatio` is what makes it one pixel per screen pixel rather than
+ * per CSS pixel. On a 2x display the natural width would otherwise be painted
+ * twice as large, and the interpolation that costs reads as softness the file
+ * does not have, which is the exact mistake this view exists to prevent. It
+ * also carries the browser's own page zoom, so the ratio stays honest there.
+ */
+function enterZoom() {
+  const photo = el("photo");
+  if (!photo.complete || photo.naturalWidth === 0) return;
+  // Never smaller than the photo already is. A photo below the size of the
+  // window is shown at its own size rather than enlarged, and on a 2x display
+  // one screen pixel each would then shrink it, which reads as a broken zoom.
+  const fitted = photo.clientWidth;
+  document.body.classList.add("zoomed");
+  photo.style.width = `${Math.max(photo.naturalWidth / devicePixelRatio, fitted)}px`;
+  // The middle of the photo, which is where it was before. Reading the sizes is
+  // also what forces the new width to be laid out first.
+  viewer.scrollLeft = (viewer.scrollWidth - viewer.clientWidth) / 2;
+  viewer.scrollTop = (viewer.scrollHeight - viewer.clientHeight) / 2;
+}
+
+function leaveZoom() {
+  document.body.classList.remove("zoomed");
+  el("photo").style.width = "";
+}
+
+function toggleZoom() {
+  if (document.body.classList.contains("zoomed")) leaveZoom();
+  else enterZoom();
+}
+
+/**
+ * Fit a new photo to the window again.
+ *
+ * `render` runs after every action, and most of them leave the photo where it
+ * is: a new destination should not throw away the view being looked at. A new
+ * photo should, because the width was measured against the previous one, and
+ * because a verdict on a corner of a frame nobody saw whole is not a verdict.
+ */
+function fitNewPhoto(current) {
+  if (current === shown) return;
+  shown = current;
+  leaveZoom();
+}
+
+/**
+ * Drag the photo under the pointer.
+ *
+ * The pan is a scroll, so the browser clamps it at the edges of the photo and a
+ * trackpad pans without a line of code here. Capturing the pointer keeps the
+ * drag alive when it leaves the window, and refusing the default press stops
+ * the browser from starting a drag of the image itself instead.
+ */
+let panFrom = null;
+
+viewer.addEventListener("pointerdown", (event) => {
+  if (!document.body.classList.contains("zoomed")) return;
+  panFrom = { x: event.clientX, y: event.clientY };
+  viewer.setPointerCapture(event.pointerId);
+  event.preventDefault();
+});
+
+viewer.addEventListener("pointermove", (event) => {
+  if (panFrom === null) return;
+  viewer.scrollLeft -= event.clientX - panFrom.x;
+  viewer.scrollTop -= event.clientY - panFrom.y;
+  panFrom = { x: event.clientX, y: event.clientY };
+});
+
+for (const event of ["pointerup", "pointercancel"]) {
+  viewer.addEventListener(event, () => {
+    panFrom = null;
+  });
 }
 
 // --------------------------------------------------------- focused mode ---
@@ -324,6 +414,9 @@ el("settings-close").addEventListener("click", () => settings.close());
 
 document.addEventListener("keydown", (event) => {
   if (explorer.open || settings.open || event.target.matches("input, select, textarea")) return;
+  // Space belongs to the button that holds the focus. Taking it for the zoom
+  // would leave whoever is on that button unable to press it.
+  if (event.key === " " && event.target.matches("button")) return;
   const shortcuts = {
     ArrowLeft: () => decide("discard"),
     ArrowRight: () => decide("keep"),
@@ -332,6 +425,11 @@ document.addEventListener("keydown", (event) => {
     // condition that leaves the verdict buttons disabled.
     f: () => {
       if (!el("keep").disabled) enterFocused();
+    },
+    // One image pixel per screen pixel, and back. Same condition as `f`: with
+    // no photo on screen there is nothing to look at closely.
+    " ": () => {
+      if (!el("keep").disabled) toggleZoom();
     },
     // Harmless outside focused mode, where it removes a class that is not set.
     Escape: leaveFocused,
