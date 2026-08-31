@@ -15,7 +15,7 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
 from . import library, transfer
-from .config import default_destination
+from .config import companion_exts, default_destination
 from .review import Review, Verdict
 from .store import Store
 
@@ -43,6 +43,7 @@ class State(BaseModel):
     upcoming: str | None
     pair_raws: bool
     search_subfolders: bool
+    pair_videos: bool
 
 
 class Listing(BaseModel):
@@ -67,6 +68,7 @@ class SettingsRequest(BaseModel):
 
     pair_raws: bool | None = None
     search_subfolders: bool | None = None
+    pair_videos: bool | None = None
 
 
 class DecideRequest(BaseModel):
@@ -143,6 +145,7 @@ def create_app(store: Store, source: Path | None = None) -> FastAPI:
                 upcoming=None,
                 pair_raws=store.pair_raws,
                 search_subfolders=store.search_subfolders,
+                pair_videos=store.pair_videos,
             )
         images = library.list_images(folder, store.search_subfolders)
         verdicts = review.verdicts
@@ -159,6 +162,7 @@ def create_app(store: Store, source: Path | None = None) -> FastAPI:
             upcoming=pending[1] if len(pending) > 1 else None,
             pair_raws=store.pair_raws,
             search_subfolders=store.search_subfolders,
+            pair_videos=store.pair_videos,
         )
 
     def require_review() -> tuple[Path, Review]:
@@ -210,6 +214,8 @@ def create_app(store: Store, source: Path | None = None) -> FastAPI:
             store.pair_raws = request.pair_raws
         if request.search_subfolders is not None:
             store.search_subfolders = request.search_subfolders
+        if request.pair_videos is not None:
+            store.pair_videos = request.pair_videos
         store.save()
         return snapshot()
 
@@ -234,7 +240,10 @@ def create_app(store: Store, source: Path | None = None) -> FastAPI:
     def apply(request: ApplyRequest) -> ApplyResponse:
         folder, review = require_review()
         plan = transfer.build_plan(
-            folder, review.verdicts, store.pair_raws, store.search_subfolders
+            folder,
+            review.verdicts,
+            companion_exts(store.pair_raws, store.pair_videos),
+            store.search_subfolders,
         )
         try:
             transferred = transfer.execute(plan, folder, review.destination, request.mode)

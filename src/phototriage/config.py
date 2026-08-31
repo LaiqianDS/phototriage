@@ -22,6 +22,24 @@ RAW_EXTS = frozenset(
     }
 )
 
+VIDEO_EXTS = frozenset({".mov", ".mp4", ".m4v", ".avi", ".mts", ".m2ts"})
+
+
+def companion_exts(pair_raws: bool, pair_videos: bool) -> frozenset[str]:
+    """Extensions that follow a kept image of the same name.
+
+    One set rather than two flags carried further down: the plan cares about
+    which files travel with an image, not about which switch asked for them.
+    An empty set means the kept images go alone.
+    """
+    chosen: frozenset[str] = frozenset()
+    if pair_raws:
+        chosen |= RAW_EXTS
+    if pair_videos:
+        chosen |= VIDEO_EXTS
+    return chosen
+
+
 DEFAULT_STATE_FILE = Path.home() / ".phototriage" / "state.json"
 
 KEEP_SUFFIX = "_keep"

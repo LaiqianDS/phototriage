@@ -11,6 +11,7 @@ from enum import Enum
 from pathlib import Path
 
 from . import library
+from .config import RAW_EXTS
 from .review import Verdict
 
 
@@ -24,19 +25,20 @@ class Mode(str, Enum):
 def build_plan(
     source: Path,
     verdicts: dict[str, Verdict],
-    pair_raws: bool = True,
+    companions: frozenset[str] = RAW_EXTS,
     deep: bool = False,
 ) -> list[Path]:
-    """Files to transfer: every kept image, and its RAW originals on request.
+    """Files to transfer: every kept image, and what shares its name.
 
-    Images that were reviewed but are no longer on disk are skipped, so a plan
-    is always executable. `deep` is the same reach the queue was listed with, so
-    an image left out of the review is left out of the transfer as well, even
-    when a decision about it survives in the state file from an earlier run.
-    Each file appears once, because two kept images can share a stem and
-    therefore the same RAW original.
+    `companions` is the set of extensions that follow a kept image, so an empty
+    set sends the images alone. Images that were reviewed but are no longer on
+    disk are skipped, so a plan is always executable. `deep` is the same reach
+    the queue was listed with, so an image left out of the review is left out of
+    the transfer as well, even when a decision about it survives in the state
+    file from an earlier run. Each file appears once, because two kept images
+    can share a name and therefore the same original beside it.
     """
-    raws = library.raw_index(source, deep) if pair_raws else {}
+    beside = library.companion_index(source, companions, deep) if companions else {}
     plan: list[Path] = []
     seen: set[Path] = set()
     for name, verdict in verdicts.items():
@@ -45,7 +47,7 @@ def build_plan(
         image = library.resolve_image(source, name, deep)
         if image is None:
             continue
-        for path in (image, *raws.get(image.with_suffix(""), [])):
+        for path in (image, *beside.get(image.with_suffix(""), [])):
             if path not in seen:
                 seen.add(path)
                 plan.append(path)

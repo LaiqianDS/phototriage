@@ -134,18 +134,21 @@ Loading is forgiving on purpose.
 A missing file, unreadable JSON, a payload of the wrong shape, or a schema version the code does not know all produce an empty store instead of an error.
 The app has to start, because refusing to start would leave you unable to review anything at all.
 
-### The RAW preference is global, not per source folder
+### The preferences are global, not per source folder
 
-`pair_raws` is a field on `Store`, next to the reviews rather than inside one.
-`transfer.build_plan` takes it as an argument, so nothing below the API decides it.
+`pair_raws`, `search_subfolders` and `pair_videos` are fields on `Store`, next to the reviews rather than inside one.
+Nothing below the API decides them: `transfer.build_plan` is handed the set of extensions that travel and the reach it should use, and `library` is handed the reach.
 
-The reason is what the flag describes.
-It is a working habit, not a property of a folder.
-Whether you archive your RAW files with the selection is a decision about how you work, and it does not change because you moved from one shoot to the next.
-Stored per review, it would have to be set again for every folder, and a folder opened for the first time would need a default that the previous folder had just contradicted.
+The reason is what the flags describe.
+They are working habits, not properties of a folder.
+Whether you archive your RAW files with the selection, whether your camera imports one folder per day, whether the clip beside a still belongs with it: each is a decision about how you work, and none of them changes because you moved from one shoot to the next.
+Stored per review, they would have to be set again for every folder, and a folder opened for the first time would need a default that the previous folder had just contradicted.
 
 The cost is that there is no way to pair RAW files in one folder and not in another without touching the switch between them.
-That is the trade the flag is worth: one control that means the same thing everywhere.
+That is the trade the flags are worth: three controls that mean the same thing everywhere.
+
+`companion_exts` in `config.py` turns two of them into one set of extensions before the plan is built.
+The plan asks which files follow a kept image, not which switch was used to ask for them, so a third kind of companion is a line in that function rather than another argument threaded down.
 
 `Review` therefore keeps only what belongs to one folder, which is the destination and the decisions.
 
@@ -211,6 +214,8 @@ See the security note in [api.md](api.md#why-loopback-and-json-are-the-boundary)
   "version": 1,
   "last": "/home/you/Pictures/2024",
   "pair_raws": true,
+  "search_subfolders": false,
+  "pair_videos": false,
   "reviews": {
     "/home/you/Pictures/2024": {
       "destination": "/home/you/Pictures/2024_keep",
@@ -227,10 +232,11 @@ See the security note in [api.md](api.md#why-loopback-and-json-are-the-boundary)
   Any other value makes the app start with an empty store.
   Raise it whenever the shape of `reviews` changes.
 - `last` is the source folder to reopen at startup, or `null`.
-- `pair_raws` is the RAW pairing preference, and it applies to every review in the file.
-  A file without the key reads as `true`, which was the behaviour before the key existed.
+- `pair_raws`, `search_subfolders` and `pair_videos` are the three preferences, and each applies to every review in the file.
+  A file without a key reads as the behaviour that came before that key existed: `pair_raws` as `true`, the other two as `false`.
+  That is why none of them raised `SCHEMA_VERSION`: an older file loads unchanged and reviews the same files it did yesterday.
   A value that is present is read through `bool()`, so a hand-edited `null` or `0` reads as off.
-  Only `POST /api/settings` writes it, and it always writes a boolean.
+  Only `POST /api/settings` writes them, and it always writes booleans.
 - Keys of `reviews` are absolute source folder paths.
 - `decisions` is in the order the decisions were taken, which is the order undo walks back through.
   It is not the order of the queue.

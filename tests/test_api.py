@@ -40,6 +40,7 @@ def test_state_is_empty_before_a_folder_is_chosen(client: TestClient) -> None:
         "upcoming": None,
         "pair_raws": True,
         "search_subfolders": False,
+        "pair_videos": False,
     }
 
 
@@ -394,6 +395,26 @@ def test_read_image_refuses_a_subfolder_while_the_switch_is_off(
     choose(client, source)
 
     assert client.get("/api/image/2024-08-30%2FIMG_1.png").status_code == 404
+
+
+def test_settings_send_a_video_with_the_image_that_shares_its_name(
+    client: TestClient, source: Path, tmp_path: Path, write_image: Callable[[Path], Path]
+) -> None:
+    """The switch reaches the plan through the extensions, not as a flag."""
+    write_image(source / "IMG_1.png")
+    (source / "IMG_1.MOV").write_bytes(b"clip")
+    (source / "IMG_1.CR2").write_bytes(b"raw")
+    choose(client, source)
+    client.post("/api/decide", json={"verdict": "keep"})
+    destination = tmp_path / "source_keep"
+
+    client.post("/api/apply", json={"mode": "copy"})
+    assert sorted(path.name for path in destination.iterdir()) == ["IMG_1.CR2", "IMG_1.png"]
+
+    client.post("/api/settings", json={"pair_videos": True})
+    client.post("/api/apply", json={"mode": "copy"})
+
+    assert "IMG_1.MOV" in [path.name for path in destination.iterdir()]
 
 
 def test_settings_change_only_the_flag_they_name(client: TestClient) -> None:

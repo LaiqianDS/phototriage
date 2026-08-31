@@ -26,6 +26,7 @@ class Store:
         last: Path | None = None,
         pair_raws: bool = True,
         search_subfolders: bool = False,
+        pair_videos: bool = False,
     ) -> None:
         self._path = path
         self._reviews = reviews if reviews is not None else {}
@@ -39,6 +40,14 @@ class Store:
         #: way for every shoot. Off by default, because turning it on where it
         #: is not wanted turns a picture library into one queue of everything.
         self.search_subfolders = search_subfolders
+        #: Whether a video travels with the image that shares its name, the way
+        #: a phone writes one beside a still. Off by default, unlike the RAW
+        #: switch: a RAW is the original of the photo and leaving it behind is
+        #: nearly always wrong, while a video of the same name is sometimes the
+        #: other half of a live photo and sometimes an unrelated clip. Turning
+        #: it on by itself would also make the next move take files out of the
+        #: source folder that the last one left alone.
+        self.pair_videos = pair_videos
 
     @classmethod
     def load(cls, path: Path) -> Store:
@@ -62,9 +71,10 @@ class Store:
             # the option existed loads instead of being thrown away whole.
             pair_raws = bool(payload.get("pair_raws", True))
             search_subfolders = bool(payload.get("search_subfolders", False))
+            pair_videos = bool(payload.get("pair_videos", False))
         except (OSError, ValueError, KeyError, TypeError, AttributeError):
             return cls(path)
-        return cls(path, reviews, last, pair_raws, search_subfolders)
+        return cls(path, reviews, last, pair_raws, search_subfolders, pair_videos)
 
     def save(self) -> None:
         """Write the store to disk in one step.
@@ -78,6 +88,7 @@ class Store:
             "last": str(self._last) if self._last is not None else None,
             "pair_raws": self.pair_raws,
             "search_subfolders": self.search_subfolders,
+            "pair_videos": self.pair_videos,
             "reviews": {
                 str(source): {
                     "destination": str(review.destination),

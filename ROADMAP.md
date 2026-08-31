@@ -53,13 +53,6 @@ headings are the place to look first.
 
 ## 0.3.0: make it a culling tool
 
-**Carry video files.**
-A `.MOV` or `.MP4` sharing its name with a kept image is not transferred and
-nothing says so, because neither extension is in `IMAGE_EXTS` or `RAW_EXTS`.
-A folder of holiday media is split in silence.
-The settings dialog already exists, so the switch is cheap to add next to the
-RAW one.
-
 **Report a partial transfer.**
 `transfer.execute` walks the plan file by file.
 A failure part way through answers with the error envelope, but not with the
