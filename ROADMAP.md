@@ -46,11 +46,6 @@ headings are the place to look first.
 
 ## 0.3.0: make it a culling tool
 
-**Search subfolders.**
-`library.list_images` reads one level with `iterdir()`.
-A folder with one subfolder per day, which is how most cameras and phones
-import, has to be reviewed one subfolder at a time.
-
 **Carry video files.**
 A `.MOV` or `.MP4` sharing its name with a kept image is not transferred and
 nothing says so, because neither extension is in `IMAGE_EXTS` or `RAW_EXTS`.

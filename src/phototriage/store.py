@@ -25,6 +25,7 @@ class Store:
         reviews: dict[Path, Review] | None = None,
         last: Path | None = None,
         pair_raws: bool = True,
+        search_subfolders: bool = False,
     ) -> None:
         self._path = path
         self._reviews = reviews if reviews is not None else {}
@@ -33,6 +34,11 @@ class Store:
         #: A working habit rather than a property of one folder, so it is stored
         #: once instead of per review.
         self.pair_raws = pair_raws
+        #: Whether the review reaches into the subfolders of the source. Also a
+        #: working habit: a camera that imports one folder per day imports that
+        #: way for every shoot. Off by default, because turning it on where it
+        #: is not wanted turns a picture library into one queue of everything.
+        self.search_subfolders = search_subfolders
 
     @classmethod
     def load(cls, path: Path) -> Store:
@@ -52,10 +58,13 @@ class Store:
                 for source, review in payload["reviews"].items()
             }
             last = Path(payload["last"]) if payload["last"] is not None else None
+            # Read with a default rather than a key, so a file written before
+            # the option existed loads instead of being thrown away whole.
             pair_raws = bool(payload.get("pair_raws", True))
+            search_subfolders = bool(payload.get("search_subfolders", False))
         except (OSError, ValueError, KeyError, TypeError, AttributeError):
             return cls(path)
-        return cls(path, reviews, last, pair_raws)
+        return cls(path, reviews, last, pair_raws, search_subfolders)
 
     def save(self) -> None:
         """Write the store to disk in one step.
@@ -68,6 +77,7 @@ class Store:
             "version": SCHEMA_VERSION,
             "last": str(self._last) if self._last is not None else None,
             "pair_raws": self.pair_raws,
+            "search_subfolders": self.search_subfolders,
             "reviews": {
                 str(source): {
                     "destination": str(review.destination),

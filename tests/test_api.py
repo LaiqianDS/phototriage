@@ -39,6 +39,7 @@ def test_state_is_empty_before_a_folder_is_chosen(client: TestClient) -> None:
         "current": None,
         "upcoming": None,
         "pair_raws": True,
+        "search_subfolders": False,
     }
 
 
@@ -352,5 +353,59 @@ def test_settings_turn_raw_pairing_off_and_apply_obeys(
     assert [path.name for path in destination.iterdir()] == ["IMG_1.png"]
 
 
-def test_settings_reject_a_missing_flag(client: TestClient) -> None:
-    assert client.post("/api/settings", json={}).status_code == 422
+def test_the_queue_reaches_into_subfolders_once_the_switch_is_on(
+    client: TestClient, source: Path, write_image: Callable[[Path], Path]
+) -> None:
+    """The folder per day case, which is how a camera imports.
+
+    Before the switch this folder has nothing to review at all, which is the
+    dead end the option exists to open.
+    """
+    write_image(source / "2024-08-30" / "IMG_1.png")
+    write_image(source / "2024-08-31" / "IMG_2.png")
+
+    assert choose(client, source)["total"] == 0
+
+    state = client.post("/api/settings", json={"search_subfolders": True}).json()
+
+    assert state["total"] == 2
+    assert state["current"] == "2024-08-30/IMG_1.png"
+    assert state["upcoming"] == "2024-08-31/IMG_2.png"
+
+
+def test_read_image_serves_a_photo_from_a_subfolder(
+    client: TestClient, source: Path, write_image: Callable[[Path], Path]
+) -> None:
+    """The name carries a separator, which the default route converter stops at."""
+    written = write_image(source / "2024-08-30" / "IMG_1.png")
+    choose(client, source)
+    client.post("/api/settings", json={"search_subfolders": True})
+
+    response = client.get("/api/image/2024-08-30%2FIMG_1.png")
+
+    assert response.status_code == 200
+    assert response.content == written.read_bytes()
+
+
+def test_read_image_refuses_a_subfolder_while_the_switch_is_off(
+    client: TestClient, source: Path, write_image: Callable[[Path], Path]
+) -> None:
+    write_image(source / "2024-08-30" / "IMG_1.png")
+    choose(client, source)
+
+    assert client.get("/api/image/2024-08-30%2FIMG_1.png").status_code == 404
+
+
+def test_settings_change_only_the_flag_they_name(client: TestClient) -> None:
+    """A stale view of one switch must not drag the other back with it.
+
+    Both preferences answer on the same route, so a request that always sent
+    the pair it had on screen would undo a change taken in another window, or
+    in this one before the dialog was opened.
+    """
+    client.post("/api/settings", json={"pair_raws": False})
+
+    state = client.post("/api/settings", json={"search_subfolders": True}).json()
+
+    assert state["pair_raws"] is False
+    assert state["search_subfolders"] is True

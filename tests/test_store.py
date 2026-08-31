@@ -165,6 +165,29 @@ def test_pair_raws_is_on_by_default_and_survives_a_round_trip(tmp_path: Path) ->
     assert Store.load(path).pair_raws is False
 
 
+def test_search_subfolders_is_off_by_default_and_survives_a_round_trip(tmp_path: Path) -> None:
+    path = tmp_path / "state.json"
+    store = Store(path)
+    assert store.search_subfolders is False
+
+    store.search_subfolders = True
+    store.save()
+
+    assert Store.load(path).search_subfolders is True
+
+
+def test_search_subfolders_defaults_to_off_when_the_file_predates_it(tmp_path: Path) -> None:
+    """An older file has no such key, and it must keep the reach it was written with.
+
+    Reading it as on would add every subfolder of the last source to the queue
+    on the first start after an upgrade, without anyone asking for it.
+    """
+    path = tmp_path / "state.json"
+    path.write_text(json.dumps({"version": SCHEMA_VERSION, "last": None, "reviews": {}}))
+
+    assert Store.load(path).search_subfolders is False
+
+
 def test_pair_raws_defaults_to_on_when_the_file_predates_it(tmp_path: Path) -> None:
     """An older file has no such key, and the previous behaviour was to pair."""
     path = tmp_path / "state.json"

@@ -77,6 +77,7 @@ function render(state) {
     el("destination").value = state.destination ?? "";
   }
   el("pair-raws").checked = state.pair_raws;
+  el("search-subfolders").checked = state.search_subfolders;
 
   const chosen = state.source !== null;
   el("idle").hidden = chosen;
@@ -110,6 +111,9 @@ const undo = () => run(() => call("undo", {}));
 const setSource = (path) => run(() => call("source", { path }));
 const setDestination = (path) => run(() => call("destination", { path }));
 const setPairRaws = (pairRaws) => run(() => call("settings", { pair_raws: pairRaws }));
+// Each switch sends only itself. The route leaves out what it is not told, so
+// one control can never carry a stale reading of the other along with it.
+const setSearchSubfolders = (deep) => run(() => call("settings", { search_subfolders: deep }));
 
 function apply() {
   const mode = el("mode-move").checked ? "move" : "copy";
@@ -398,6 +402,9 @@ el("apply").addEventListener("click", apply);
 el("source").addEventListener("change", (event) => setSource(event.target.value));
 el("destination").addEventListener("change", (event) => setDestination(event.target.value));
 el("pair-raws").addEventListener("change", (event) => setPairRaws(event.target.checked));
+el("search-subfolders").addEventListener("change", (event) =>
+  setSearchSubfolders(event.target.checked),
+);
 
 el("browse").addEventListener("click", () => {
   explorer.showModal();
