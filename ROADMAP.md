@@ -20,6 +20,13 @@ Zoom is in, so what is left to learn is whether the decode stutters.
 If it does, thumbnails come next, and that reopens the question of adding an
 image library.
 
+Searching subfolders adds a second thing to time in the same session.
+The queue is listed again on every request, by design, so with the switch on
+that is a walk of the whole tree under the source, and a decision takes two.
+It was written against a tree of three files.
+A real import, a folder per day over a month, is the case that says whether the
+walk has to be remembered between requests instead.
+
 ## 0.2.1: what the first real use turns up
 
 Fixes for whatever a session on real photos and a second browser reveal.
