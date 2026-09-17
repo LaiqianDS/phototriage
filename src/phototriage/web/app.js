@@ -16,10 +16,13 @@ async function call(endpoint, body) {
   // A crash inside the server answers with plain text instead of `detail`, and
   // the parser error would otherwise reach the user in place of the failure.
   const payload = await response.json().catch(() => null);
-  if (!response.ok) {
-    throw new Error(payload?.detail ?? response.statusText);
-  }
-  return payload;
+  if (response.ok) return payload;
+  if (typeof payload?.detail === "string") throw new Error(payload.detail);
+  // The validator answers a body it cannot read with a list in `detail`, which
+  // would read `[object Object]`. This page only sends such a body when it is
+  // older than the server, left open across an upgrade, and a reload fixes it.
+  if (response.status === 422) throw new Error("La página es de otra versión. Recárgala.");
+  throw new Error(response.statusText);
 }
 
 // Written to both places, because focused mode hides the bar the first one

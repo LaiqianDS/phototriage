@@ -425,6 +425,11 @@ Only files directly inside the folder are reviewed unless you ask for more, so i
 Check the extension as well: a file type outside the list in [Which files are reviewed](#which-files-are-reviewed) is not part of the queue.
 A folder that holds only RAW files looks empty, because a RAW file is transferred with an image and is never reviewed on its own.
 
+**The status line says `La página es de otra versión. Recárgala.`**
+The page was loaded before the app was upgraded and restarted, so it still runs the old script, and the server refuses what that script sends.
+Reload the page.
+The refused request recorded nothing.
+
 **Permission denied on a folder.**
 The folder browser reports `Sin acceso a ...` for a folder your user account cannot read, and lets you go back up.
 Choosing such a folder as the source is refused with the same message.
