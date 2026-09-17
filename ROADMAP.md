@@ -1,6 +1,6 @@
 # Roadmap
 
-What is planned after 0.4.0, in the order it is worth doing.
+What is planned after 0.4.1, in the order it is worth doing.
 
 This file records intent, not promises.
 The [Known limits](README.md#known-limits) section of the README describes what
@@ -67,7 +67,7 @@ What is left to learn needs a real card and real photos.
 A slow disk makes each directory read dearer, which the SSD above hides, and
 the decode of a large JPEG in the browser is not timed by the script at all.
 
-## 0.4.1: what the first real use turns up
+## 0.4.2: what the first real use turns up
 
 Fixes for whatever a session on real photos and a second browser reveal.
 
@@ -80,6 +80,9 @@ been exercised at all.
 The two additions of 0.4.0 that show on screen, the size and destination in the
 run confirmation and the progress on the status line, have been seen in no
 browser yet.
+The refusal of 0.4.1, when a verdict names a photo that is no longer next, has
+run from Node against a live server, with a stand-in for the page, and has been
+seen in no browser either.
 
 Focused mode adds two more things to check there.
 It asks for fullscreen through `requestFullscreen`, which Safari only spells

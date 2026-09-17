@@ -4,7 +4,7 @@ All notable changes to this project are recorded here.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and the project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [0.4.1] - 2026-09-17
 
 ### Fixed
 
@@ -142,7 +142,7 @@ First release.
   network.
 - Command line: `phototriage [source] [--state-file PATH] [--port N]`.
 
-[Unreleased]: https://github.com/LaiqianDS/phototriage/compare/v0.4.0...dev
+[0.4.1]: https://github.com/LaiqianDS/phototriage/releases/tag/v0.4.1
 [0.4.0]: https://github.com/LaiqianDS/phototriage/releases/tag/v0.4.0
 [0.3.0]: https://github.com/LaiqianDS/phototriage/releases/tag/v0.3.0
 [0.2.0]: https://github.com/LaiqianDS/phototriage/releases/tag/v0.2.0
