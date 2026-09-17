@@ -10,8 +10,11 @@ and the project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 - A request the server cannot validate no longer shows `[object Object]` on
   the status line.
-  It says the page is from an older version and asks for a reload, which is
-  the case after an upgrade with the page left open.
+  It says the page is from another version and asks for a reload, which is
+  what a page left open across an upgrade needs.
+  The message is part of the page's own script, so it reaches only pages loaded
+  from this version on: a page left open from 0.4.1 or earlier still shows
+  `[object Object]`.
 
 ## [0.4.1] - 2026-09-17
 
