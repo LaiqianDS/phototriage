@@ -179,12 +179,7 @@ function apply() {
     if (!confirm(question)) return call("state");
     report("Procesando...");
     const stopWatching = watchTransfer();
-    let result;
-    try {
-      result = await call("apply", { mode });
-    } finally {
-      stopWatching();
-    }
+    const result = await call("apply", { mode }).finally(stopWatching);
     const { transferred, already_present, failed, destination } = result;
     // Without the second half, a repeated copy reads as `0 archivos`, which looks
     // like a failure rather than a selection that is already safe.

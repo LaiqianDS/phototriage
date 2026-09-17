@@ -328,16 +328,13 @@ def create_app(store: Store, source: Path | None = None) -> FastAPI:
             plan = plan_for(folder, review)
             # The bytes sent before each file, and after the last one.
             before = [0, *itertools.accumulate(path.stat().st_size for path in plan)]
-            started = 0
 
-            def on_file() -> None:
-                nonlocal started
-                started += 1
+            def on_file(index: int) -> None:
                 active.progress = Progress(
                     mode=request.mode,
-                    files=started,
+                    files=index + 1,
                     total_files=len(plan),
-                    bytes=before[started - 1],
+                    bytes=before[index],
                     total_bytes=before[-1],
                 )
 

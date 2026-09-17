@@ -78,7 +78,7 @@ def execute(
     source: Path,
     destination: Path,
     mode: Mode,
-    on_file: Callable[[], None] | None = None,
+    on_file: Callable[[int], None] | None = None,
 ) -> Outcome:
     """Send every file in the plan to `destination` and count what happened.
 
@@ -104,8 +104,9 @@ def execute(
     reads as a kept one. Only a destination that cannot be created at all
     stops the run, because then nothing can arrive.
 
-    `on_file` is called just before each file of the plan is handled, whatever
-    then becomes of it, so a caller can tell how far a long run has gone. A
+    `on_file` is called with the position of each file in the plan just before
+    it is handled, whatever then becomes of it, so a caller can tell how far a
+    long run has gone. A
     count of transfers alone would stop short of the total whenever a file is
     skipped or fails.
     """
@@ -113,9 +114,9 @@ def execute(
     root = source.resolve()
     destination.mkdir(parents=True, exist_ok=True)
     outcome = Outcome()
-    for path in plan:
+    for index, path in enumerate(plan):
         if on_file is not None:
-            on_file()
+            on_file(index)
         relative = path.relative_to(root)
         target = destination / relative
         landing: Path | None = None
@@ -174,9 +175,5 @@ def already_copied(path: Path, target: Path) -> bool:
     copy rewritten in place since an earlier run is read again.
     """
     filecmp.clear_cache()
-    for candidate in variants(target):
-        if not candidate.exists():
-            return False
-        if filecmp.cmp(path, candidate, shallow=False):
-            return True
-    raise AssertionError("unreachable")
+    taken = itertools.takewhile(Path.exists, variants(target))
+    return any(filecmp.cmp(path, candidate, shallow=False) for candidate in taken)
