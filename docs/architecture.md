@@ -194,6 +194,17 @@ Checking immediately before each transfer means the first file has already taken
 The same check covers a destination that already holds files from an earlier run.
 No file in the destination is ever overwritten.
 
+In copy mode one more question comes first: is this file already there?
+`already_copied` walks the same names `free_name` would, the plain name and then `name_1`, `name_2`, up to the first free one, and compares the bytes.
+A match means an earlier run copied the file, and it is counted rather than copied again.
+
+The bytes are compared, not the size and the modification time.
+`shutil.copy2` keeps the time, so the cheap check would work for real copies, but a different file that shared the size and the time would then be taken for one, and a kept photo would be missing from the destination with nothing to say so.
+The price is reading both files when the sizes match, which on a second run is about the price of the copy it replaces.
+
+Move mode skips the question.
+A file still in the source folder was never moved, whatever the destination holds, and finishing the move by deleting it would break the rule that the app never deletes a file.
+
 ### The folder browser lives on the server
 
 `GET /api/browse` lists the subfolders of a path, and the interface uses it to walk the disk.
@@ -263,9 +274,6 @@ They are recorded here so that a reader does not have to find them by surprise.
 - **A decision cannot be changed, only undone.**
   There is no route that rewrites a verdict for a named image.
   Undo removes the most recent decision, so correcting an older one means undoing everything after it.
-- **A second run in copy mode transfers everything again.**
-  `POST /api/apply` changes no decision, so the kept images are still kept when it returns.
-  The interface only disables the run button when the kept count is zero, which a copy never causes, so a second press is one click away and lands the whole selection in the destination again under `name_1` names.
 - **Only the top level of the source folder is reviewed.**
   `library.list_images` lists the folder itself and does not walk into subfolders.
   A video file is not a reviewable image and not a RAW file, so it is neither reviewed nor paired.

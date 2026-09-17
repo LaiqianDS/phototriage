@@ -253,12 +253,13 @@ Transfer the kept images to the destination, with the files that share their nam
 Response:
 
 ```json
-{ "transferred": 2, "destination": "/home/you/Pictures/2024_keep" }
+{ "transferred": 2, "already_present": 0, "destination": "/home/you/Pictures/2024_keep" }
 ```
 
 | Field | Type | Meaning |
 | --- | --- | --- |
 | `transferred` | integer | Files sent to the destination, images and their companions together. |
+| `already_present` | integer | Files left alone in copy mode because the destination already held them. Always `0` in move mode. |
 | `destination` | string | The folder they went to. |
 
 | Status | Cause |
@@ -277,8 +278,11 @@ A kept image from a subfolder keeps that subfolder inside the destination, so `2
 A kept image whose file is no longer in the source folder is skipped, so the plan is always executable.
 A RAW file shared by two kept images is transferred once.
 No file in the destination is overwritten: a name already taken becomes `name_1`, `name_2`, and so on.
+In copy mode a file is not copied when the destination already holds it: the same relative path, or a numbered variant of it, with exactly the same bytes.
+It is counted in `already_present` instead, so calling twice in copy mode transfers nothing the second time.
+Move mode makes no such check, because a file still in the source was never moved.
 The destination folder is created even when nothing is transferred, so a call with no kept images answers `{"transferred": 0, ...}` and leaves an empty folder behind.
-The decisions are not cleared, so calling twice in copy mode transfers everything twice under different names.
+The decisions are not cleared by a transfer.
 This route does not write the state file, because it changes no decision.
 
 ### `GET /api/image/{name}`

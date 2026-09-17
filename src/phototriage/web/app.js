@@ -123,8 +123,11 @@ function apply() {
   if (!confirm(`¿${verb} las imágenes mantenidas al destino?`)) return;
   run(async () => {
     report("Procesando...");
-    const { transferred, destination } = await call("apply", { mode });
-    report(`${transferred} archivos en ${destination}`);
+    const { transferred, already_present, destination } = await call("apply", { mode });
+    // Without the second half, a repeated copy reads as `0 archivos`, which looks
+    // like a failure rather than a selection that is already safe.
+    const present = already_present > 0 ? `, ${already_present} ya estaban` : "";
+    report(`${transferred} archivos en ${destination}${present}`);
     return call("state");
   });
 }

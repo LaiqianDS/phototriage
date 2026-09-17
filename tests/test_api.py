@@ -237,13 +237,34 @@ def test_apply_copies_the_kept_images_and_their_raws(
     response = client.post("/api/apply", json={"mode": "copy"})
 
     destination = tmp_path / "source_keep"
-    assert response.json() == {"transferred": 2, "destination": str(destination)}
+    assert response.json() == {
+        "transferred": 2,
+        "already_present": 0,
+        "destination": str(destination),
+    }
     assert sorted(path.name for path in destination.iterdir()) == ["keep.CR2", "keep.png"]
     assert sorted(path.name for path in source.iterdir()) == [
         "drop.png",
         "keep.CR2",
         "keep.png",
     ]
+
+
+def test_a_second_copy_run_reports_the_files_already_there(
+    client: TestClient, source: Path, tmp_path: Path, write_image: Callable[[Path], Path]
+) -> None:
+    """The run button is still enabled after a copy, and pressing it must cost nothing."""
+    write_image(source / "keep.png")
+    (source / "keep.CR2").write_bytes(b"raw")
+    choose(client, source)
+    client.post("/api/decide", json={"verdict": "keep"})
+    client.post("/api/apply", json={"mode": "copy"})
+
+    second = client.post("/api/apply", json={"mode": "copy"}).json()
+
+    assert (second["transferred"], second["already_present"]) == (0, 2)
+    destination = tmp_path / "source_keep"
+    assert sorted(path.name for path in destination.iterdir()) == ["keep.CR2", "keep.png"]
 
 
 def test_apply_in_move_mode_empties_the_source_of_the_kept(
