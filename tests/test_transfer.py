@@ -402,3 +402,28 @@ def test_a_move_that_fails_after_the_original_is_gone_keeps_the_copy(
 
     assert list(outcome.failed) == ["photo.png"]
     assert (destination / "photo.png").is_file()
+
+
+def test_execute_announces_each_file_before_sending_it(
+    source: Path, tmp_path: Path, write_image: Callable[[Path], Path]
+) -> None:
+    """Progress counts every file of the plan, whatever becomes of it.
+
+    A skipped copy and a failed file still move the run forward, so a count of
+    transfers alone would stop short of the total and never reach the end.
+    """
+    destination = tmp_path / "source_keep"
+    present = write_image(source / "present.png")
+    transfer.execute([present], source, destination, transfer.Mode.COPY)
+    plan = [present, source / "gone.png", write_image(source / "new.png")]
+    arrived_before: list[bool] = []
+
+    transfer.execute(
+        plan,
+        source,
+        destination,
+        transfer.Mode.COPY,
+        on_file=lambda: arrived_before.append((destination / "new.png").exists()),
+    )
+
+    assert arrived_before == [False, False, False]

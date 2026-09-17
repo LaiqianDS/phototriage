@@ -12,6 +12,10 @@ and the project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
   the destination: `¿Copiar 312 archivos (8,4 GB) a ...?`.
   A new route, `GET /api/plan`, counts the plan without touching the
   destination.
+- Progress during a run on the status line: `Copiando 120 de 312 (3,2 GB de
+  8,4 GB)`, from a new route, `GET /api/progress`.
+  A page reloaded during a run picks the progress up again, and a second run
+  is refused with 409 while one is in flight.
 
 ### Changed
 

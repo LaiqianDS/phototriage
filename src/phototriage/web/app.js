@@ -131,6 +131,41 @@ function weight(bytes) {
   return `${value.toLocaleString("es", { maximumFractionDigits: 1 })} ${units[unit]}`;
 }
 
+/** The status line for a run in flight: the file it is on, and the bytes before it. */
+function describe(progress) {
+  const verb = progress.mode === "copy" ? "Copiando" : "Moviendo";
+  const files = `${progress.files} de ${progress.total_files}`;
+  return `${verb} ${files} (${weight(progress.bytes)} de ${weight(progress.total_bytes)})`;
+}
+
+/**
+ * Report the run in flight on the status line, twice a second.
+ *
+ * `onEnd` is for a page that did not start the run and has no response to wait
+ * for: it learns the run is over when the progress is gone. The page that did
+ * start it stops the watch itself when its response arrives. Either way a poll
+ * still in the air when the watch stops is ignored, so a late answer cannot
+ * write `Copiando 312 de 312` over the result.
+ */
+function watchTransfer(onEnd) {
+  let watching = true;
+  const stop = () => {
+    watching = false;
+    clearInterval(timer);
+  };
+  const timer = setInterval(async () => {
+    const progress = await call("progress").catch(() => null);
+    if (!watching) return;
+    if (progress !== null) {
+      report(describe(progress));
+    } else if (onEnd) {
+      stop();
+      onEnd();
+    }
+  }, 500);
+  return stop;
+}
+
 function apply() {
   const mode = el("mode-move").checked ? "move" : "copy";
   const verb = mode === "copy" ? "Copiar" : "Mover";
@@ -139,10 +174,18 @@ function apply() {
     // instead of asking twice. The count is what a first run would transfer; a
     // copy skips what the destination already holds, and says so afterwards.
     const plan = await call("plan");
-    const question = `¿${verb} ${plan.files} archivos (${weight(plan.bytes)}) a ${plan.destination}?`;
+    const files = `${plan.files} archivos (${weight(plan.bytes)})`;
+    const question = `¿${verb} ${files} a ${plan.destination}?`;
     if (!confirm(question)) return call("state");
     report("Procesando...");
-    const { transferred, already_present, failed, destination } = await call("apply", { mode });
+    const stopWatching = watchTransfer();
+    let result;
+    try {
+      result = await call("apply", { mode });
+    } finally {
+      stopWatching();
+    }
+    const { transferred, already_present, failed, destination } = result;
     // Without the second half, a repeated copy reads as `0 archivos`, which looks
     // like a failure rather than a selection that is already safe.
     const present = already_present > 0 ? `, ${already_present} ya estaban` : "";
@@ -509,3 +552,18 @@ paint(document.documentElement.dataset.theme);
 fitStage();
 wake();
 run(() => call("state"));
+
+// A run started before a reload goes on in the server, and its response went to
+// the page that is gone. Show how far it has got, and read the state again when
+// it is over, which is all this page can know of its result.
+call("progress")
+  .then((progress) => {
+    if (progress === null) return;
+    report(describe(progress));
+    // After `run`, which clears the status line as it starts.
+    watchTransfer(async () => {
+      await run(() => call("state"));
+      report("La transferencia ha terminado.");
+    });
+  })
+  .catch(() => {});

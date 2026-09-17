@@ -85,6 +85,18 @@ Every route that changes something follows the same three steps: mutate, save th
 It changes files rather than decisions, so it writes no state file and answers with a count instead of a snapshot.
 `GET /api/plan` builds the same plan through the same function, `plan_for`, and only counts and weighs it, so the confirmation shown before a run describes exactly the files the run would take.
 
+A run can take minutes, and the request stays open for all of it.
+`transfer.execute` calls back before each file, and the route replaces `Active.progress` with a new record each time, rather than changing its fields one by one.
+FastAPI serves a synchronous route from a thread pool, so `GET /api/progress` answers from another thread while the run holds its own, and reading one reference means it never sees the count of one file beside the bytes of another.
+The interface asks twice a second while it waits, and a page loaded during a run asks once on load and follows the run to its end.
+
+The alternative was to answer at once and run the transfer as a background job.
+It would survive a closed window no better, because a synchronous route already runs to its end on the server whether anyone waits for the answer or not, and it would add a job to start, keep and clear.
+A streamed response was the other way, and it is the one that fails badly: when the page goes away, the stream stops being read and the run stops with it, part way and unseen.
+
+One run at a time is enforced with a lock that is not waited for: a second `POST /api/apply` answers 409 at once.
+Two runs over one selection would race for every free name, and in move mode for the files themselves.
+
 Startup follows the same path from the other end.
 `main` parses the arguments, loads the store, and hands it to `create_app` together with the folder from the command line, if there is one.
 `create_app` opens that folder, or the last folder the store remembers, and only if the path is still a folder.
@@ -289,6 +301,7 @@ They are recorded here so that a reader does not have to find them by surprise.
 - **One active review per running server.**
   The `Active` record holds a single source folder.
   Two browser windows on the same server share it, so choosing a folder in one changes what the other shows.
+  Only one run can be in flight, and a window that did not start it learns its result only as a fresh state.
 - **Two servers sharing one state file overwrite each other.**
   Each save writes the whole file.
   The last save wins, and the reviews the other process held in memory are written back over it.

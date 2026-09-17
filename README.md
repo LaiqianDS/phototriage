@@ -128,7 +128,7 @@ The controls are:
 | Mode control (`Al ejecutar`) | Bottom bar | Copy the kept images (`Copiar`), or move them (`Mover`). |
 | Run button (`Ejecutar`) | Bottom bar | Asks you to confirm, naming how many files would go, their size and the destination, then transfers the kept images there. |
 | File name | Bottom bar | The name of the image on screen. |
-| Status line | Bottom bar | The result of the last action, or the error it ran into. |
+| Status line | Bottom bar | The result of the last action, the error it ran into, or how far a run in flight has gone. |
 | Subfolder switch (`Buscar en subcarpetas`) | Settings dialog | Whether the review reaches into the folders inside the source. Off by default. |
 | RAW switch (`Mover los RAW junto a la imagen`) | Settings dialog | Whether a RAW original travels with the image that shares its name. On by default. |
 | Video switch (`Mover los vídeos junto a la imagen`) | Settings dialog | Whether a video travels with the image that shares its name. Off by default. |
@@ -160,7 +160,10 @@ Keep, discard, the focused mode button and the zoom button are disabled when the
    Choose `Copiar` or `Mover`, press the run button (`Ejecutar`), and confirm.
    The question names what the run would take, such as `¿Copiar 312 archivos (8,4 GB) a /home/you/Pictures/2024_keep?`, counting RAW files and videos that travel with a kept image.
    In copy mode that is what a first run would copy; files the destination already holds are skipped afterwards and reported on the status line.
-   The app reports on the status line how many files it transferred and where they went.
+   While the run goes on, the status line says how far it has got: `Copiando 120 de 312 (3,2 GB de 8,4 GB)`.
+   It then reports how many files it transferred and where they went.
+   Reloading the page during a run does not stop it: the new page shows how far it has got, and says `La transferencia ha terminado.` at the end.
+   A second press of the run button, in this window or another, is refused while a run is in flight.
    You do not have to reach the end of the queue first: the run button transfers whatever is kept so far.
 
 Nothing is transferred until you press the run button.

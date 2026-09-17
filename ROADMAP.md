@@ -96,10 +96,6 @@ headings are the place to look first.
 
 ## 0.4.0: confidence and comfort
 
-**Progress during the transfer.**
-The status line reads `Procesando...` and can sit there for minutes with no sign
-of life.
-
 **A grid of the decisions.**
 Seeing what was kept and what was discarded, and changing one photo directly.
 Today a wrong verdict on photo 40 costs forty undos, because a decision can only
