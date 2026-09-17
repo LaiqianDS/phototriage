@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import os
-from collections.abc import Iterable, Iterator
+from collections.abc import Iterator
 from pathlib import Path
 
 from .config import IMAGE_EXTS
@@ -30,15 +30,15 @@ def suffix(name: str) -> str:
     return name[dot:].lower() if 0 < dot < len(name) - 1 else ""
 
 
-def walk(folder: Path, skip: Path | None = None) -> Iterator[os.DirEntry[str]]:
-    """Every file under `folder`, however deep, except under `skip`.
+def walk(folder: Path, deep: bool = False, skip: Path | None = None) -> Iterator[os.DirEntry[str]]:
+    """Every file in `folder` and, when `deep`, however far under it, except under `skip`.
 
     A folder whose name starts with a dot is left out, like it is in the
     browser. A symbolic link to a folder is not followed, which is what keeps a
     link pointing at one of its own parents from walking for ever, and matches
     `resolve_image` refusing to serve anything a link leads to.
 
-    A subfolder that cannot be read is skipped instead of ending the walk, so
+    A folder that cannot be read yields nothing instead of ending the walk, so
     one unreadable corner of a card does not hide the rest of the shoot.
 
     `skip` is a subfolder to leave out whole, which is how a destination inside
@@ -57,11 +57,16 @@ def walk(folder: Path, skip: Path | None = None) -> Iterator[os.DirEntry[str]]:
     except OSError:
         return
     for entry in entries:
-        if entry.is_dir():
-            if not entry.is_symlink() and not entry.name.startswith(".") and entry.path != skipped:
-                yield from walk(Path(entry.path), skip)
-        elif entry.is_file():
+        if entry.is_file():
             yield entry
+        elif (
+            deep
+            and entry.is_dir()
+            and not entry.is_symlink()
+            and not entry.name.startswith(".")
+            and entry.path != skipped
+        ):
+            yield from walk(Path(entry.path), deep, skip)
 
 
 def list_images(source: Path, deep: bool = False, skip: Path | None = None) -> list[str]:
@@ -79,14 +84,6 @@ def list_images(source: Path, deep: bool = False, skip: Path | None = None) -> l
     as empty. Raising here would turn every later request into a server error,
     because the folder is read again on each one.
     """
-    if deep:
-        found: Iterable[os.DirEntry[str]] = walk(source, skip)
-    else:
-        try:
-            with os.scandir(source) as scan:
-                found = [entry for entry in scan if entry.is_file()]
-        except OSError:
-            return []
     # Every entry path starts with the source as it was given, so cutting that
     # off is the relative name. The separator after it is stripped rather than
     # counted, because a root such as `/` already ends in one.
@@ -94,7 +91,7 @@ def list_images(source: Path, deep: bool = False, skip: Path | None = None) -> l
     return ordered(
         [
             entry.path[len(root) :].lstrip(os.sep).replace(os.sep, "/")
-            for entry in found
+            for entry in walk(source, deep, skip)
             if suffix(entry.name) in IMAGE_EXTS
         ]
     )
@@ -164,11 +161,8 @@ def companion_index(
     a dictionary lookup instead of a folder scan.
     """
     index: dict[Path, list[Path]] = {}
-    if not source.is_dir():
-        return index
     # Paths here, not names: this runs once per transfer, not once per request.
-    found = (Path(entry.path) for entry in walk(source)) if deep else source.iterdir()
-    for entry in sorted(found):
-        if entry.is_file() and entry.suffix.lower() in extensions:
-            index.setdefault(entry.with_suffix(""), []).append(entry)
+    for path in sorted(Path(entry.path) for entry in walk(source, deep)):
+        if path.suffix.lower() in extensions:
+            index.setdefault(path.with_suffix(""), []).append(path)
     return index

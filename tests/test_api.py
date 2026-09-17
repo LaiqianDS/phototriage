@@ -563,7 +563,6 @@ def test_no_progress_is_reported_while_nothing_runs(client: TestClient) -> None:
 def test_a_run_reports_its_progress_and_refuses_a_second_one(
     client: TestClient,
     source: Path,
-    tmp_path: Path,
     write_image: Callable[[Path], Path],
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:

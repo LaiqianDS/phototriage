@@ -416,14 +416,14 @@ def test_execute_announces_each_file_before_sending_it(
     present = write_image(source / "present.png")
     transfer.execute([present], source, destination, transfer.Mode.COPY)
     plan = [present, source / "gone.png", write_image(source / "new.png")]
-    arrived_before: list[bool] = []
+    announced: list[tuple[int, bool]] = []
 
     transfer.execute(
         plan,
         source,
         destination,
         transfer.Mode.COPY,
-        on_file=lambda: arrived_before.append((destination / "new.png").exists()),
+        on_file=lambda index: announced.append((index, (destination / "new.png").exists())),
     )
 
-    assert arrived_before == [False, False, False]
+    assert announced == [(0, False), (1, False), (2, False)]
