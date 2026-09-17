@@ -27,6 +27,9 @@ and the project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ### Changed
 
+- The queue is listed about twenty times faster.
+  On a folder of 4,500 images a decision took 171 ms and now takes 9 ms, and on
+  a month of daily folders with subfolders searched, 260 ms and now 15 ms.
 - A second copy run copies only what the destination does not already hold,
   byte for byte, instead of the whole selection again under `_1` names.
   `POST /api/apply` reports the files left alone in `already_present`.

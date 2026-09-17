@@ -42,19 +42,30 @@ internal SSD.
 | Month, 4,500 images in 30 folders | on | 117 ms | 233 ms |
 
 These are medians.
-The walk is not the cost, the listing is, and the flat folder pays it with the
+The walk was not the cost, the listing was, and the flat folder paid it with the
 switch off.
-A profile puts nearly all of it in building `Path` objects, above all in
+A profile put nearly all of it in building `Path` objects, above all in
 `relative_to`, not in reading the disk.
-The same listing written with `os.scandir` and names kept as strings took 4 ms
-on the flat folder and 8 ms on the month.
-So the fix for a slow queue is a cheaper listing, not a remembered one, and it
-needs no cache to keep in step with the disk.
 
-A real card is still worth timing before that change.
-A slow disk makes each `stat` dearer, which the SSD above hides, and the
-decisions timed were the first 50, while `Store.save` rewrites the whole state
-file on each one.
+The listing is now written with `os.scandir` and names kept as strings, with no
+cache to keep in step with the disk.
+On the same trees:
+
+| Folder | Subfolders | State read | Decision |
+| --- | --- | --- | --- |
+| Flat, 4,500 images | off | 4 ms | 9 ms |
+| Flat, 4,500 images | on | 4 ms | 9 ms |
+| Month, 4,500 images in 30 folders | on | 7 ms | 15 ms |
+
+`Store.save` rewrites the whole state file on every decision, so a long review
+was timed as well: over 4,500 decisions in a row, the median decision went from
+9 ms for the first hundred to 17 ms for the last hundred, with a state file of
+365 KB at the end.
+That grows, and it is still far below what a keypress can feel.
+
+What is left to learn needs a real card and real photos.
+A slow disk makes each directory read dearer, which the SSD above hides, and
+the decode of a large JPEG in the browser is not timed by the script at all.
 
 ## 0.2.1: what the first real use turns up
 
