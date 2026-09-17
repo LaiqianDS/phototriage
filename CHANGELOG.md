@@ -4,6 +4,18 @@ All notable changes to this project are recorded here.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and the project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Changed
+
+- The workflows use the versions of their GitHub actions that run on Node.js
+  24, ahead of the removal of Node.js 20 from the runners.
+
+### Fixed
+
+- Leaving focused mode no longer throws in Safari before 16.4, which has no
+  unprefixed fullscreen API.
+
 ## [0.3.0] - 2026-09-17
 
 ### Added
@@ -108,6 +120,7 @@ First release.
   network.
 - Command line: `phototriage [source] [--state-file PATH] [--port N]`.
 
+[Unreleased]: https://github.com/LaiqianDS/phototriage/compare/v0.3.0...dev
 [0.3.0]: https://github.com/LaiqianDS/phototriage/releases/tag/v0.3.0
 [0.2.0]: https://github.com/LaiqianDS/phototriage/releases/tag/v0.2.0
 [0.1.0]: https://github.com/LaiqianDS/phototriage/releases/tag/v0.1.0

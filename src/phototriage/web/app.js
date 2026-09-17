@@ -309,7 +309,10 @@ async function enterFocused() {
 function leaveFocused() {
   document.body.classList.remove("focused");
   releaseFocusFrom(".focus-hint");
-  if (document.fullscreenElement !== null) document.exitFullscreen();
+  // Asked by truth, not against null: Safari before 16.4 has no unprefixed API,
+  // leaves this undefined, and has no `exitFullscreen` to call. Focused mode
+  // there stayed in a window, so there is nothing to exit.
+  if (document.fullscreenElement) document.exitFullscreen();
 }
 
 /**
@@ -329,7 +332,7 @@ function releaseFocusFrom(selector) {
 // window chrome offers its own way out as well. So focused mode follows the
 // browser rather than the other way round.
 document.addEventListener("fullscreenchange", () => {
-  if (document.fullscreenElement === null) leaveFocused();
+  if (!document.fullscreenElement) leaveFocused();
 });
 
 // -------------------------------------------------------------- explorer ---

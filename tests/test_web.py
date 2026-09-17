@@ -148,3 +148,19 @@ def test_every_state_on_the_body_is_drawn_by_the_stylesheet() -> None:
 
     unstyled = sorted(name for name in driven if f"body.{name}" not in stylesheet)
     assert not unstyled, f"style.css has no rule for: {unstyled}"
+
+
+def test_leaving_focused_mode_survives_a_browser_without_the_fullscreen_api() -> None:
+    """Safari before 16.4 spells fullscreen with a `webkit` prefix only.
+
+    There `document.fullscreenElement` is undefined, not null, so a comparison
+    with null reads as "in fullscreen" and calls an `exitFullscreen` that does
+    not exist. The page throws every time focused mode is left. Focused mode
+    there never went fullscreen in the first place, so asking whether the
+    element is set at all is both correct and enough.
+    """
+    script = read("app.js")
+
+    compared = re.findall(r"fullscreenElement\s*[!=]==?\s*null", script)
+    assert not compared, f"app.js compares fullscreenElement with null: {compared}"
+    assert "fullscreenElement" in script, "app.js no longer reads fullscreenElement at all"

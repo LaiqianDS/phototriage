@@ -81,11 +81,9 @@ been exercised at all.
 Focused mode adds two more things to check there.
 It asks for fullscreen through `requestFullscreen`, which Safari only spells
 without a prefix from 16.4, so an older Safari gets focused mode in a window
-instead; the code treats a refusal as normal and does not report it.
-Leaving is not as careful: `leaveFocused` compares `document.fullscreenElement`
-with `null`, which that Safari leaves undefined, so it calls an
-`exitFullscreen` that does not exist and throws, after focused mode is already
-left.
+instead; the code treats a refusal as normal and does not report it, and
+leaving asks whether `document.fullscreenElement` is set rather than comparing
+it with `null`, which that Safari leaves undefined.
 It also turns the progress line back on with `visibility: visible` inside a bar
 that is hidden and carries `backdrop-filter`, and whether a browser paints that
 child without painting the parent's blur is the one thing that would show as a
