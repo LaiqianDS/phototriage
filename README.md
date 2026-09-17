@@ -342,6 +342,9 @@ Each folder you review keeps the destination you last gave it.
 The destination folder does not have to exist.
 It is created when you press the run button, together with any parent folder it needs.
 
+The destination may be a folder inside the source, such as `~/Pictures/2024/best`.
+It is then left out of the review: with the subfolder switch on, the queue does not reach into it, so a copy run never puts its own copies back in front of you and the counters do not grow with your own work.
+
 ## Decisions are saved as you go
 
 Every decision is written to disk as soon as you take it.
@@ -398,9 +401,6 @@ They are written down so that you do not meet them by surprise.
 - **The zoom is reached from the keyboard only, and lasts one photo.**
   `Space` enters and leaves it, and nothing on screen says it is there.
   It is undone as soon as the photo changes, so checking the sharpness of a burst means pressing `Space` again on every frame.
-- **A destination inside the source folder feeds itself.**
-  With the subfolder switch on, a copy run into a destination below the source puts the copies back in the queue, and the counters grow with your own work.
-  Keep the destination outside the folder you are reviewing, which the default already does.
 - **A video is never reviewed.**
   It has no place in the queue, so a clip is only ever transferred as the companion of a kept image of the same name, and only with the video switch on.
   A clip named on its own, like `MVI_0042.MOV`, stays where it is whatever you do.

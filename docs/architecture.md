@@ -183,6 +183,25 @@ The extension check stops the route from serving a text file that happens to sit
 
 The route answers 404 for all of these, and the tests cover the escaped separator, the escaped dots, two levels up, the symlink and the non-image file.
 
+### A destination inside the source is left out of the walk
+
+The destination may be a subfolder of the source.
+With the subfolder switch on, the walk would then reach the copies a run puts there, and every copy would come back as a new image to review.
+
+`library` is handed that folder to leave out, the same way it is handed the reach.
+`api.left_out` works it out on every request: the destination, resolved, when it is a subfolder of the source and not the source itself.
+`list_images` does not walk into it, `resolve_image` refuses a name inside it, and `build_plan` passes it on, so the queue, the image route and the transfer agree on what is outside the review.
+
+This keeps `library` ignorant of reviews.
+It receives a path, not a `Review`, and a caller with no destination passes nothing.
+An earlier design rejected the exclusion because it would tie the file listing to the review that owns it; passing a plain path is what avoids that tie.
+
+The destination is resolved because it is stored as typed, while the walk spells its paths from the resolved source.
+On macOS `/tmp` is a link to `/private/tmp`, and without resolving a destination typed through the link would never meet the walk.
+The comparison is still one of paths: a destination typed in a different case from the folder on a case-insensitive disk is not recognised.
+
+A destination equal to the source is not left out, because leaving it out would empty the queue.
+
 ### `free_name` is evaluated immediately before each transfer
 
 `transfer.execute` asks for a free name in the destination just before it copies or moves each file, not once when the plan is built.
