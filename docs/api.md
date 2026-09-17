@@ -299,6 +299,7 @@ Response:
 | --- | --- |
 | 200 | The run went through the whole plan. Some files may still have failed: read `failed`. |
 | 409 | No source folder is open. `Elige una carpeta origen.` |
+| 409 | Another run is in flight, from this window or another one. `Ya hay una transferencia en curso.` |
 | 422 | `mode` is missing, is not one of the two values, or the body is not JSON. |
 | 500 | The destination folder could not be created, so nothing was transferred. `No se pudo crear el destino: ...` |
 
@@ -321,6 +322,34 @@ A file that cannot be transferred does not stop the run: it is recorded in `fail
 Whatever it left under its new name in the destination is removed, so a copy cut short by a full disk never remains as a truncated file.
 In move mode across two disks, that can be a whole copy whose original could not be removed; the original is still in the source, so the file is reported as failed rather than left in two places.
 This route does not write the state file, because it changes no decision.
+
+### `GET /api/progress`
+
+How far the run in flight has gone, for the status line while `POST /api/apply` waits.
+Takes no parameters and changes nothing.
+
+Response while a run is in flight:
+
+```json
+{ "mode": "copy", "files": 120, "total_files": 312, "bytes": 3200000000, "total_bytes": 8424000000 }
+```
+
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `mode` | string | `copy` or `move`, as the run was asked. |
+| `files` | integer | The file being handled now, counted from 1. Skipped and failed files count too, so it reaches `total_files`. |
+| `total_files` | integer | Files in the plan. |
+| `bytes` | integer | Total size of the files before the current one. |
+| `total_bytes` | integer | Total size of the plan. |
+
+With no run in flight the response is `null`, including before the first file of a run has started and after the last one has ended.
+
+| Status | Cause |
+| --- | --- |
+| 200 | The progress, or `null`. |
+
+This route needs no open source folder.
+The progress lives in memory only: it is not written to the state file, and a restart forgets a run that the restart itself interrupted.
 
 ### `GET /api/image/{name}`
 

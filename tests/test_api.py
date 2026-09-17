@@ -8,6 +8,7 @@ from pathlib import Path
 import pytest
 from fastapi.testclient import TestClient
 
+from phototriage import transfer
 from phototriage.api import create_app
 from phototriage.review import Verdict
 from phototriage.store import Store
@@ -553,3 +554,66 @@ def test_the_plan_follows_the_switches_like_the_run_does(
 
 def test_the_plan_without_a_source_is_refused(client: TestClient) -> None:
     assert client.get("/api/plan").status_code == 409
+
+
+def test_no_progress_is_reported_while_nothing_runs(client: TestClient) -> None:
+    assert client.get("/api/progress").json() is None
+
+
+def test_a_run_reports_its_progress_and_refuses_a_second_one(
+    client: TestClient,
+    source: Path,
+    tmp_path: Path,
+    write_image: Callable[[Path], Path],
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """The status line used to read `Procesando...` for minutes with no sign of life.
+
+    Both questions are asked from inside the copy of the second file, which is
+    the only moment a run is observably in flight.
+    """
+    first = write_image(source / "a.png")
+    write_image(source / "b.png")
+    choose(client, source)
+    client.post("/api/decide", json={"verdict": "keep"})
+    client.post("/api/decide", json={"verdict": "keep"})
+    seen: list[dict] = []
+    refused: list[int] = []
+    real_copy = transfer.shutil.copy2
+
+    def observed_copy(src: str, dst: str) -> None:
+        # Once only: without the lock, the second run would copy `b.png` too and
+        # land here again, nesting runs until the server runs out of threads.
+        if src.endswith("b.png") and not seen:
+            seen.append(client.get("/api/progress").json())
+            refused.append(client.post("/api/apply", json={"mode": "copy"}).status_code)
+        real_copy(src, dst)
+
+    monkeypatch.setattr(transfer.shutil, "copy2", observed_copy)
+    response = client.post("/api/apply", json={"mode": "copy"})
+
+    size = first.stat().st_size
+    assert response.json()["transferred"] == 2
+    assert seen == [
+        {"mode": "copy", "files": 2, "total_files": 2, "bytes": size, "total_bytes": 2 * size}
+    ]
+    assert refused == [409]
+    assert client.get("/api/progress").json() is None
+
+
+def test_a_run_that_fails_releases_the_next_one(
+    client: TestClient, source: Path, tmp_path: Path, write_image: Callable[[Path], Path]
+) -> None:
+    """A lock left held by a failure would refuse every run until a restart."""
+    write_image(source / "a.png")
+    choose(client, source)
+    client.post("/api/decide", json={"verdict": "keep"})
+    blocked = tmp_path / "blocked"
+    blocked.write_text("a file, so it cannot become the destination folder")
+    client.post("/api/destination", json={"path": str(blocked)})
+    assert client.post("/api/apply", json={"mode": "copy"}).status_code == 500
+
+    client.post("/api/destination", json={"path": ""})
+
+    assert client.post("/api/apply", json={"mode": "copy"}).status_code == 200
+    assert client.get("/api/progress").json() is None

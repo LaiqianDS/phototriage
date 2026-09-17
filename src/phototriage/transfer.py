@@ -8,7 +8,7 @@ from __future__ import annotations
 import filecmp
 import itertools
 import shutil
-from collections.abc import Iterator
+from collections.abc import Callable, Iterator
 from dataclasses import dataclass, field
 from enum import Enum
 from pathlib import Path
@@ -73,7 +73,13 @@ class Outcome:
     failed: dict[str, str] = field(default_factory=dict)
 
 
-def execute(plan: list[Path], source: Path, destination: Path, mode: Mode) -> Outcome:
+def execute(
+    plan: list[Path],
+    source: Path,
+    destination: Path,
+    mode: Mode,
+    on_file: Callable[[], None] | None = None,
+) -> Outcome:
     """Send every file in the plan to `destination` and count what happened.
 
     A file keeps the subfolder it came from: `2024-08-30/IMG_1.jpg` arrives as
@@ -97,12 +103,19 @@ def execute(plan: list[Path], source: Path, destination: Path, mode: Mode) -> Ou
     the start of a copy cut short, and a truncated photo under a real name
     reads as a kept one. Only a destination that cannot be created at all
     stops the run, because then nothing can arrive.
+
+    `on_file` is called just before each file of the plan is handled, whatever
+    then becomes of it, so a caller can tell how far a long run has gone. A
+    count of transfers alone would stop short of the total whenever a file is
+    skipped or fails.
     """
     operation = shutil.copy2 if mode is Mode.COPY else shutil.move
     root = source.resolve()
     destination.mkdir(parents=True, exist_ok=True)
     outcome = Outcome()
     for path in plan:
+        if on_file is not None:
+            on_file()
         relative = path.relative_to(root)
         target = destination / relative
         landing: Path | None = None

@@ -6,6 +6,8 @@ asks the store to persist it, so no lower layer needs to know about the disk.
 
 from __future__ import annotations
 
+import itertools
+import threading
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -28,6 +30,8 @@ class Active:
 
     source: Path | None = None
     review: Review | None = None
+    #: How far the run in flight has gone, or None when no run is in flight.
+    progress: Progress | None = None
 
 
 class State(BaseModel):
@@ -87,6 +91,16 @@ class Plan(BaseModel):
     destination: str
 
 
+class Progress(BaseModel):
+    """A run in flight: the file being handled now, and the bytes of those before it."""
+
+    mode: transfer.Mode
+    files: int
+    total_files: int
+    bytes: int
+    total_bytes: int
+
+
 class ApplyResponse(BaseModel):
     transferred: int
     already_present: int
@@ -140,6 +154,9 @@ def create_app(store: Store, source: Path | None = None) -> FastAPI:
     """Build the application, resuming `source` or the last folder reviewed."""
     app = FastAPI(title="PhotoTriage")
     active = Active()
+    # One run at a time. A second run over the same selection would race the
+    # first for every free name, and in move mode for the files themselves.
+    transferring = threading.Lock()
 
     def open_source(folder: Path, destination: Path | None = None) -> None:
         active.source = folder
@@ -291,20 +308,57 @@ def create_app(store: Store, source: Path | None = None) -> FastAPI:
             destination=str(review.destination),
         )
 
+    @app.get("/api/progress")
+    def read_progress() -> Progress | None:
+        """How far the run in flight has gone, asked while `POST /api/apply` waits.
+
+        The route is synchronous like every other, so it is served from another
+        thread while the run holds its own. It reads one reference, which the run
+        replaces whole rather than changing field by field, so it never sees a
+        count from one file beside the bytes of another.
+        """
+        return active.progress
+
     @app.post("/api/apply")
     def apply(request: ApplyRequest) -> ApplyResponse:
         folder, review = require_review()
-        plan = plan_for(folder, review)
+        if not transferring.acquire(blocking=False):
+            raise HTTPException(status_code=409, detail="Ya hay una transferencia en curso.")
         try:
-            outcome = transfer.execute(plan, folder, review.destination, request.mode)
-        except OSError as error:
-            # A file that fails is reported in the answer, so only a destination
-            # that cannot be created reaches here. Without this, FastAPI answers
-            # in plain text and the interface reports a parser error instead.
-            raise HTTPException(
-                status_code=500,
-                detail=f"No se pudo crear el destino: {error}",
-            ) from error
+            plan = plan_for(folder, review)
+            # The bytes sent before each file, and after the last one.
+            before = [0, *itertools.accumulate(path.stat().st_size for path in plan)]
+            started = 0
+
+            def on_file() -> None:
+                nonlocal started
+                started += 1
+                active.progress = Progress(
+                    mode=request.mode,
+                    files=started,
+                    total_files=len(plan),
+                    bytes=before[started - 1],
+                    total_bytes=before[-1],
+                )
+
+            try:
+                outcome = transfer.execute(
+                    plan, folder, review.destination, request.mode, on_file=on_file
+                )
+            except OSError as error:
+                # A file that fails is reported in the answer, so only a
+                # destination that cannot be created reaches here. Without this,
+                # FastAPI answers in plain text and the interface reports a
+                # parser error instead.
+                raise HTTPException(
+                    status_code=500,
+                    detail=f"No se pudo crear el destino: {error}",
+                ) from error
+        finally:
+            # Whatever happened, the next run must not be refused and the
+            # interface must not keep reading a run that has ended.
+            active.progress = None
+            transferring.release()
         return ApplyResponse(
             transferred=outcome.transferred,
             already_present=outcome.already_present,
