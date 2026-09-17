@@ -80,14 +80,6 @@ Fonts request blocked.
 Instrument Serif is much narrower than Georgia, its fallback, so the largest
 headings are the place to look first.
 
-## 0.3.0: make it a culling tool
-
-**Report a partial transfer.**
-`transfer.execute` walks the plan file by file.
-A failure part way through answers with the error envelope, but not with the
-count of what was transferred before it stopped.
-It should collect the failures, carry on with the rest, and report both.
-
 ## 0.4.0: confidence and comfort
 
 **Preview before running.**
