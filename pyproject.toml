@@ -1,6 +1,6 @@
 [project]
 name = "phototriage"
-version = "0.3.0"
+version = "0.4.0"
 description = "Review a folder of photos one by one and collect the ones you keep."
 readme = "README.md"
 requires-python = ">=3.12"

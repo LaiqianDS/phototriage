@@ -1,6 +1,6 @@
 # Roadmap
 
-What is planned after 0.3.0, in the order it is worth doing.
+What is planned after 0.4.0, in the order it is worth doing.
 
 This file records intent, not promises.
 The [Known limits](README.md#known-limits) section of the README describes what
@@ -67,7 +67,7 @@ What is left to learn needs a real card and real photos.
 A slow disk makes each directory read dearer, which the SSD above hides, and
 the decode of a large JPEG in the browser is not timed by the script at all.
 
-## 0.3.1: what the first real use turns up
+## 0.4.1: what the first real use turns up
 
 Fixes for whatever a session on real photos and a second browser reveal.
 
@@ -77,6 +77,9 @@ The maintainer tried the changes of 0.3.0 in Safari, the default browser on the
 machine this was built for, and approved them, before the queue listing was
 rewritten; the checks below were not reported one by one, and Firefox has not
 been exercised at all.
+The two additions of 0.4.0 that show on screen, the size and destination in the
+run confirmation and the progress on the status line, have been seen in no
+browser yet.
 
 Focused mode adds two more things to check there.
 It asks for fullscreen through `requestFullscreen`, which Safari only spells
@@ -94,7 +97,7 @@ Fonts request blocked.
 Instrument Serif is much narrower than Georgia, its fallback, so the largest
 headings are the place to look first.
 
-## 0.4.0: confidence and comfort
+## 0.5.0: confidence and comfort
 
 **A grid of the decisions.**
 Seeing what was kept and what was discarded, and changing one photo directly.

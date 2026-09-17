@@ -1,3 +1,3 @@
 """Review a folder of photos one by one and collect the ones you keep."""
 
-__version__ = "0.3.0"
+__version__ = "0.4.0"
