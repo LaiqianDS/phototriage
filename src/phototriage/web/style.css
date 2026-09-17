@@ -535,6 +535,13 @@ input[type="text"]:disabled {
   cursor: default;
 }
 
+/* A toggle that is on reads as pressed in, the way the chosen half of the
+   segmented control does. */
+.button[aria-pressed="true"] {
+  background: var(--track);
+  box-shadow: none;
+}
+
 .button.primary {
   border-color: transparent;
   background: var(--fill);
@@ -805,7 +812,14 @@ body.focused .focus-hint {
   backdrop-filter: blur(20px) saturate(180%);
   -webkit-backdrop-filter: blur(20px) saturate(180%);
   color: var(--bar-muted);
+  font: inherit;
   font-size: 0.8125rem;
+  cursor: pointer;
+}
+
+/* The pill is the way out for a pointer, so it answers one like a button. */
+body.focused .focus-hint:hover {
+  color: var(--text);
 }
 
 /* Both come and go with the bars, on the same timer and the same rule. The two
@@ -822,6 +836,14 @@ body.resting .hud {
 
 body.resting .focus-hint {
   translate: 0 -0.375rem;
+}
+
+/* A button now, so it can hold the focus ring, and like a bar it stays up for
+   as long as it does. */
+body.resting .focus-hint:focus-visible {
+  opacity: 1;
+  translate: 0;
+  pointer-events: auto;
 }
 
 @media (prefers-reduced-motion: no-preference) {
