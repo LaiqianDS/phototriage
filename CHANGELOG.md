@@ -4,6 +4,46 @@ All notable changes to this project are recorded here.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and the project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- Zoom.
+  `Space` shows the photo at one image pixel per screen pixel, so a soft photo
+  no longer passes for a sharp one, and `Space` again fits it back in the
+  window.
+  Dragging pans the photo, and the next photo always arrives fitted.
+- Search subfolders, a switch in the settings dialog, off by default.
+  The queue then holds every image in the tree under the source folder, named
+  by its path, and a kept image keeps its subfolder inside the destination.
+- Carry videos, a switch in the settings dialog, off by default.
+  A kept image then takes the video of the same name in the same folder with
+  it, the other half of a live photo.
+- Buttons for focused mode and the zoom in the bottom bar, each naming its key,
+  and a button in focused mode that leaves it.
+  Both used to be reachable from the keyboard only.
+- `scripts/measure.py`, which times a state read and a decision against a
+  folder with the subfolder switch off and on, and writes nothing to it.
+
+### Changed
+
+- A second copy run copies only what the destination does not already hold,
+  byte for byte, instead of the whole selection again under `_1` names.
+  `POST /api/apply` reports the files left alone in `already_present`.
+- A file that cannot be transferred no longer ends the run.
+  The others are still transferred, the failures are reported by name and
+  reason in the new `failed` field and on the status line, and a copy cut short
+  is removed from the destination.
+  `POST /api/apply` now answers 500 only when the destination cannot be
+  created.
+
+### Fixed
+
+- Focused mode no longer paints the verdict colours along the edges of the
+  photo, where they changed the colours read in it.
+- A destination inside the source folder no longer feeds the queue with its own
+  copies when subfolders are searched.
+
 ## [0.2.0] - 2026-08-30
 
 ### Added
@@ -65,5 +105,6 @@ First release.
   network.
 - Command line: `phototriage [source] [--state-file PATH] [--port N]`.
 
+[Unreleased]: https://github.com/LaiqianDS/phototriage/compare/v0.2.0...dev
 [0.2.0]: https://github.com/LaiqianDS/phototriage/releases/tag/v0.2.0
 [0.1.0]: https://github.com/LaiqianDS/phototriage/releases/tag/v0.1.0
