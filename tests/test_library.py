@@ -6,7 +6,7 @@ from collections.abc import Callable
 from pathlib import Path
 
 from phototriage import library
-from phototriage.config import RAW_EXTS
+from phototriage.config import IMAGE_EXTS, RAW_EXTS
 
 
 def test_list_images_ignores_case_when_ordering(
@@ -36,6 +36,23 @@ def test_list_images_skips_files_that_are_not_images(
     (source / "photo.CR2").write_bytes(b"raw")
 
     assert library.list_images(source) == ["photo.png"]
+
+
+def test_list_images_reads_an_extension_the_way_pathlib_does(source: Path) -> None:
+    """The listing reads names as strings, for speed, and must agree with `Path.suffix`.
+
+    `resolve_image` still asks `Path.suffix`, so a name the two read differently
+    would be listed and then refused, or served and never listed.
+    `os.path.splitext` is not that reading: it gives `..jpg` no extension.
+    """
+    names = ["a.JPG", ".jpg", "..jpg", ".hidden.png", "photo.", "noext", "x.tar.jpeg", "b.jpg.txt"]
+    for name in names:
+        (source / name).write_bytes(b"")
+
+    expected = [name for name in names if Path(name).suffix.lower() in IMAGE_EXTS]
+
+    assert library.list_images(source) == library.ordered(expected)
+    assert library.list_images(source, deep=True) == library.ordered(expected)
 
 
 def test_list_images_skips_subfolders(source: Path, write_image: Callable[[Path], Path]) -> None:

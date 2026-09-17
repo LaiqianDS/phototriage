@@ -105,6 +105,12 @@ With one source of truth, undo is `decisions.pop()` and nothing can drift.
 The cost is that the source folder is listed on every request.
 That is a directory read, and it buys a second property: images added or deleted while the server runs are picked up without a restart.
 
+The listing is written with `os.scandir` and plain strings, not with `pathlib`, although the linter prefers `pathlib` everywhere else.
+On a folder of 4,500 images, building a `Path` for every file was nearly all of the cost: a state read took 86 ms, and a decision, which reads the state twice, 171 ms.
+With directory entries the same read takes 4 ms.
+`library.suffix` copies the rule of `Path.suffix` instead of using `os.path.splitext`, because `resolve_image` still asks `Path.suffix`, and the queue and the image route must agree on every name.
+Measure with `scripts/measure.py` before putting `Path` objects back in that loop.
+
 ### Decisions are keyed by file name
 
 A decision records the name of the image, not its position in the queue.
