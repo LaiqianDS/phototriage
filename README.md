@@ -81,11 +81,12 @@ The bars go, along with the room reserved for them, the photo loses its rounded 
 Three things are left: the progress line, now along the top edge of the window, the two verdict buttons reduced to their icons on the left and right edges, and one pill carrying the file name, the counters and any message.
 Nothing of the interface is painted over the photo, not even a tint along an edge to name the verdict on that side, because a colour next to the image changes the colour you read in it and judging colour is half of what the review is for.
 The pill fades and comes back exactly like the bars, and the two verdicts never fade, exactly like the buttons they replace.
-`Escape` leaves, and so does whatever way out of fullscreen your browser offers.
+`Escape` leaves, and so does the pill `Salir del modo enfocado` in the top right corner, and whatever way out of fullscreen your browser offers.
 The arrow keys and `U` work unchanged.
 The source folder, the settings and the run button stay behind, because they belong to before the review and after it, not to the photo in front of you.
-`F` does nothing when there is no photo on screen.
-There is no button for it, but the bottom bar names the key next to the undo button.
+The button `Modo enfocado` in the bottom bar enters it as well.
+`F` and the button do nothing when there is no photo on screen.
+A button you pressed to enter or leave hands the focus back to the page, so `Space` zooms straight after instead of pressing a button that is no longer on screen.
 
 **Zoom.**
 `Space` shows the photo at one image pixel per screen pixel, and `Space` again puts it back inside the window.
@@ -96,7 +97,8 @@ That is what one image pixel per screen pixel means there, and it is what stops 
 A photo already smaller than that is never shrunk by the zoom.
 The zoom is undone as soon as the photo changes, so every decision starts from the whole frame.
 It works inside focused mode and outside it, and leaving focused mode leaves it as it was.
-There is no button for it.
+Outside focused mode the button `Zoom 1:1` in the bottom bar does the same, and it reads as pressed while the zoom is on.
+Inside focused mode the bars are gone, so `Space` is the only way.
 
 **The dialogs.**
 The browse button and the settings button each open a dialog over the whole window.
@@ -120,7 +122,9 @@ The controls are:
 | Discard button (`Desechar`) | Left edge | Marks the current image as discarded and moves on. |
 | Keep button (`Mantener`) | Right edge | Marks the current image as kept and moves on. |
 | Undo button (`Deshacer`) | Bottom bar | Cancels the most recent decision. |
-| Focused mode hint (`Modo enfocado`) | Bottom bar | Names `F`, the key that enters focused mode. It is text, not a button. |
+| Focused mode button (`Modo enfocado`) | Bottom bar | Enters focused mode, like `F`. |
+| Zoom button (`Zoom 1:1`) | Bottom bar | Shows the photo at one image pixel per screen pixel, and back, like `Space`. Pressed while the zoom is on. |
+| Exit button (`Salir del modo enfocado`) | Top right corner, in focused mode only | Leaves focused mode, like `Escape`. It fades with the pill. |
 | Mode control (`Al ejecutar`) | Bottom bar | Copy the kept images (`Copiar`), or move them (`Mover`). |
 | Run button (`Ejecutar`) | Bottom bar | Asks you to confirm, then transfers the kept images to the destination. |
 | File name | Bottom bar | The name of the image on screen. |
@@ -131,7 +135,7 @@ The controls are:
 | Destination field (`Carpeta destino`) | Settings dialog | Sets where the kept images will go. |
 
 A control that has nothing to act on is disabled.
-Keep and discard are disabled when there is no image to review, undo when no decision has been taken, the run button when nothing is kept, and the destination field until a source folder is open.
+Keep, discard, the focused mode button and the zoom button are disabled when there is no image to review, undo when no decision has been taken, the run button when nothing is kept, and the destination field until a source folder is open.
 
 ## The review workflow
 
@@ -395,12 +399,9 @@ They are written down so that you do not meet them by surprise.
 - **A decision can be undone, not changed.**
   There is no way to rewrite the verdict of a named image.
   Undo removes the most recent decision, so correcting an older one means undoing everything taken after it.
-- **Focused mode is reached from the keyboard only.**
-  `F` enters it, and the bottom bar says so.
-  A pointer alone cannot get in, and once in, cannot get out either, except through the browser's own way out of fullscreen.
-- **The zoom is reached from the keyboard only, and lasts one photo.**
-  `Space` enters and leaves it, and nothing on screen says it is there.
+- **The zoom lasts one photo, and inside focused mode it has no button.**
   It is undone as soon as the photo changes, so checking the sharpness of a burst means pressing `Space` again on every frame.
+  In focused mode the bottom bar is gone, so a pointer alone cannot zoom there.
 - **A video is never reviewed.**
   It has no place in the queue, so a clip is only ever transferred as the companion of a kept image of the same name, and only with the video switch on.
   A clip named on its own, like `MVI_0042.MOV`, stays where it is whatever you do.

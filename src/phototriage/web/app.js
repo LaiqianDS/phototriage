@@ -101,6 +101,8 @@ function render(state) {
 
   el("keep").disabled = state.current === null;
   el("discard").disabled = state.current === null;
+  el("enter-focused").disabled = state.current === null;
+  el("toggle-zoom").disabled = state.current === null;
   el("undo").disabled = state.reviewed === 0;
   el("apply").disabled = state.kept === 0;
   el("destination").disabled = !chosen;
@@ -218,6 +220,7 @@ function enterZoom() {
   // one screen pixel each would then shrink it, which reads as a broken zoom.
   const fitted = photo.clientWidth;
   document.body.classList.add("zoomed");
+  el("toggle-zoom").setAttribute("aria-pressed", "true");
   photo.style.width = `${Math.max(photo.naturalWidth / devicePixelRatio, fitted)}px`;
   // The middle of the photo, which is where it was before. Reading the sizes is
   // also what forces the new width to be laid out first.
@@ -227,6 +230,7 @@ function enterZoom() {
 
 function leaveZoom() {
   document.body.classList.remove("zoomed");
+  el("toggle-zoom").setAttribute("aria-pressed", "false");
   el("photo").style.width = "";
 }
 
@@ -294,6 +298,7 @@ for (const event of ["pointerup", "pointercancel"]) {
  */
 async function enterFocused() {
   document.body.classList.add("focused");
+  releaseFocusFrom(".bar");
   try {
     await document.documentElement.requestFullscreen();
   } catch {
@@ -303,14 +308,28 @@ async function enterFocused() {
 
 function leaveFocused() {
   document.body.classList.remove("focused");
+  releaseFocusFrom(".focus-hint");
   if (document.fullscreenElement !== null) document.exitFullscreen();
 }
 
+/**
+ * Let go of a control that the mode change takes off the screen.
+ *
+ * A button pressed with the mouse keeps the focus, and the bars and the exit
+ * pill are hidden rather than removed, so the focus would stay on a control
+ * nobody can see. `Space` belongs to a focused button, so it would press that
+ * hidden button again instead of zooming. Giving the focus back to the page
+ * puts the keys back where the shortcuts expect them.
+ */
+function releaseFocusFrom(selector) {
+  if (document.activeElement?.closest(selector)) document.activeElement.blur();
+}
+
 // Escape leaves fullscreen without the keypress ever reaching the page, and the
-// window chrome offers its own way out as well. So the class follows the
+// window chrome offers its own way out as well. So focused mode follows the
 // browser rather than the other way round.
 document.addEventListener("fullscreenchange", () => {
-  if (document.fullscreenElement === null) document.body.classList.remove("focused");
+  if (document.fullscreenElement === null) leaveFocused();
 });
 
 // -------------------------------------------------------------- explorer ---
@@ -432,6 +451,9 @@ el("explorer-choose").addEventListener("click", () => {
 });
 
 el("open-settings").addEventListener("click", () => settings.showModal());
+el("enter-focused").addEventListener("click", enterFocused);
+el("leave-focused").addEventListener("click", leaveFocused);
+el("toggle-zoom").addEventListener("click", toggleZoom);
 el("settings-close").addEventListener("click", () => settings.close());
 
 document.addEventListener("keydown", (event) => {

@@ -133,8 +133,39 @@
           Deshacer <kbd aria-hidden="true">U</kbd>
         </button>
 
-        <!-- The way in, said where the way out is said: a key and its name. -->
-        <p class="hint"><kbd aria-hidden="true">F</kbd> Modo enfocado</p>
+        <!-- Each names its key, like undo, so using the button teaches the
+             shortcut. Focused mode hides this bar, so in there the zoom is
+             reached by its key alone. -->
+        <button id="enter-focused" type="button" class="button">
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.9"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <path d="M4 9V4h5M15 4h5v5M20 15v5h-5M9 20H4v-5" />
+          </svg>
+          Modo enfocado <kbd aria-hidden="true">F</kbd>
+        </button>
+
+        <!-- A toggle, so `aria-pressed` tells a screen reader which view is on. -->
+        <button id="toggle-zoom" type="button" class="button" aria-pressed="false">
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.9"
+            stroke-linecap="round"
+            aria-hidden="true"
+          >
+            <circle cx="10.5" cy="10.5" r="6" />
+            <path d="M15 15l5 5" />
+          </svg>
+          Zoom 1:1 <kbd aria-hidden="true">Espacio</kbd>
+        </button>
 
         <fieldset class="mode">
           <legend>Al ejecutar</legend>
@@ -166,9 +197,9 @@
       <span id="hud-status" class="status" role="status" aria-live="polite"></span>
     </div>
 
-    <p class="focus-hint">
+    <button id="leave-focused" type="button" class="focus-hint">
       <kbd aria-hidden="true">Esc</kbd> Salir del modo enfocado
-    </p>
+    </button>
 
     <dialog id="explorer" class="sheet" aria-labelledby="explorer-title">
       <header class="sheet-head">

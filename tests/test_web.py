@@ -22,6 +22,12 @@ HUD_IDS = ("hud-filename", "hud-progress", "hud-kept", "hud-status")
 BODY_STATES = ("resting", "focused", "zoomed")
 BODY_CLASSES = re.compile(r"""document\.body\.classList\.\w+\(\s*["']([^"']+)["']""")
 
+# Focused mode and the zoom were reached from the keyboard alone. These are the
+# buttons that let a pointer in and out, each named after its key.
+POINTER_CONTROLS = {"enter-focused": "F", "toggle-zoom": "Espacio", "leave-focused": "Esc"}
+BUTTONS = re.compile(r"""<button\b[^>]*\bid=["']([^"']+)["'][^>]*>(.*?)</button>""", re.DOTALL)
+CLICKS = re.compile(r"""\bel\(\s*["']([^"']+)["']\s*\)\.addEventListener\(\s*["']click["']""")
+
 
 def read(name: str) -> str:
     return (WEB_DIR / name).read_text(encoding="utf-8")
@@ -110,13 +116,20 @@ def test_focused_mode_paints_no_colour_of_its_own_over_the_photo() -> None:
         assert not painted, f"body.focused .edge.{side} paints over the photo: {painted}"
 
 
-def test_the_page_names_the_key_that_enters_focused_mode() -> None:
-    """Focused mode has no button, so the key is the only way in.
+def test_focused_mode_and_the_zoom_can_be_reached_without_a_keyboard() -> None:
+    """A button the script never listens to looks like the way in and does nothing.
 
-    A shortcut nothing on screen names is a feature only the README knows about.
-    The way out is named inside focused mode itself, so it is not checked here.
+    Each button also names its key, so a pointer user learns the shortcut by
+    using the button, and a key nothing on screen names stays a feature only the
+    README knows about.
     """
-    assert re.search(r"<kbd[^>]*>F</kbd>", read("index.html")), "nothing on screen names `F`"
+    buttons = dict(BUTTONS.findall(read("index.html")))
+    clicked = set(CLICKS.findall(read("app.js")))
+
+    for name, key in POINTER_CONTROLS.items():
+        assert name in buttons, f"index.html has no button `{name}`"
+        assert name in clicked, f"app.js does not listen to clicks on `{name}`"
+        assert f">{key}</kbd>" in buttons[name], f"`{name}` does not name its key, {key}"
 
 
 def test_every_state_on_the_body_is_drawn_by_the_stylesheet() -> None:
