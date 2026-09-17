@@ -27,6 +27,14 @@ def choose(client: TestClient, folder: Path) -> dict:
     return response.json()
 
 
+def decide(client: TestClient, verdict: str) -> dict:
+    """Take a verdict on the photo the interface would show, the current one."""
+    current = client.get("/api/state").json()["current"]
+    response = client.post("/api/decide", json={"verdict": verdict, "name": current})
+    assert response.status_code == 200
+    return response.json()
+
+
 def test_state_is_empty_before_a_folder_is_chosen(client: TestClient) -> None:
     state = client.get("/api/state").json()
 
@@ -46,7 +54,7 @@ def test_state_is_empty_before_a_folder_is_chosen(client: TestClient) -> None:
 
 
 def test_decide_without_a_source_is_refused(client: TestClient) -> None:
-    response = client.post("/api/decide", json={"verdict": "keep"})
+    response = client.post("/api/decide", json={"verdict": "keep", "name": "a.png"})
 
     assert response.status_code == 409
 
@@ -83,7 +91,7 @@ def test_a_restart_resumes_the_last_folder(
     write_image(source / "a.png")
     with TestClient(create_app(store)) as first:
         choose(first, source)
-        first.post("/api/decide", json={"verdict": "keep"})
+        decide(first, "keep")
 
     with TestClient(create_app(Store.load(tmp_path / "state.json"))) as second:
         state = second.get("/api/state").json()
@@ -99,7 +107,7 @@ def test_decide_undo_decide_walks_the_queue(
     write_image(source / "b.png")
     choose(client, source)
 
-    kept = client.post("/api/decide", json={"verdict": "keep"}).json()
+    kept = decide(client, "keep")
     assert kept["kept"] == 1
     assert kept["current"] == "b.png"
 
@@ -108,7 +116,7 @@ def test_decide_undo_decide_walks_the_queue(
     assert undone["reviewed"] == 0
     assert undone["current"] == "a.png"
 
-    dropped = client.post("/api/decide", json={"verdict": "discard"}).json()
+    dropped = decide(client, "discard")
     assert dropped["discarded"] == 1
     assert dropped["current"] == "b.png"
 
@@ -118,11 +126,32 @@ def test_decide_past_the_end_is_refused(
 ) -> None:
     write_image(source / "only.png")
     choose(client, source)
-    client.post("/api/decide", json={"verdict": "keep"})
+    decide(client, "keep")
 
-    response = client.post("/api/decide", json={"verdict": "keep"})
+    response = client.post("/api/decide", json={"verdict": "keep", "name": "only.png"})
 
     assert response.status_code == 409
+
+
+def test_a_verdict_on_a_photo_that_is_no_longer_next_is_refused(
+    client: TestClient, source: Path, write_image: Callable[[Path], Path]
+) -> None:
+    """A verdict used to land on whatever was next when it arrived, seen or not.
+
+    Two windows both show `a.png`. One keeps it, and a discard from the other
+    then went to `b.png`, which that window never showed. A file that sorts in
+    front of the photo on screen does the same without a second window.
+    """
+    write_image(source / "a.png")
+    write_image(source / "b.png")
+    choose(client, source)
+    decide(client, "keep")
+
+    stale = client.post("/api/decide", json={"verdict": "discard", "name": "a.png"})
+
+    assert stale.status_code == 409
+    state = client.get("/api/state").json()
+    assert (state["reviewed"], state["current"]) == (1, "b.png")
 
 
 def test_an_unknown_verdict_is_rejected(
@@ -131,7 +160,7 @@ def test_an_unknown_verdict_is_rejected(
     write_image(source / "a.png")
     choose(client, source)
 
-    response = client.post("/api/decide", json={"verdict": "maybe"})
+    response = client.post("/api/decide", json={"verdict": "maybe", "name": "a.png"})
 
     assert response.status_code == 422
 
@@ -141,7 +170,7 @@ def test_setting_the_destination_keeps_the_source(
 ) -> None:
     write_image(source / "a.png")
     choose(client, source)
-    client.post("/api/decide", json={"verdict": "keep"})
+    decide(client, "keep")
 
     state = client.post("/api/destination", json={"path": str(tmp_path / "elsewhere")}).json()
 
@@ -232,8 +261,8 @@ def test_apply_copies_the_kept_images_and_their_raws(
     write_image(source / "keep.png")
     (source / "keep.CR2").write_bytes(b"raw")
     choose(client, source)
-    client.post("/api/decide", json={"verdict": "discard"})  # drop.png
-    client.post("/api/decide", json={"verdict": "keep"})  # keep.png
+    decide(client, "discard")  # drop.png
+    decide(client, "keep")  # keep.png
 
     response = client.post("/api/apply", json={"mode": "copy"})
 
@@ -259,7 +288,7 @@ def test_a_second_copy_run_reports_the_files_already_there(
     write_image(source / "keep.png")
     (source / "keep.CR2").write_bytes(b"raw")
     choose(client, source)
-    client.post("/api/decide", json={"verdict": "keep"})
+    decide(client, "keep")
     client.post("/api/apply", json={"mode": "copy"})
 
     second = client.post("/api/apply", json={"mode": "copy"}).json()
@@ -275,8 +304,8 @@ def test_apply_in_move_mode_empties_the_source_of_the_kept(
     write_image(source / "drop.png")
     write_image(source / "keep.png")
     choose(client, source)
-    client.post("/api/decide", json={"verdict": "discard"})
-    client.post("/api/decide", json={"verdict": "keep"})
+    decide(client, "discard")
+    decide(client, "keep")
 
     client.post("/api/apply", json={"mode": "move"})
 
@@ -303,7 +332,7 @@ def test_the_decisions_reach_the_disk_after_every_keypress(
     write_image(source / "a.png")
     choose(client, source)
 
-    client.post("/api/decide", json={"verdict": "keep"})
+    decide(client, "keep")
 
     reloaded = Store.load(tmp_path / "state.json")
     assert reloaded.open(source).verdicts == {"a.png": Verdict.KEEP}
@@ -335,7 +364,7 @@ def test_apply_reports_an_unwritable_destination(
     """A failed transfer must answer with the error envelope, not plain text."""
     write_image(source / "a.png")
     choose(client, source)
-    client.post("/api/decide", json={"verdict": "keep"})
+    decide(client, "keep")
     blocked = tmp_path / "blocked"
     blocked.write_text("this is a file, so it cannot become the destination folder")
     client.post("/api/destination", json={"path": str(blocked)})
@@ -353,8 +382,8 @@ def test_apply_carries_on_past_a_file_it_cannot_read(
     write_image(source / "a.png")
     locked = write_image(source / "b.png")
     choose(client, source)
-    client.post("/api/decide", json={"verdict": "keep"})
-    client.post("/api/decide", json={"verdict": "keep"})
+    decide(client, "keep")
+    decide(client, "keep")
     locked.chmod(0o000)
     try:
         response = client.post("/api/apply", json={"mode": "copy"})
@@ -388,7 +417,7 @@ def test_settings_turn_raw_pairing_off_and_apply_obeys(
     write_image(source / "IMG_1.png")
     (source / "IMG_1.CR2").write_bytes(b"raw")
     choose(client, source)
-    client.post("/api/decide", json={"verdict": "keep"})
+    decide(client, "keep")
 
     state = client.post("/api/settings", json={"pair_raws": False}).json()
     assert state["pair_raws"] is False
@@ -450,7 +479,7 @@ def test_settings_send_a_video_with_the_image_that_shares_its_name(
     (source / "IMG_1.MOV").write_bytes(b"clip")
     (source / "IMG_1.CR2").write_bytes(b"raw")
     choose(client, source)
-    client.post("/api/decide", json={"verdict": "keep"})
+    decide(client, "keep")
     destination = tmp_path / "source_keep"
 
     client.post("/api/apply", json={"mode": "copy"})
@@ -490,7 +519,7 @@ def test_a_destination_inside_the_source_stays_out_of_the_queue(
     choose(client, source)
     client.post("/api/settings", json={"search_subfolders": True})
     client.post("/api/destination", json={"path": str(source / "best")})
-    client.post("/api/decide", json={"verdict": "keep"})
+    decide(client, "keep")
     client.post("/api/apply", json={"mode": "copy"})
 
     state = client.get("/api/state").json()
@@ -525,8 +554,8 @@ def test_the_plan_names_the_files_their_size_and_where_they_go(
     write_image(source / "drop.png")
     (source / "keep.CR2").write_bytes(b"x" * 1000)
     choose(client, source)
-    client.post("/api/decide", json={"verdict": "discard"})  # drop.png
-    client.post("/api/decide", json={"verdict": "keep"})  # keep.png
+    decide(client, "discard")  # drop.png
+    decide(client, "keep")  # keep.png
 
     plan = client.get("/api/plan").json()
 
@@ -545,7 +574,7 @@ def test_the_plan_follows_the_switches_like_the_run_does(
     write_image(source / "keep.png")
     (source / "keep.CR2").write_bytes(b"raw")
     choose(client, source)
-    client.post("/api/decide", json={"verdict": "keep"})
+    decide(client, "keep")
 
     client.post("/api/settings", json={"pair_raws": False})
 
@@ -574,8 +603,8 @@ def test_a_run_reports_its_progress_and_refuses_a_second_one(
     first = write_image(source / "a.png")
     write_image(source / "b.png")
     choose(client, source)
-    client.post("/api/decide", json={"verdict": "keep"})
-    client.post("/api/decide", json={"verdict": "keep"})
+    decide(client, "keep")
+    decide(client, "keep")
     seen: list[dict] = []
     refused: list[int] = []
     real_copy = transfer.shutil.copy2
@@ -606,7 +635,7 @@ def test_a_run_that_fails_releases_the_next_one(
     """A lock left held by a failure would refuse every run until a restart."""
     write_image(source / "a.png")
     choose(client, source)
-    client.post("/api/decide", json={"verdict": "keep"})
+    decide(client, "keep")
     blocked = tmp_path / "blocked"
     blocked.write_text("a file, so it cannot become the destination folder")
     client.post("/api/destination", json={"path": str(blocked)})

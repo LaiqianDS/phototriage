@@ -77,6 +77,8 @@ class SettingsRequest(BaseModel):
 
 class DecideRequest(BaseModel):
     verdict: Verdict
+    #: The image the verdict was taken on, which has to still be the current one.
+    name: str
 
 
 class ApplyRequest(BaseModel):
@@ -267,6 +269,14 @@ def create_app(store: Store, source: Path | None = None) -> FastAPI:
         current = snapshot().current
         if current is None:
             raise HTTPException(status_code=409, detail="No hay nada que revisar.")
+        # The queue is read from the folder on every request, so it can move
+        # between the photo a page shows and the verdict taken on it: another
+        # window decides that photo, or a new file sorts in front of it. The
+        # verdict is about the photo that was seen, so it goes nowhere else.
+        if request.name != current:
+            raise HTTPException(
+                status_code=409, detail="La cola ha cambiado. Decide sobre la foto que ves ahora."
+            )
         review.decide(current, request.verdict)
         store.save()
         return snapshot()

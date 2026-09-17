@@ -203,22 +203,27 @@ Nothing already transferred is affected by either.
 Record a verdict for the current image and move to the next one.
 
 ```json
-{ "verdict": "keep" }
+{ "verdict": "keep", "name": "IMG_0042.jpg" }
 ```
 
 | Field | Type | Notes |
 | --- | --- | --- |
 | `verdict` | string | Required. `keep` or `discard`. Any other value is refused. |
+| `name` | string | Required. The image the verdict was taken on, as `current` named it in the last state the client received. |
 
 | Status | Cause |
 | --- | --- |
 | 200 | A [State](#state) object, with `current` already advanced. |
 | 409 | No source folder is open. `Elige una carpeta origen.` |
 | 409 | The queue is empty, so there is nothing to decide. `No hay nada que revisar.` |
-| 422 | `verdict` is missing, is not one of the two values, or the body is not JSON. |
+| 409 | `name` is no longer `current`. Nothing is recorded. `La cola ha cambiado. Decide sobre la foto que ves ahora.` |
+| 422 | `verdict` or `name` is missing, `verdict` is not one of the two values, or the body is not JSON. |
 
-The route does not take an image name.
-The verdict always applies to `current`, which the server works out from the folder at the moment of the request.
+The verdict applies to `current`, which the server works out from the folder at the moment of the request.
+`name` does not choose another image, it only confirms that one.
+The queue can move between the state a client drew and the verdict taken on it: another window decides the same image, or a new file sorts in front of it.
+Without the check, the verdict would land on an image nobody saw.
+A client that gets this 409 reads the state again and shows the image that is current now.
 The state file is written before the response is sent.
 
 ### `POST /api/undo`

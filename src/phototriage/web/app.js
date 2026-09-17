@@ -108,7 +108,19 @@ function render(state) {
   el("destination").disabled = !chosen;
 }
 
-const decide = (verdict) => run(() => call("decide", { verdict }));
+// The verdict names the photo on screen, and the server refuses it when that
+// photo is no longer the next one. The page then shows the one that is, so the
+// refusal is never repeated against the same stale photo.
+function decide(verdict) {
+  if (shown === null) return;
+  run(() =>
+    call("decide", { verdict, name: shown }).catch(async (error) => {
+      render(await call("state"));
+      throw error;
+    }),
+  );
+}
+
 const undo = () => run(() => call("undo", {}));
 
 const setSource = (path) => run(() => call("source", { path }));
@@ -251,7 +263,7 @@ for (const id of ["topbar", "bottombar", "keep"]) {
 
 const viewer = el("viewer");
 
-/** The photo the viewer is pointed at, so a change of photo can be noticed. */
+/** The photo on screen, which a verdict names and a new photo is compared with. */
 let shown = null;
 
 /**
