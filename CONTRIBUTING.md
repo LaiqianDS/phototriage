@@ -75,6 +75,16 @@ Run them before you merge.
 The workflow also runs `uv sync --locked`, which fails when `pyproject.toml` and `uv.lock` disagree.
 If you change a dependency, commit the updated `uv.lock` with it.
 
+## Time a folder
+
+```sh
+uv run python scripts/measure.py ~/Pictures/2024
+```
+
+It times a state read and a decision against the folder, with the subfolder switch off and then on.
+The photos are only read, the decisions go to a state file in a temporary folder, and nothing is transferred.
+Run it before and after a change to how the queue is listed, and put both results in the merge commit.
+
 ## Style
 
 - Type hints on every signature, and `from __future__ import annotations` at the top of each module.

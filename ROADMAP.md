@@ -23,9 +23,38 @@ image library.
 Searching subfolders adds a second thing to time in the same session.
 The queue is listed again on every request, by design, so with the switch on
 that is a walk of the whole tree under the source, and a decision takes two.
-It was written against a tree of three files.
-A real import, a folder per day over a month, is the case that says whether the
-walk has to be remembered between requests instead.
+`scripts/measure.py` times both requests against a folder, with the switch off
+and on, and never writes to it:
+
+```sh
+uv run python scripts/measure.py ~/Pictures/2024
+```
+
+A synthetic tree has been timed, and it moved the question.
+The tree was a month of imports, 30 folders of 150 JPEG and CR2 pairs, and a
+flat folder of the same 4,500 JPEG files beside it, all empty files on the
+internal SSD.
+
+| Folder | Subfolders | State read | Decision |
+| --- | --- | --- | --- |
+| Flat, 4,500 images | off | 79 ms | 158 ms |
+| Flat, 4,500 images | on | 88 ms | 174 ms |
+| Month, 4,500 images in 30 folders | on | 117 ms | 233 ms |
+
+These are medians.
+The walk is not the cost, the listing is, and the flat folder pays it with the
+switch off.
+A profile puts nearly all of it in building `Path` objects, above all in
+`relative_to`, not in reading the disk.
+The same listing written with `os.scandir` and names kept as strings took 4 ms
+on the flat folder and 8 ms on the month.
+So the fix for a slow queue is a cheaper listing, not a remembered one, and it
+needs no cache to keep in step with the disk.
+
+A real card is still worth timing before that change.
+A slow disk makes each `stat` dearer, which the SSD above hides, and the
+decisions timed were the first 50, while `Store.save` rewrites the whole state
+file on each one.
 
 ## 0.2.1: what the first real use turns up
 
