@@ -79,6 +79,14 @@ class ApplyRequest(BaseModel):
     mode: transfer.Mode
 
 
+class Plan(BaseModel):
+    """What a run would transfer, for the confirmation before it."""
+
+    files: int
+    bytes: int
+    destination: str
+
+
 class ApplyResponse(BaseModel):
     transferred: int
     already_present: int
@@ -253,16 +261,40 @@ def create_app(store: Store, source: Path | None = None) -> FastAPI:
         store.save()
         return snapshot()
 
-    @app.post("/api/apply")
-    def apply(request: ApplyRequest) -> ApplyResponse:
-        folder, review = require_review()
-        plan = transfer.build_plan(
+    def plan_for(folder: Path, review: Review) -> list[Path]:
+        """The files a run would transfer, from the switches as they stand.
+
+        One function for the preview and the run, so the confirmation can never
+        describe a different set of files from the one that is then moved.
+        """
+        return transfer.build_plan(
             folder,
             review.verdicts,
             companion_exts(store.pair_raws, store.pair_videos),
             store.search_subfolders,
             left_out(folder, review.destination),
         )
+
+    @app.get("/api/plan")
+    def read_plan() -> Plan:
+        """Count and weigh the plan without touching the destination.
+
+        Nothing is compared with what the destination already holds, because
+        that means reading every file. In copy mode the count is therefore what
+        a first run would copy, and a later run may copy fewer.
+        """
+        folder, review = require_review()
+        plan = plan_for(folder, review)
+        return Plan(
+            files=len(plan),
+            bytes=sum(path.stat().st_size for path in plan),
+            destination=str(review.destination),
+        )
+
+    @app.post("/api/apply")
+    def apply(request: ApplyRequest) -> ApplyResponse:
+        folder, review = require_review()
+        plan = plan_for(folder, review)
         try:
             outcome = transfer.execute(plan, folder, review.destination, request.mode)
         except OSError as error:

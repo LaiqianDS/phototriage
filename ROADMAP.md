@@ -96,11 +96,6 @@ headings are the place to look first.
 
 ## 0.4.0: confidence and comfort
 
-**Preview before running.**
-The confirmation says nothing about how many files, how many gigabytes, or
-where they are going.
-It should: `312 archivos, 8,4 GB` into `2024_keep`.
-
 **Progress during the transfer.**
 The status line reads `Procesando...` and can sit there for minutes with no sign
 of life.

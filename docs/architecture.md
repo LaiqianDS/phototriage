@@ -83,6 +83,7 @@ Every route that changes something follows the same three steps: mutate, save th
 `POST /api/settings` is the same shape one level up: it changes a field on the store rather than the active review, and then saves and answers with a snapshot like the rest.
 `POST /api/apply` is the one route outside that pattern.
 It changes files rather than decisions, so it writes no state file and answers with a count instead of a snapshot.
+`GET /api/plan` builds the same plan through the same function, `plan_for`, and only counts and weighs it, so the confirmation shown before a run describes exactly the files the run would take.
 
 Startup follows the same path from the other end.
 `main` parses the arguments, loads the store, and hands it to `create_app` together with the folder from the command line, if there is one.
