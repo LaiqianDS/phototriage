@@ -85,7 +85,7 @@ The pill fades and comes back exactly like the bars, and the two verdicts never 
 The arrow keys and `U` work unchanged.
 The source folder, the settings and the run button stay behind, because they belong to before the review and after it, not to the photo in front of you.
 `F` does nothing when there is no photo on screen.
-There is no button for it.
+There is no button for it, but the bottom bar names the key next to the undo button.
 
 **Zoom.**
 `Space` shows the photo at one image pixel per screen pixel, and `Space` again puts it back inside the window.
@@ -120,6 +120,7 @@ The controls are:
 | Discard button (`Desechar`) | Left edge | Marks the current image as discarded and moves on. |
 | Keep button (`Mantener`) | Right edge | Marks the current image as kept and moves on. |
 | Undo button (`Deshacer`) | Bottom bar | Cancels the most recent decision. |
+| Focused mode hint (`Modo enfocado`) | Bottom bar | Names `F`, the key that enters focused mode. It is text, not a button. |
 | Mode control (`Al ejecutar`) | Bottom bar | Copy the kept images (`Copiar`), or move them (`Mover`). |
 | Run button (`Ejecutar`) | Bottom bar | Asks you to confirm, then transfers the kept images to the destination. |
 | File name | Bottom bar | The name of the image on screen. |
@@ -387,7 +388,7 @@ They are written down so that you do not meet them by surprise.
   There is no way to rewrite the verdict of a named image.
   Undo removes the most recent decision, so correcting an older one means undoing everything taken after it.
 - **Focused mode is reached from the keyboard only.**
-  `F` enters it and nothing on screen says so.
+  `F` enters it, and the bottom bar says so.
   A pointer alone cannot get in, and once in, cannot get out either, except through the browser's own way out of fullscreen.
 - **The zoom is reached from the keyboard only, and lasts one photo.**
   `Space` enters and leaves it, and nothing on screen says it is there.

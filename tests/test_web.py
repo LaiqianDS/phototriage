@@ -110,6 +110,15 @@ def test_focused_mode_paints_no_colour_of_its_own_over_the_photo() -> None:
         assert not painted, f"body.focused .edge.{side} paints over the photo: {painted}"
 
 
+def test_the_page_names_the_key_that_enters_focused_mode() -> None:
+    """Focused mode has no button, so the key is the only way in.
+
+    A shortcut nothing on screen names is a feature only the README knows about.
+    The way out is named inside focused mode itself, so it is not checked here.
+    """
+    assert re.search(r"<kbd[^>]*>F</kbd>", read("index.html")), "nothing on screen names `F`"
+
+
 def test_every_state_on_the_body_is_drawn_by_the_stylesheet() -> None:
     """A class name is the whole contract between the script and the stylesheet.
 
