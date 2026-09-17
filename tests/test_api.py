@@ -474,3 +474,39 @@ def test_settings_change_only_the_flag_they_name(client: TestClient) -> None:
 
     assert state["pair_raws"] is False
     assert state["search_subfolders"] is True
+
+
+def test_a_destination_inside_the_source_stays_out_of_the_queue(
+    client: TestClient, source: Path, write_image: Callable[[Path], Path]
+) -> None:
+    """A copy run used to put its own copies back in front of the reviewer.
+
+    With the subfolder switch on, the walk reached the destination like any
+    other folder, and the counters grew with the reviewer's own work.
+    """
+    write_image(source / "2024-08-30" / "IMG_1.png")
+    write_image(source / "2024-08-30" / "IMG_2.png")
+    choose(client, source)
+    client.post("/api/settings", json={"search_subfolders": True})
+    client.post("/api/destination", json={"path": str(source / "best")})
+    client.post("/api/decide", json={"verdict": "keep"})
+    client.post("/api/apply", json={"mode": "copy"})
+
+    state = client.get("/api/state").json()
+
+    assert (source / "best" / "2024-08-30" / "IMG_1.png").is_file()
+    assert (state["total"], state["kept"], state["current"]) == (2, 1, "2024-08-30/IMG_2.png")
+
+
+def test_a_destination_that_is_the_source_itself_leaves_the_queue_whole(
+    client: TestClient, source: Path, write_image: Callable[[Path], Path]
+) -> None:
+    """Leaving the destination out must never mean leaving the source out."""
+    write_image(source / "inner" / "IMG_1.png")
+    choose(client, source)
+    client.post("/api/settings", json={"search_subfolders": True})
+
+    state = client.post("/api/destination", json={"path": str(source)}).json()
+
+    assert state["total"] == 1
+    assert client.get("/api/image/inner%2FIMG_1.png").status_code == 200

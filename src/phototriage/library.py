@@ -17,8 +17,8 @@ def ordered(names: list[str]) -> list[str]:
     return sorted(names, key=lambda name: (name.lower(), name))
 
 
-def walk(folder: Path) -> Iterator[Path]:
-    """Every file under `folder`, however deep.
+def walk(folder: Path, skip: Path | None = None) -> Iterator[Path]:
+    """Every file under `folder`, however deep, except under `skip`.
 
     A folder whose name starts with a dot is left out, like it is in the
     browser. A symbolic link to a folder is not followed, which is what keeps a
@@ -27,6 +27,10 @@ def walk(folder: Path) -> Iterator[Path]:
 
     A subfolder that cannot be read is skipped instead of ending the walk, so
     one unreadable corner of a card does not hide the rest of the shoot.
+
+    `skip` is a subfolder to leave out whole, which is how a destination inside
+    the source stays out of the queue. It is compared as a path, so it has to be
+    spelled from the same `folder`, resolved, for the two to meet.
     """
     try:
         entries = list(folder.iterdir())
@@ -34,13 +38,13 @@ def walk(folder: Path) -> Iterator[Path]:
         return
     for entry in entries:
         if entry.is_dir():
-            if not entry.is_symlink() and not entry.name.startswith("."):
-                yield from walk(entry)
+            if not entry.is_symlink() and not entry.name.startswith(".") and entry != skip:
+                yield from walk(entry, skip)
         elif entry.is_file():
             yield entry
 
 
-def list_images(source: Path, deep: bool = False) -> list[str]:
+def list_images(source: Path, deep: bool = False, skip: Path | None = None) -> list[str]:
     """Names of the reviewable images in `source`, in a stable order.
 
     A name is relative to `source` and always spelled with forward slashes:
@@ -49,12 +53,14 @@ def list_images(source: Path, deep: bool = False) -> list[str]:
     therefore named exactly as it was before subfolders were searched, which is
     what lets the decisions in an existing state file keep matching.
 
+    `skip` is a subfolder that `deep` does not reach into, see `walk`.
+
     A folder that cannot be listed, because it is missing or unreadable, reads
     as empty. Raising here would turn every later request into a server error,
     because the folder is read again on each one.
     """
     if deep:
-        found: Iterator[Path] | list[Path] = walk(source)
+        found: Iterator[Path] | list[Path] = walk(source, skip)
     else:
         try:
             found = [entry for entry in source.iterdir() if entry.is_file()]
@@ -96,7 +102,9 @@ def list_folders(source: Path) -> list[str]:
     )
 
 
-def resolve_image(source: Path, name: str, deep: bool = False) -> Path | None:
+def resolve_image(
+    source: Path, name: str, deep: bool = False, skip: Path | None = None
+) -> Path | None:
     """Path of the image `name` inside `source`.
 
     Returns None when the file is absent, when it is not a reviewable image, or
@@ -105,14 +113,16 @@ def resolve_image(source: Path, name: str, deep: bool = False) -> Path | None:
     and read the rest of the disk.
 
     `deep` decides how far inside counts: the folder itself, or the whole tree
-    under it. It is the same reach `list_images` was given, so an image outside
-    the queue can be neither served nor transferred.
+    under it, less `skip`. It is the same reach `list_images` was given, so an
+    image outside the queue can be neither served nor transferred.
     """
     root = source.resolve()
     candidate = (source / name).resolve()
     if candidate.suffix.lower() not in IMAGE_EXTS or not candidate.is_file():
         return None
     inside = candidate.is_relative_to(root) if deep else candidate.parent == root
+    if skip is not None and candidate.is_relative_to(skip):
+        return None
     return candidate if inside else None
 
 

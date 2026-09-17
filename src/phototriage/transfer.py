@@ -30,6 +30,7 @@ def build_plan(
     verdicts: dict[str, Verdict],
     companions: frozenset[str] = RAW_EXTS,
     deep: bool = False,
+    skip: Path | None = None,
 ) -> list[Path]:
     """Files to transfer: every kept image, and what shares its name.
 
@@ -40,6 +41,10 @@ def build_plan(
     the transfer as well, even when a decision about it survives in the state
     file from an earlier run. Each file appears once, because two kept images
     can share a name and therefore the same original beside it.
+
+    `skip` narrows that reach like it narrows the queue. The companion index
+    needs no such limit: a companion only ever sits beside its own image, so an
+    image outside `skip` never pairs with a file inside it.
     """
     beside = library.companion_index(source, companions, deep) if companions else {}
     plan: list[Path] = []
@@ -47,7 +52,7 @@ def build_plan(
     for name, verdict in verdicts.items():
         if verdict is not Verdict.KEEP:
             continue
-        image = library.resolve_image(source, name, deep)
+        image = library.resolve_image(source, name, deep, skip)
         if image is None:
             continue
         for path in (image, *beside.get(image.with_suffix(""), [])):

@@ -114,6 +114,20 @@ def as_destination(raw: str, source: Path) -> Path:
     return path
 
 
+def left_out(folder: Path, destination: Path) -> Path | None:
+    """The destination, when it is a subfolder of the source that the walk would reach.
+
+    Its files are copies of photos already reviewed, so they are kept out of
+    the queue and out of the plan. Resolved first, because the walk spells its
+    paths from the resolved source, and the destination is stored as typed.
+
+    The source itself is never left out. A destination equal to the source is
+    odd but allowed, and leaving it out would empty the queue.
+    """
+    inner = destination.resolve()
+    return inner if inner != folder and inner.is_relative_to(folder) else None
+
+
 def create_app(store: Store, source: Path | None = None) -> FastAPI:
     """Build the application, resuming `source` or the last folder reviewed."""
     app = FastAPI(title="PhotoTriage")
@@ -149,7 +163,8 @@ def create_app(store: Store, source: Path | None = None) -> FastAPI:
                 search_subfolders=store.search_subfolders,
                 pair_videos=store.pair_videos,
             )
-        images = library.list_images(folder, store.search_subfolders)
+        skip = left_out(folder, review.destination)
+        images = library.list_images(folder, store.search_subfolders, skip)
         verdicts = review.verdicts
         pending = [name for name in images if name not in verdicts]
         reviewed = [verdicts[name] for name in images if name in verdicts]
@@ -246,6 +261,7 @@ def create_app(store: Store, source: Path | None = None) -> FastAPI:
             review.verdicts,
             companion_exts(store.pair_raws, store.pair_videos),
             store.search_subfolders,
+            left_out(folder, review.destination),
         )
         try:
             outcome = transfer.execute(plan, folder, review.destination, request.mode)
@@ -269,8 +285,9 @@ def create_app(store: Store, source: Path | None = None) -> FastAPI:
     # `resolve_image`, not by the shape of the route.
     @app.get("/api/image/{name:path}")
     def read_image(name: str) -> FileResponse:
-        folder, _ = require_review()
-        path = library.resolve_image(folder, name, store.search_subfolders)
+        folder, review = require_review()
+        skip = left_out(folder, review.destination)
+        path = library.resolve_image(folder, name, store.search_subfolders, skip)
         if path is None:
             raise HTTPException(status_code=404, detail=f"No existe la imagen {name}.")
         return FileResponse(path)

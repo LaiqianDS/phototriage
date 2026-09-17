@@ -174,6 +174,28 @@ def test_resolve_image_going_deep_still_refuses_to_leave_the_source(
     assert library.resolve_image(source, "inner/escape.png", deep=True) is None
 
 
+def test_list_images_leaves_out_the_folder_it_is_told_to_skip(
+    source: Path, write_image: Callable[[Path], Path]
+) -> None:
+    """A destination can sit inside the source, and its copies are not photos to review."""
+    write_image(source / "IMG_1.png")
+    write_image(source / "best" / "IMG_1.png")
+    write_image(source / "2024-08-30" / "IMG_2.png")
+
+    names = library.list_images(source, deep=True, skip=source / "best")
+
+    assert names == ["2024-08-30/IMG_2.png", "IMG_1.png"]
+
+
+def test_resolve_image_refuses_a_name_inside_the_skipped_folder(
+    source: Path, write_image: Callable[[Path], Path]
+) -> None:
+    """What the queue leaves out cannot come back through a decision from an earlier run."""
+    write_image(source / "best" / "IMG_1.png")
+
+    assert library.resolve_image(source, "best/IMG_1.png", deep=True, skip=source / "best") is None
+
+
 def test_resolve_image_rejects_a_file_that_is_not_an_image(source: Path) -> None:
     (source / "notes.txt").write_text("not an image")
 

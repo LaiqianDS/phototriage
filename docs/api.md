@@ -68,6 +68,7 @@ Returned by `/api/state`, `/api/source`, `/api/destination`, `/api/settings`, `/
 A name is relative to the source folder and always uses forward slashes.
 With `search_subfolders` off it is a file name, `IMG_1.jpg`.
 With it on, an image inside a subfolder is named `2024-08-30/IMG_1.jpg`, while an image directly inside the source folder keeps the same name it had before.
+A destination that is a subfolder of the source is left out of that walk, so the copies a run puts there are never in the queue and never counted.
 
 The counters are read from the source folder on every request.
 A file removed from the folder stops being counted, even though its decision is still recorded.
@@ -281,6 +282,7 @@ With `pair_raws` off, no RAW file is in the plan, and with `pair_videos` off, no
 A file only travels when a kept image shares its name inside the same folder, so a clip named on its own is never transferred.
 With `search_subfolders` off, an image inside a subfolder is not in the plan either, even when a decision about it survives from a run with the option on: what is transferred is what the queue holds.
 A kept image from a subfolder keeps that subfolder inside the destination, so `2024-08-30/IMG_1.jpg` arrives as `2024-08-30/IMG_1.jpg`, and two folders that name a photo alike cannot collapse onto one name.
+A kept image inside a destination that is a subfolder of the source is not in the plan, even when a decision about it survives from before that folder was the destination.
 A kept image whose file is no longer in the source folder is skipped, so the plan is always executable.
 A RAW file shared by two kept images is transferred once.
 No file in the destination is overwritten: a name already taken becomes `name_1`, `name_2`, and so on.
@@ -305,7 +307,7 @@ The bytes of one image from the source folder.
 | Status | Cause |
 | --- | --- |
 | 200 | The file. `Content-Type` is guessed from the extension, and range requests are supported. |
-| 404 | The file does not exist, is not a reviewable image type, is out of the reach the review was given, or resolves outside the source folder, including through a symbolic link. `No existe la imagen ...` |
+| 404 | The file does not exist, is not a reviewable image type, is out of the reach the review was given, lies inside a destination that is a subfolder of the source, or resolves outside the source folder, including through a symbolic link. `No existe la imagen ...` |
 | 409 | No source folder is open. `Elige una carpeta origen.` |
 
 The file is sent exactly as it is on disk.
