@@ -262,8 +262,10 @@ Pictures/
 It is discarded, which here means "left alone".
 
 You can run the transfer more than once.
-A second run transfers the kept images again, and because no name is ever overwritten, the destination gets `IMG_02_1.jpg` next to `IMG_02.jpg`.
-In copy mode nothing stops you: the kept count does not change, so the run button stays enabled after a successful run.
+In copy mode the kept count does not change, so the run button stays enabled after a successful run.
+A second run copies only what is not in the destination yet, such as the images you kept since the first one.
+A file is taken as already there when the destination holds one with the same name, or a numbered variant of it such as `IMG_02_1.jpg`, and exactly the same bytes.
+The status line then says how many were already there: `0 archivos en /home/you/Pictures/2024_keep, 2 ya estaban`.
 In move mode there is nothing left to transfer the second time, and the run button is disabled once the kept count reaches zero.
 
 ## RAW pairing
@@ -378,12 +380,9 @@ There is no option to change it.
 These are real.
 They are written down so that you do not meet them by surprise.
 
-- **A second run in copy mode copies everything again.**
-  The decisions are not cleared by a transfer, and the run button stays enabled after a successful copy.
-  The second run finds every name taken, so the destination ends with `IMG_02.jpg` and `IMG_02_1.jpg` side by side.
 - **A transfer that fails part way leaves what it already transferred.**
   The files sent before the failure stay in the destination, and the message says only that the transfer was interrupted, not how far it got.
-  Running again is safe, because no name is ever overwritten, but the destination may then hold numbered duplicates.
+  Running again is safe, because no name is ever overwritten, and it does not transfer again what already arrived.
 - **A decision can be undone, not changed.**
   There is no way to rewrite the verdict of a named image.
   Undo removes the most recent decision, so correcting an older one means undoing everything taken after it.

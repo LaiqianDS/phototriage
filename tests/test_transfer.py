@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import os
 from collections.abc import Callable
 from pathlib import Path
 
@@ -72,9 +73,9 @@ def test_execute_creates_the_destination_folder(
     plan = [write_image(source / "keep.png")]
     destination = tmp_path / "made" / "on" / "demand"
 
-    transferred = transfer.execute(plan, source, destination, transfer.Mode.COPY)
+    outcome = transfer.execute(plan, source, destination, transfer.Mode.COPY)
 
-    assert transferred == 1
+    assert outcome.transferred == 1
     assert destination.is_dir()
 
 
@@ -87,9 +88,9 @@ def test_execute_in_copy_mode_leaves_the_source_intact(
     destination = tmp_path / "source_keep"
 
     plan = transfer.build_plan(source, {"keep.png": Verdict.KEEP, "drop.png": Verdict.DISCARD})
-    transferred = transfer.execute(plan, source, destination, transfer.Mode.COPY)
+    outcome = transfer.execute(plan, source, destination, transfer.Mode.COPY)
 
-    assert transferred == 2
+    assert outcome.transferred == 2
     assert sorted(path.name for path in destination.iterdir()) == ["keep.CR2", "keep.png"]
     assert sorted(path.name for path in source.iterdir()) == [
         "drop.png",
@@ -107,9 +108,9 @@ def test_execute_in_move_mode_leaves_only_the_discarded_behind(
     destination = tmp_path / "source_keep"
 
     plan = transfer.build_plan(source, {"keep.png": Verdict.KEEP, "drop.png": Verdict.DISCARD})
-    transferred = transfer.execute(plan, source, destination, transfer.Mode.MOVE)
+    outcome = transfer.execute(plan, source, destination, transfer.Mode.MOVE)
 
-    assert transferred == 2
+    assert outcome.transferred == 2
     assert sorted(path.name for path in destination.iterdir()) == ["keep.CR2", "keep.png"]
     assert [path.name for path in source.iterdir()] == ["drop.png"]
 
@@ -231,9 +232,9 @@ def test_execute_does_not_put_two_days_of_photos_on_one_name(
     verdicts = {"2024-08-30/IMG_1.png": Verdict.KEEP, "2024-08-31/IMG_1.png": Verdict.KEEP}
 
     plan = transfer.build_plan(source, verdicts, deep=True)
-    transferred = transfer.execute(plan, source, destination, transfer.Mode.MOVE)
+    outcome = transfer.execute(plan, source, destination, transfer.Mode.MOVE)
 
-    assert transferred == 2
+    assert outcome.transferred == 2
     assert sorted(path.name for path in destination.rglob("*.png")) == ["IMG_1.png", "IMG_1.png"]
     assert (destination / "2024-08-30" / "IMG_1.png").is_file()
     assert (destination / "2024-08-31" / "IMG_1.png").is_file()
@@ -248,3 +249,100 @@ def test_build_plan_leaves_the_raw_behind_when_pairing_is_off(
     plan = transfer.build_plan(source, {"IMG_1.png": Verdict.KEEP}, companions=frozenset())
 
     assert names(plan) == ["IMG_1.png"]
+
+
+def test_a_second_copy_run_copies_nothing_that_is_already_there(
+    source: Path, tmp_path: Path, write_image: Callable[[Path], Path]
+) -> None:
+    """The run button stays enabled after a copy, so a second press is one click away.
+
+    It used to land the whole selection in the destination again under `_1`
+    names, which on a real shoot is gigabytes of duplicates nobody asked for.
+    """
+    write_image(source / "keep.png")
+    (source / "keep.CR2").write_bytes(b"raw")
+    destination = tmp_path / "source_keep"
+    plan = transfer.build_plan(source, {"keep.png": Verdict.KEEP})
+
+    first = transfer.execute(plan, source, destination, transfer.Mode.COPY)
+    second = transfer.execute(plan, source, destination, transfer.Mode.COPY)
+
+    assert (first.transferred, first.already_present) == (2, 0)
+    assert (second.transferred, second.already_present) == (0, 2)
+    assert sorted(path.name for path in destination.iterdir()) == ["keep.CR2", "keep.png"]
+
+
+def test_a_copy_that_landed_on_a_numbered_name_is_recognised(
+    source: Path, tmp_path: Path, write_image: Callable[[Path], Path]
+) -> None:
+    """A stranger holding the name sent the first copy to `photo_1.png`.
+
+    Checking the plain name alone would find the stranger, decide the photo is
+    not there, and copy it again to `photo_2.png`.
+    """
+    write_image(source / "photo.png")
+    destination = tmp_path / "source_keep"
+    destination.mkdir()
+    (destination / "photo.png").write_text("a different photo")
+
+    transfer.execute([source / "photo.png"], source, destination, transfer.Mode.COPY)
+    again = transfer.execute([source / "photo.png"], source, destination, transfer.Mode.COPY)
+
+    assert again.already_present == 1
+    assert sorted(path.name for path in destination.iterdir()) == ["photo.png", "photo_1.png"]
+
+
+def test_a_file_of_the_same_size_but_other_bytes_is_still_copied(
+    source: Path, tmp_path: Path
+) -> None:
+    """Skipping a copy that is not there loses a kept photo, so size is not enough."""
+    (source / "photo.png").write_bytes(b"aaaa")
+    destination = tmp_path / "source_keep"
+    destination.mkdir()
+    (destination / "photo.png").write_bytes(b"bbbb")
+
+    outcome = transfer.execute([source / "photo.png"], source, destination, transfer.Mode.COPY)
+
+    assert (outcome.transferred, outcome.already_present) == (1, 0)
+    assert (destination / "photo_1.png").read_bytes() == b"aaaa"
+
+
+def test_move_mode_moves_even_when_a_copy_is_already_there(
+    source: Path, tmp_path: Path, write_image: Callable[[Path], Path]
+) -> None:
+    """A move promises to empty the source of what was kept.
+
+    Skipping would leave the photo in the source, and finishing the move by
+    deleting it would be the one deletion the app promises never to make.
+    """
+    write_image(source / "photo.png")
+    destination = tmp_path / "source_keep"
+    transfer.execute([source / "photo.png"], source, destination, transfer.Mode.COPY)
+
+    outcome = transfer.execute([source / "photo.png"], source, destination, transfer.Mode.MOVE)
+
+    assert (outcome.transferred, outcome.already_present) == (1, 0)
+    assert not (source / "photo.png").exists()
+
+
+def test_a_copy_changed_since_the_last_run_is_not_taken_for_the_original(
+    source: Path, tmp_path: Path
+) -> None:
+    """The server lives for hours, and `filecmp` remembers what it compared.
+
+    Its memory is keyed by the size and the time of both files, so a copy
+    rewritten in place with both kept would be answered from the first run.
+    That is the size and date check the byte comparison exists to avoid.
+    """
+    (source / "photo.png").write_bytes(b"aaaa")
+    destination = tmp_path / "source_keep"
+    transfer.execute([source / "photo.png"], source, destination, transfer.Mode.COPY)
+    transfer.execute([source / "photo.png"], source, destination, transfer.Mode.COPY)
+    copy = destination / "photo.png"
+    kept = copy.stat()
+    copy.write_bytes(b"bbbb")
+    os.utime(copy, ns=(kept.st_atime_ns, kept.st_mtime_ns))
+
+    outcome = transfer.execute([source / "photo.png"], source, destination, transfer.Mode.COPY)
+
+    assert (outcome.transferred, outcome.already_present) == (1, 0)

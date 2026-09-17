@@ -94,8 +94,6 @@ It should collect the failures, carry on with the rest, and report both.
 The confirmation says nothing about how many files, how many gigabytes, or
 where they are going.
 It should: `312 archivos, 8,4 GB` into `2024_keep`.
-The same change removes the sharp edge where the run button stays enabled after
-a successful copy, so a second click copies everything again under `_1` names.
 
 **Progress during the transfer.**
 The status line reads `Procesando...` and can sit there for minutes with no sign

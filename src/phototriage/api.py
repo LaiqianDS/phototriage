@@ -81,6 +81,7 @@ class ApplyRequest(BaseModel):
 
 class ApplyResponse(BaseModel):
     transferred: int
+    already_present: int
     destination: str
 
 
@@ -246,7 +247,7 @@ def create_app(store: Store, source: Path | None = None) -> FastAPI:
             store.search_subfolders,
         )
         try:
-            transferred = transfer.execute(plan, folder, review.destination, request.mode)
+            outcome = transfer.execute(plan, folder, review.destination, request.mode)
         except OSError as error:
             # An unwritable destination or a full disk stops the run partway.
             # Without this, the failure leaves FastAPI to answer in plain text
@@ -255,7 +256,11 @@ def create_app(store: Store, source: Path | None = None) -> FastAPI:
                 status_code=500,
                 detail=f"La transferencia se interrumpió: {error}. Revisa el destino.",
             ) from error
-        return ApplyResponse(transferred=transferred, destination=str(review.destination))
+        return ApplyResponse(
+            transferred=outcome.transferred,
+            already_present=outcome.already_present,
+            destination=str(review.destination),
+        )
 
     # `:path` because a name reaching into a subfolder carries a separator, and
     # the default converter stops at one. What may be read is decided by
