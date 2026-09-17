@@ -46,10 +46,10 @@ src/phototriage/
 
 | Module | Responsibility | Depends on |
 | --- | --- | --- |
-| `config.py` | The image and RAW extension sets, the default state file path, and `default_destination`, the rule that names the destination folder. | nothing |
-| `library.py` | Reading the filesystem. Lists images and subfolders in a stable order, resolves an image name to a safe path, and indexes RAW files by stem. It never writes. | `config` |
+| `config.py` | The image, RAW and video extension sets, `companion_exts`, which turns the two pairing switches into one set, the default state file path, and `default_destination`, the rule that names the destination folder. | nothing |
+| `library.py` | Reading the filesystem. Lists images, directly inside a folder or through the whole tree, and subfolders, in a stable order, resolves an image name to a safe path, and indexes the files that travel with an image by their path without the extension. It never writes. | `config` |
 | `review.py` | The decisions taken about one source folder, and the destination those decisions lead to. Pure data and three operations: `decide`, `undo`, `verdicts`. It knows nothing about files or HTTP. | nothing |
-| `store.py` | Every review, keyed by source folder, the folder opened last, and the RAW pairing preference. Loads and saves the JSON state file. | `config`, `review` |
+| `store.py` | Every review, keyed by source folder, the folder opened last, and the three preferences. Loads and saves the JSON state file. | `config`, `review` |
 | `transfer.py` | Turning kept decisions into file copies or moves. Builds a plan of paths, then executes it. | `library`, `review` |
 | `api.py` | The HTTP layer. Validates input, mutates the active review or a stored preference, asks the store to persist, and returns a snapshot of the state. | all of the above |
 | `__main__.py` | Argument parsing, loading the store, and starting uvicorn on the loopback address. | `api`, `config`, `store` |
@@ -175,7 +175,8 @@ The whole runtime is FastAPI and uvicorn.
 ### `resolve_image` refuses anything outside the source folder
 
 The image route takes a name from the URL.
-`library.resolve_image` joins it to the source folder, resolves the result, and returns `None` unless the resolved parent is the source folder itself and the extension is a known image type.
+`library.resolve_image` joins it to the source folder, resolves the result, and returns `None` unless the extension is a known image type and the result is within reach.
+Within reach means directly inside the source folder, or anywhere under it with the subfolder switch on, and never inside a destination that is a subfolder of the source.
 
 Resolving first is what makes the check hold.
 `../../etc/passwd` fails it, and so does a symbolic link inside the source folder that points somewhere else, which a string comparison on the name would miss.
@@ -293,6 +294,5 @@ They are recorded here so that a reader does not have to find them by surprise.
 - **A decision cannot be changed, only undone.**
   There is no route that rewrites a verdict for a named image.
   Undo removes the most recent decision, so correcting an older one means undoing everything after it.
-- **Only the top level of the source folder is reviewed.**
-  `library.list_images` lists the folder itself and does not walk into subfolders.
-  A video file is not a reviewable image and not a RAW file, so it is neither reviewed nor paired.
+- **A video is never reviewed.**
+  It is not in `IMAGE_EXTS`, so it only travels as the companion of a kept image of the same name, with the video switch on.
