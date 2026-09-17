@@ -27,6 +27,7 @@ from pathlib import Path
 
 from fastapi.testclient import TestClient
 
+from phototriage import library
 from phototriage.api import create_app
 from phototriage.store import Store
 
@@ -48,9 +49,13 @@ def measure(folder: Path, deep: bool, runs: int, decisions: int) -> None:
         with TestClient(create_app(store, folder)) as client:
             total = client.get("/api/state").json()["total"]
             state = timed(lambda: client.get("/api/state").raise_for_status(), runs)
-            # A decision past the end of the queue is refused, so never ask for more.
+            # A verdict names its photo, and the queue goes in listing order.
+            # One past the end is refused, so never ask for more.
+            queue = iter(library.list_images(folder, deep))
             decide = timed(
-                lambda: client.post("/api/decide", json={"verdict": "discard"}).raise_for_status(),
+                lambda: client.post(
+                    "/api/decide", json={"verdict": "discard", "name": next(queue)}
+                ).raise_for_status(),
                 min(decisions, total),
             )
 

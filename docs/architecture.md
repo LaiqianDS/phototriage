@@ -63,7 +63,7 @@ No lower module imports a higher one, and no module below `api` knows that an HT
 A keypress on the right arrow keeps the current image.
 This is what happens.
 
-1. `web/app.js` catches the key and calls `POST /api/decide` with `{"verdict": "keep"}`.
+1. `web/app.js` catches the key and calls `POST /api/decide` with `{"verdict": "keep", "name": "IMG_0042.jpg"}`, the image on screen.
    One request is in flight at a time.
    A burst of keystrokes would otherwise send several decisions against the same image before the first response came back.
 2. FastAPI validates the body against `DecideRequest`.
@@ -73,6 +73,8 @@ This is what happens.
 4. The route takes a snapshot to learn which image is current.
    The snapshot lists the source folder again and takes the first name that has no decision yet.
    The current image is therefore always a file that exists right now, not a remembered index.
+   If it is not the image the request names, the route answers 409 and records nothing.
+   The folder can change between the state the page drew and the key pressed on it, and a verdict belongs to the photo that was seen.
 5. `Review.decide` appends a `Decision(name, verdict)` to the list.
 6. `Store.save` writes the whole store to a temporary file and replaces the state file with it.
 7. The route takes a second snapshot and returns it.
@@ -301,6 +303,7 @@ They are recorded here so that a reader does not have to find them by surprise.
 - **One active review per running server.**
   The `Active` record holds a single source folder.
   Two browser windows on the same server share it, so choosing a folder in one changes what the other shows.
+  A verdict from a window that still shows a photo already decided in the other is refused rather than applied to the next one, and undo in either window removes the most recent decision, whichever window took it.
   Only one run can be in flight, and a window that did not start it learns its result only as a fresh state.
 - **Two servers sharing one state file overwrite each other.**
   Each save writes the whole file.

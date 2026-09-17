@@ -412,6 +412,8 @@ They are written down so that you do not meet them by surprise.
   A clip named on its own, like `MVI_0042.MOV`, stays where it is whatever you do.
 - **Two browser windows share one review.**
   The server holds a single active review, so choosing a folder in one window changes what the other one shows.
+  A verdict from a window that still shows a photo the other one has decided is refused, and that window then shows the photo that is next.
+  Undo removes the most recent decision, whichever window took it.
 - **Two servers sharing one state file overwrite each other.**
   Each save writes the whole file, so the last one wins.
   Give a second instance its own `--state-file`.
