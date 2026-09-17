@@ -6,6 +6,13 @@ and the project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## [Unreleased]
 
+### Added
+
+- The confirmation before a run names how many files would go, their size and
+  the destination: `¿Copiar 312 archivos (8,4 GB) a ...?`.
+  A new route, `GET /api/plan`, counts the plan without touching the
+  destination.
+
 ### Changed
 
 - The workflows use the versions of their GitHub actions that run on Node.js

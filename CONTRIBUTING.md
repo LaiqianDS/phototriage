@@ -49,7 +49,7 @@ One test file per module, plus shared fixtures in `tests/conftest.py`:
 | `tests/test_store.py` | Saving, loading and recovering from a damaged state file. |
 | `tests/test_transfer.py` | Plans, copy and move, and free names. |
 | `tests/test_api.py` | The routes, driven through a real ASGI client. |
-| `tests/test_web.py` | The interface read as text: every id the script asks for, and every `for` and `aria-*` reference, points at an element the page defines, the focused mode display is written, no colour is painted over the photo, every state on the body is styled, and focused mode and the zoom have buttons that are listened to. |
+| `tests/test_web.py` | The interface read as text: every id the script asks for, and every `for` and `aria-*` reference, points at an element the page defines, the focused mode display is written, no colour is painted over the photo, every state on the body is styled, focused mode and the zoom have buttons that are listened to, and every endpoint the script calls is a route the server answers. |
 
 Every fixture builds inside `tmp_path`, so a run never reads or writes a real photo folder and two tests never see each other's files.
 Keep it that way.

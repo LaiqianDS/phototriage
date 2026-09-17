@@ -510,3 +510,46 @@ def test_a_destination_that_is_the_source_itself_leaves_the_queue_whole(
 
     assert state["total"] == 1
     assert client.get("/api/image/inner%2FIMG_1.png").status_code == 200
+
+
+def test_the_plan_names_the_files_their_size_and_where_they_go(
+    client: TestClient, source: Path, tmp_path: Path, write_image: Callable[[Path], Path]
+) -> None:
+    """The confirmation used to say nothing about how much a run would move.
+
+    The count is the plan the run would execute, companions included, so it is
+    the number of files that leave the source in move mode.
+    """
+    image = write_image(source / "keep.png")
+    write_image(source / "drop.png")
+    (source / "keep.CR2").write_bytes(b"x" * 1000)
+    choose(client, source)
+    client.post("/api/decide", json={"verdict": "discard"})  # drop.png
+    client.post("/api/decide", json={"verdict": "keep"})  # keep.png
+
+    plan = client.get("/api/plan").json()
+
+    assert plan == {
+        "files": 2,
+        "bytes": image.stat().st_size + 1000,
+        "destination": str(tmp_path / "source_keep"),
+    }
+    assert not (tmp_path / "source_keep").exists(), "a preview must not create the destination"
+
+
+def test_the_plan_follows_the_switches_like_the_run_does(
+    client: TestClient, source: Path, write_image: Callable[[Path], Path]
+) -> None:
+    """A preview that disagreed with the run would be worse than no preview."""
+    write_image(source / "keep.png")
+    (source / "keep.CR2").write_bytes(b"raw")
+    choose(client, source)
+    client.post("/api/decide", json={"verdict": "keep"})
+
+    client.post("/api/settings", json={"pair_raws": False})
+
+    assert client.get("/api/plan").json()["files"] == 1
+
+
+def test_the_plan_without_a_source_is_refused(client: TestClient) -> None:
+    assert client.get("/api/plan").status_code == 409

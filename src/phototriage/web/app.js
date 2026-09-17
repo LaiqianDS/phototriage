@@ -119,11 +119,28 @@ const setPairRaws = (pairRaws) => run(() => call("settings", { pair_raws: pairRa
 const setSearchSubfolders = (deep) => run(() => call("settings", { search_subfolders: deep }));
 const setPairVideos = (pairVideos) => run(() => call("settings", { pair_videos: pairVideos }));
 
+/** A size the way Finder writes it: powers of 1000, one decimal, a Spanish comma. */
+function weight(bytes) {
+  const units = ["B", "KB", "MB", "GB", "TB"];
+  let value = bytes;
+  let unit = 0;
+  while (value >= 1000 && unit < units.length - 1) {
+    value /= 1000;
+    unit += 1;
+  }
+  return `${value.toLocaleString("es", { maximumFractionDigits: 1 })} ${units[unit]}`;
+}
+
 function apply() {
   const mode = el("mode-move").checked ? "move" : "copy";
   const verb = mode === "copy" ? "Copiar" : "Mover";
-  if (!confirm(`¿${verb} las imágenes mantenidas al destino?`)) return;
   run(async () => {
+    // Asked inside `run`, so a second press while the dialog is open is dropped
+    // instead of asking twice. The count is what a first run would transfer; a
+    // copy skips what the destination already holds, and says so afterwards.
+    const plan = await call("plan");
+    const question = `¿${verb} ${plan.files} archivos (${weight(plan.bytes)}) a ${plan.destination}?`;
+    if (!confirm(question)) return call("state");
     report("Procesando...");
     const { transferred, already_present, failed, destination } = await call("apply", { mode });
     // Without the second half, a repeated copy reads as `0 archivos`, which looks

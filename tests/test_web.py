@@ -3,8 +3,10 @@
 from __future__ import annotations
 
 import re
+from pathlib import Path
 
-from phototriage.api import WEB_DIR
+from phototriage.api import WEB_DIR, create_app
+from phototriage.store import Store
 
 # The script reaches the page through one helper, `el("id")`, and could also
 # call `document.getElementById("id")` directly. Both spellings are collected.
@@ -21,6 +23,10 @@ HUD_IDS = ("hud-filename", "hud-progress", "hud-kept", "hud-status")
 # whole of what each one does, so the two files have to agree on the name.
 BODY_STATES = ("resting", "focused", "zoomed")
 BODY_CLASSES = re.compile(r"""document\.body\.classList\.\w+\(\s*["']([^"']+)["']""")
+
+# Every request the script makes goes through `call("endpoint", ...)`, with the
+# endpoint either quoted or at the start of a template string.
+CALLED_ENDPOINTS = re.compile(r"""\bcall\(\s*["'`]([a-z-]+)""")
 
 # Focused mode and the zoom were reached from the keyboard alone. These are the
 # buttons that let a pointer in and out, each named after its key.
@@ -164,3 +170,21 @@ def test_leaving_focused_mode_survives_a_browser_without_the_fullscreen_api() ->
     compared = re.findall(r"fullscreenElement\s*[!=]==?\s*null", script)
     assert not compared, f"app.js compares fullscreenElement with null: {compared}"
     assert "fullscreenElement" in script, "app.js no longer reads fullscreenElement at all"
+
+
+def test_every_endpoint_the_script_calls_is_a_route_the_server_answers(tmp_path: Path) -> None:
+    """A misspelled endpoint answers 404 only when someone presses the button.
+
+    The static mount at `/` would answer any other path with its own 404, so
+    nothing fails at startup, and the interface shows `Not Found` on the status
+    line in front of the user.
+    """
+    app = create_app(Store(tmp_path / "state.json"))
+    served = {
+        route.path.removeprefix("/api/") for route in app.routes if route.path.startswith("/api/")
+    }
+    called = set(CALLED_ENDPOINTS.findall(read("app.js")))
+
+    assert called, "no call to the API found in app.js"
+    missing = sorted(called - served)
+    assert not missing, f"app.js calls endpoints the server does not answer: {missing}"

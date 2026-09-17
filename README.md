@@ -126,7 +126,7 @@ The controls are:
 | Zoom button (`Zoom 1:1`) | Bottom bar | Shows the photo at one image pixel per screen pixel, and back, like `Space`. Pressed while the zoom is on. |
 | Exit button (`Salir del modo enfocado`) | Top right corner, in focused mode only | Leaves focused mode, like `Escape`. It fades with the pill. |
 | Mode control (`Al ejecutar`) | Bottom bar | Copy the kept images (`Copiar`), or move them (`Mover`). |
-| Run button (`Ejecutar`) | Bottom bar | Asks you to confirm, then transfers the kept images to the destination. |
+| Run button (`Ejecutar`) | Bottom bar | Asks you to confirm, naming how many files would go, their size and the destination, then transfers the kept images there. |
 | File name | Bottom bar | The name of the image on screen. |
 | Status line | Bottom bar | The result of the last action, or the error it ran into. |
 | Subfolder switch (`Buscar en subcarpetas`) | Settings dialog | Whether the review reaches into the folders inside the source. Off by default. |
@@ -158,6 +158,8 @@ Keep, discard, the focused mode button and the zoom button are disabled when the
 4. Run the transfer.
    When every image has a decision, the app says `Revisión terminada.` in place of the photo.
    Choose `Copiar` or `Mover`, press the run button (`Ejecutar`), and confirm.
+   The question names what the run would take, such as `¿Copiar 312 archivos (8,4 GB) a /home/you/Pictures/2024_keep?`, counting RAW files and videos that travel with a kept image.
+   In copy mode that is what a first run would copy; files the destination already holds are skipped afterwards and reported on the status line.
    The app reports on the status line how many files it transferred and where they went.
    You do not have to reach the end of the queue first: the run button transfers whatever is kept so far.
 

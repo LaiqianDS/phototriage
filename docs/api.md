@@ -239,6 +239,32 @@ It returns the unchanged state.
 Undo walks back through the order the decisions were taken, which is not always the order of the queue.
 It cancels the decision, not the transfer: a file already copied or moved stays where it is.
 
+### `GET /api/plan`
+
+What a run would transfer, for the confirmation before it.
+Takes no parameters and changes nothing: the destination is not created.
+
+Response:
+
+```json
+{ "files": 312, "bytes": 8412345678, "destination": "/home/you/Pictures/2024_keep" }
+```
+
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `files` | integer | Files in the plan, images and their companions together. |
+| `bytes` | integer | Their total size on disk. |
+| `destination` | string | The folder they would go to. |
+
+| Status | Cause |
+| --- | --- |
+| 200 | The plan, counted. |
+| 409 | No source folder is open. `Elige una carpeta origen.` |
+
+The plan is built by the same function `POST /api/apply` uses, from the same verdicts and switches, so the two cannot describe different files.
+Nothing is compared with what the destination already holds, because that would mean reading every file.
+In copy mode the count is therefore what a first run would copy, and a later run may copy fewer and report the rest in `already_present`.
+
 ### `POST /api/apply`
 
 Transfer the kept images to the destination, with the files that share their name: RAW originals when `pair_raws` is on, videos when `pair_videos` is on.
