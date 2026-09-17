@@ -1,6 +1,6 @@
 # Roadmap
 
-What is planned after 0.2.0, in the order it is worth doing.
+What is planned after 0.3.0, in the order it is worth doing.
 
 This file records intent, not promises.
 The [Known limits](README.md#known-limits) section of the README describes what
@@ -67,20 +67,25 @@ What is left to learn needs a real card and real photos.
 A slow disk makes each directory read dearer, which the SSD above hides, and
 the decode of a large JPEG in the browser is not timed by the script at all.
 
-## 0.2.1: what the first real use turns up
+## 0.3.1: what the first real use turns up
 
 Fixes for whatever a session on real photos and a second browser reveal.
 
 The interface uses `:has()`, `backdrop-filter` and the `translate` property.
-They are supported in Safari 15.4 and later and in Firefox 121 and later, but
-only Chromium has been exercised.
-Safari matters most, because it is the default browser on the machine this was
-built for.
+They are supported in Safari 15.4 and later and in Firefox 121 and later.
+The maintainer tried the changes of 0.3.0 in Safari, the default browser on the
+machine this was built for, and approved them, before the queue listing was
+rewritten; the checks below were not reported one by one, and Firefox has not
+been exercised at all.
 
 Focused mode adds two more things to check there.
 It asks for fullscreen through `requestFullscreen`, which Safari only spells
 without a prefix from 16.4, so an older Safari gets focused mode in a window
 instead; the code treats a refusal as normal and does not report it.
+Leaving is not as careful: `leaveFocused` compares `document.fullscreenElement`
+with `null`, which that Safari leaves undefined, so it calls an
+`exitFullscreen` that does not exist and throws, after focused mode is already
+left.
 It also turns the progress line back on with `visibility: visible` inside a bar
 that is hidden and carries `backdrop-filter`, and whether a browser paints that
 child without painting the parent's blur is the one thing that would show as a
