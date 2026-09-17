@@ -346,3 +346,59 @@ def test_a_copy_changed_since_the_last_run_is_not_taken_for_the_original(
     outcome = transfer.execute([source / "photo.png"], source, destination, transfer.Mode.COPY)
 
     assert (outcome.transferred, outcome.already_present) == (1, 0)
+
+
+def test_a_file_that_fails_does_not_stop_the_rest(
+    source: Path, tmp_path: Path, write_image: Callable[[Path], Path]
+) -> None:
+    """One unreadable file used to end the run, and the rest of the selection with it."""
+    missing = source / "gone.png"
+    plan = [missing, write_image(source / "here.png")]
+    destination = tmp_path / "source_keep"
+
+    outcome = transfer.execute(plan, source, destination, transfer.Mode.COPY)
+
+    assert outcome.transferred == 1
+    assert list(outcome.failed) == ["gone.png"]
+    assert (destination / "here.png").is_file()
+
+
+def test_a_copy_cut_short_leaves_no_half_file_behind(
+    source: Path, tmp_path: Path, write_image: Callable[[Path], Path], monkeypatch
+) -> None:
+    """A full disk stops a copy after part of it is written.
+
+    A truncated file under the real name looks like a kept photo, and a later
+    run would find the name taken and put the good copy beside it as `_1`.
+    """
+    write_image(source / "photo.png")
+    destination = tmp_path / "source_keep"
+
+    def full_disk(src: str, dst: str) -> None:
+        Path(dst).write_bytes(b"half")
+        raise OSError(28, "No space left on device")
+
+    monkeypatch.setattr(transfer.shutil, "copy2", full_disk)
+    outcome = transfer.execute([source / "photo.png"], source, destination, transfer.Mode.COPY)
+
+    assert outcome.failed == {"photo.png": "No space left on device"}
+    assert not (destination / "photo.png").exists()
+    assert (source / "photo.png").is_file()
+
+
+def test_a_move_that_fails_after_the_original_is_gone_keeps_the_copy(
+    source: Path, tmp_path: Path, write_image: Callable[[Path], Path], monkeypatch
+) -> None:
+    """The cleanup of a failed file must never remove the only copy of a photo."""
+    write_image(source / "photo.png")
+    destination = tmp_path / "source_keep"
+
+    def moved_then_raised(src: str, dst: str) -> None:
+        Path(src).rename(dst)
+        raise OSError(5, "Input/output error")
+
+    monkeypatch.setattr(transfer.shutil, "move", moved_then_raised)
+    outcome = transfer.execute([source / "photo.png"], source, destination, transfer.Mode.MOVE)
+
+    assert list(outcome.failed) == ["photo.png"]
+    assert (destination / "photo.png").is_file()

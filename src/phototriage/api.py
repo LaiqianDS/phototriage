@@ -82,6 +82,7 @@ class ApplyRequest(BaseModel):
 class ApplyResponse(BaseModel):
     transferred: int
     already_present: int
+    failed: dict[str, str]
     destination: str
 
 
@@ -249,16 +250,17 @@ def create_app(store: Store, source: Path | None = None) -> FastAPI:
         try:
             outcome = transfer.execute(plan, folder, review.destination, request.mode)
         except OSError as error:
-            # An unwritable destination or a full disk stops the run partway.
-            # Without this, the failure leaves FastAPI to answer in plain text
-            # and the interface reports a parser error instead of the cause.
+            # A file that fails is reported in the answer, so only a destination
+            # that cannot be created reaches here. Without this, FastAPI answers
+            # in plain text and the interface reports a parser error instead.
             raise HTTPException(
                 status_code=500,
-                detail=f"La transferencia se interrumpió: {error}. Revisa el destino.",
+                detail=f"No se pudo crear el destino: {error}",
             ) from error
         return ApplyResponse(
             transferred=outcome.transferred,
             already_present=outcome.already_present,
+            failed=outcome.failed,
             destination=str(review.destination),
         )
 

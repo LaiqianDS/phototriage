@@ -268,9 +268,9 @@ They are recorded here so that a reader does not have to find them by surprise.
   Give a second instance its own `--state-file`.
 - **A transfer is not a transaction.**
   `execute` walks the plan file by file.
-  If the filesystem refuses part way through, the files already transferred stay in the destination and the route reports a server error instead of a count.
-  The error says the transfer was interrupted, but not how far it got.
-  Running again is safe, because no name is overwritten.
+  A file the filesystem refuses is recorded with its reason and the walk carries on, so a run can end with part of the selection transferred.
+  What a refused file left under its new name is removed, which is safe because the name was free a moment before.
+  Running again retries the failed files, and in copy mode it does not copy again what arrived.
 - **A decision cannot be changed, only undone.**
   There is no route that rewrites a verdict for a named image.
   Undo removes the most recent decision, so correcting an older one means undoing everything after it.

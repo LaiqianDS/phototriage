@@ -123,11 +123,20 @@ function apply() {
   if (!confirm(`¿${verb} las imágenes mantenidas al destino?`)) return;
   run(async () => {
     report("Procesando...");
-    const { transferred, already_present, destination } = await call("apply", { mode });
+    const { transferred, already_present, failed, destination } = await call("apply", { mode });
     // Without the second half, a repeated copy reads as `0 archivos`, which looks
     // like a failure rather than a selection that is already safe.
     const present = already_present > 0 ? `, ${already_present} ya estaban` : "";
-    report(`${transferred} archivos en ${destination}${present}`);
+    const summary = `${transferred} archivos en ${destination}${present}`;
+    // The line has room for one reason. The first names the file to look at,
+    // and running again retries every file that failed.
+    const failures = Object.entries(failed);
+    if (failures.length === 0) {
+      report(summary);
+    } else {
+      const [name, reason] = failures[0];
+      report(`${summary}. ${failures.length} con error. ${name}: ${reason}`, true);
+    }
     return call("state");
   });
 }

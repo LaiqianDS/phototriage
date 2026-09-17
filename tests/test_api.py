@@ -240,6 +240,7 @@ def test_apply_copies_the_kept_images_and_their_raws(
     assert response.json() == {
         "transferred": 2,
         "already_present": 0,
+        "failed": {},
         "destination": str(destination),
     }
     assert sorted(path.name for path in destination.iterdir()) == ["keep.CR2", "keep.png"]
@@ -341,7 +342,29 @@ def test_apply_reports_an_unwritable_destination(
     response = client.post("/api/apply", json={"mode": "copy"})
 
     assert response.status_code == 500
-    assert "interrumpió" in response.json()["detail"]
+    assert "destino" in response.json()["detail"]
+
+
+def test_apply_carries_on_past_a_file_it_cannot_read(
+    client: TestClient, source: Path, tmp_path: Path, write_image: Callable[[Path], Path]
+) -> None:
+    """The count of what arrived is the one thing a partial run must not lose."""
+    write_image(source / "a.png")
+    locked = write_image(source / "b.png")
+    choose(client, source)
+    client.post("/api/decide", json={"verdict": "keep"})
+    client.post("/api/decide", json={"verdict": "keep"})
+    locked.chmod(0o000)
+    try:
+        response = client.post("/api/apply", json={"mode": "copy"})
+    finally:
+        locked.chmod(0o644)
+
+    assert response.status_code == 200
+    body = response.json()
+    assert body["transferred"] == 1
+    assert list(body["failed"]) == ["b.png"]
+    assert [path.name for path in (tmp_path / "source_keep").iterdir()] == ["a.png"]
 
 
 def test_setting_an_unreadable_source_is_refused(client: TestClient, tmp_path: Path) -> None:

@@ -253,21 +253,27 @@ Transfer the kept images to the destination, with the files that share their nam
 Response:
 
 ```json
-{ "transferred": 2, "already_present": 0, "destination": "/home/you/Pictures/2024_keep" }
+{
+  "transferred": 2,
+  "already_present": 0,
+  "failed": { "2024-08-30/IMG_3.jpg": "Permission denied" },
+  "destination": "/home/you/Pictures/2024_keep"
+}
 ```
 
 | Field | Type | Meaning |
 | --- | --- | --- |
 | `transferred` | integer | Files sent to the destination, images and their companions together. |
 | `already_present` | integer | Files left alone in copy mode because the destination already held them. Always `0` in move mode. |
+| `failed` | object | Files that could not be transferred, from their name relative to the source folder to the reason the system gave. Empty when every file arrived. |
 | `destination` | string | The folder they went to. |
 
 | Status | Cause |
 | --- | --- |
-| 200 | The transfer finished. |
+| 200 | The run went through the whole plan. Some files may still have failed: read `failed`. |
 | 409 | No source folder is open. `Elige una carpeta origen.` |
 | 422 | `mode` is missing, is not one of the two values, or the body is not JSON. |
-| 500 | The destination could not be created, or a file could not be copied or moved. `La transferencia se interrumpió: ...` Files transferred before the failure stay in the destination, and the count is not reported. |
+| 500 | The destination folder could not be created, so nothing was transferred. `No se pudo crear el destino: ...` |
 
 Notes.
 The plan is built from the verdicts and from the three preferences as they stand at the moment of the request.
@@ -283,6 +289,9 @@ It is counted in `already_present` instead, so calling twice in copy mode transf
 Move mode makes no such check, because a file still in the source was never moved.
 The destination folder is created even when nothing is transferred, so a call with no kept images answers `{"transferred": 0, ...}` and leaves an empty folder behind.
 The decisions are not cleared by a transfer.
+A file that cannot be transferred does not stop the run: it is recorded in `failed` and the next file is tried.
+Whatever it left under its new name in the destination is removed, so a copy cut short by a full disk never remains as a truncated file.
+In move mode across two disks, that can be a whole copy whose original could not be removed; the original is still in the source, so the file is reported as failed rather than left in two places.
 This route does not write the state file, because it changes no decision.
 
 ### `GET /api/image/{name}`

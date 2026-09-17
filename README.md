@@ -268,6 +268,11 @@ A file is taken as already there when the destination holds one with the same na
 The status line then says how many were already there: `0 archivos en /home/you/Pictures/2024_keep, 2 ya estaban`.
 In move mode there is nothing left to transfer the second time, and the run button is disabled once the kept count reaches zero.
 
+A file that fails, because it cannot be read or the disk is full, does not stop the run.
+The other files are still transferred, and the status line counts the failures.
+A copy cut short is removed from the destination, so a half-written file never sits there under the name of a photo.
+Only a destination that cannot be created stops the run before it starts: `No se pudo crear el destino: ...`.
+
 ## RAW pairing
 
 By default a kept image takes its RAW originals with it.
@@ -380,9 +385,10 @@ There is no option to change it.
 These are real.
 They are written down so that you do not meet them by surprise.
 
-- **A transfer that fails part way leaves what it already transferred.**
-  The files sent before the failure stay in the destination, and the message says only that the transfer was interrupted, not how far it got.
-  Running again is safe, because no name is ever overwritten, and it does not transfer again what already arrived.
+- **A transfer is not all or nothing.**
+  A file that cannot be copied or moved is skipped and the run carries on, so a failure leaves part of the selection in the destination and part of it behind.
+  The status line gives the count and the reason for the first failed file only, in red: `2 archivos en /home/you/Pictures/2024_keep. 1 con error. IMG_03.jpg: Permission denied`.
+  Running again retries the files that failed and does not transfer again what already arrived.
 - **A decision can be undone, not changed.**
   There is no way to rewrite the verdict of a named image.
   Undo removes the most recent decision, so correcting an older one means undoing everything taken after it.
