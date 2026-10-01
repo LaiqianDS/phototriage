@@ -1,9 +1,5 @@
-/* Hallmark · component: app shell · genre: editorial · theme: custom (light table, shared with site/style.css) · designed-as-app
- * states: default · hover · focus · active · disabled · loading (aria-busy) · error (.status.error) · success (status line)
- */
-
-/* One palette, two themes. The greys are written again in site/style.css: change one, change the
-   other. */
+/* PhotoTriage app. The tokens, and the rules they follow, are in DESIGN.md. The paper, the ink and
+   the orange are written again in site/style.css: change one, change the other. */
 
 :root {
   color-scheme: light;
@@ -15,10 +11,9 @@
   --space-5: 1.5rem;
   --space-6: 2rem;
 
-  --radius-sm: 2px;
-  --radius-md: 3px;
-  --radius-lg: 4px;
-  --radius-xl: 6px;
+  --radius-sm: 4px;
+  --radius-md: 10px;
+  --radius-lg: 20px;
   --radius-full: 999px;
 
   /* How much of the window the photo gives back. */
@@ -28,62 +23,59 @@
 
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
 
-  --bg: oklch(95.5% 0.005 230);
-  --surface: oklch(98.5% 0.004 230);
-  --surface-hover: oklch(93% 0.006 230);
-  --track: oklch(89% 0.007 230);
-  --border: oklch(84% 0.008 230);
-  --border-strong: oklch(63% 0.012 230);
-  --text: oklch(21% 0.01 230);
-  --text-muted: oklch(42% 0.012 230);
+  /* What the photo sits on. A grey with no hue, so it cannot tint how the photo reads. */
+  --bg: oklch(94% 0 0);
+  --surface: #fdfcfc;
+  --surface-hover: #f5f3f1;
+  --track: #ebe8e4;
+  --border: #ebe8e4;
+  --border-strong: #8a847c;
+  --text: #14191c;
+  --text-muted: #44403b;
   /* The chrome around the photo. */
-  --bar: oklch(98.5% 0.004 230);
-  --bar-muted: oklch(42% 0.012 230);
-  --bar-line: oklch(79% 0.01 230);
-  --keep: oklch(50% 0.13 152);
-  --keep-tint: oklch(50% 0.13 152 / 0.1);
-  --keep-tint-hover: oklch(50% 0.13 152 / 0.18);
-  --keep-line: oklch(50% 0.13 152 / 0.4);
-  --discard: oklch(52% 0.19 28);
-  --discard-tint: oklch(52% 0.19 28 / 0.1);
-  --discard-tint-hover: oklch(52% 0.19 28 / 0.18);
-  --discard-line: oklch(52% 0.19 28 / 0.4);
+  --bar: #fdfcfc;
+  --bar-muted: #44403b;
+  --bar-line: #ebe8e4;
+  /* The orange of the kept slide in the logo. It marks what is kept and nothing else. */
+  --keep: #e4531f;
+  --keep-hover: #ee6a3a;
+  --keep-tint: rgb(228 83 31 / 0.12);
+  /* The ink on the orange, the same in both themes. */
+  --on-keep: #14191c;
+  /* A discard changes nothing on disk, so it has no colour of its own. */
+  --discard: #44403b;
+  --error: oklch(52% 0.19 28);
   /* The ring is the ink. */
-  --focus: oklch(21% 0.01 230);
-  --fill: oklch(21% 0.01 230);
-  --fill-hover: oklch(32% 0.012 230);
-  --fill-text: oklch(95.5% 0.005 230);
-  --scrim: oklch(21% 0.01 230 / 0.45);
+  --focus: #14191c;
+  --fill: #14191c;
+  --fill-hover: #44403b;
+  --fill-text: #fdfcfc;
+  --scrim: rgb(20 25 28 / 0.45);
 }
 
 /* Set by the script in the page head before the first paint, so the theme never flashes. */
 :root[data-theme="dark"] {
   color-scheme: dark;
 
-  --bg: oklch(17% 0.006 230);
-  --surface: oklch(22% 0.008 230);
-  --surface-hover: oklch(27% 0.009 230);
-  --track: oklch(30% 0.01 230);
-  --border: oklch(31% 0.01 230);
-  --border-strong: oklch(57% 0.012 230);
-  --text: oklch(94% 0.005 230);
-  --text-muted: oklch(72% 0.01 230);
-  --bar: oklch(22% 0.008 230);
-  --bar-muted: oklch(72% 0.01 230);
-  --bar-line: oklch(36% 0.01 230);
-  --keep: oklch(76% 0.17 150);
-  --keep-tint: oklch(76% 0.17 150 / 0.14);
-  --keep-tint-hover: oklch(76% 0.17 150 / 0.22);
-  --keep-line: oklch(76% 0.17 150 / 0.4);
-  --discard: oklch(70% 0.19 27);
-  --discard-tint: oklch(70% 0.19 27 / 0.14);
-  --discard-tint-hover: oklch(70% 0.19 27 / 0.22);
-  --discard-line: oklch(70% 0.19 27 / 0.4);
-  --focus: oklch(94% 0.005 230);
-  --fill: oklch(94% 0.005 230);
-  --fill-hover: oklch(99% 0.003 230);
-  --fill-text: oklch(17% 0.006 230);
-  --scrim: oklch(8% 0.006 230 / 0.6);
+  --bg: oklch(17% 0 0);
+  --surface: #1f1d1b;
+  --surface-hover: #2a2725;
+  --track: #33302d;
+  --border: #36322f;
+  --border-strong: #8a847c;
+  --text: #f5f3f1;
+  --text-muted: #b8b2aa;
+  --bar: #1f1d1b;
+  --bar-muted: #b8b2aa;
+  --bar-line: #3d3936;
+  --keep-tint: rgb(228 83 31 / 0.2);
+  --discard: #b8b2aa;
+  --error: oklch(70% 0.19 27);
+  --focus: #f5f3f1;
+  --fill: #f5f3f1;
+  --fill-hover: #fdfcfc;
+  --fill-text: #14191c;
+  --scrim: rgb(0 0 0 / 0.6);
 }
 
 /* ------------------------------------------------------------------ base ---*/
@@ -111,6 +103,11 @@ body {
   font-size: 0.9375rem;
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
+}
+
+::selection {
+  background: var(--fill);
+  color: var(--fill-text);
 }
 
 :focus-visible {
@@ -173,7 +170,6 @@ body[aria-busy="true"] .stage {
 #photo {
   max-width: 100%;
   max-height: 100%;
-  border-radius: var(--radius-md);
 }
 
 .notice {
@@ -267,7 +263,7 @@ body.resting .bar:has(:focus-visible) {
 
 #progress {
   color: var(--text);
-  font-weight: 600;
+  font-weight: 500;
 }
 
 /* The colour is carried by the dot, not by the label. */
@@ -288,7 +284,7 @@ body.resting .bar:has(:focus-visible) {
 
 .chip > span {
   color: var(--text);
-  font-weight: 600;
+  font-weight: 500;
 }
 
 .chip.keep {
@@ -300,7 +296,7 @@ body.resting .bar:has(:focus-visible) {
 }
 
 .chip.discard {
-  background: var(--discard-tint);
+  background: var(--track);
 }
 
 .chip.discard::before {
@@ -350,9 +346,10 @@ body.resting .bar:has(:focus-visible) {
 input[type="text"] {
   flex: 1;
   min-width: 0;
+  min-height: 2.75rem;
   padding: 0.45rem 0.65rem;
   border: 1px solid var(--border-strong);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-sm);
   background: var(--surface);
   color: var(--text);
   font: inherit;
@@ -395,7 +392,7 @@ input[type="text"]:disabled {
   margin-top: var(--space-1);
   padding: 2px;
   border: 1px solid var(--border);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-full);
   background: var(--track);
 }
 
@@ -410,8 +407,12 @@ input[type="text"]:disabled {
 }
 
 .segmented label {
+  display: inline-flex;
+  align-items: center;
+  /* With the track around it, the control is as tall as a button. */
+  min-height: calc(2.75rem - 6px);
   padding: 0.25rem 0.85rem;
-  border-radius: calc(var(--radius-md) - 3px);
+  border-radius: var(--radius-full);
   color: var(--text-muted);
   font-size: 0.875rem;
   font-weight: 500;
@@ -464,7 +465,7 @@ input[type="text"]:disabled {
 /* The status line and the explorer count both double as an error slot. */
 .status.error,
 .note.error {
-  color: var(--discard);
+  color: var(--error);
 }
 
 /* --------------------------------------------------------------- buttons ---*/
@@ -474,10 +475,10 @@ input[type="text"]:disabled {
   align-items: center;
   justify-content: center;
   gap: var(--space-2);
-  min-height: 2.25rem;
-  padding: 0.45rem 0.9rem;
+  min-height: 2.75rem;
+  padding: 0.45rem 1.1rem;
   border: 1px solid var(--border-strong);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-full);
   background: var(--surface);
   color: var(--text);
   font: inherit;
@@ -497,7 +498,8 @@ input[type="text"]:disabled {
 }
 
 .button.icon {
-  padding: 0.45rem;
+  width: 2.75rem;
+  padding: 0;
 }
 
 .button.icon svg {
@@ -543,7 +545,7 @@ kbd {
   background: var(--surface);
   color: var(--text-muted);
   font-family: inherit;
-  font-size: 0.75rem;
+  font-size: 0.8125rem;
   font-weight: 500;
   text-align: center;
 }
@@ -564,13 +566,12 @@ kbd {
   width: 7.5rem;
   min-height: 11rem;
   padding: var(--space-4) var(--space-2);
-  border: 1.5px solid;
-  border-radius: var(--radius-xl);
+  border: 1px solid;
+  border-radius: var(--radius-lg);
   background-color: var(--bar);
   font: inherit;
-  /* Large text, so the verdict colour only needs the 3:1 that WCAG asks of it. */
   font-size: 1.25rem;
-  font-weight: 700;
+  font-weight: 500;
   cursor: pointer;
   transition:
     background-image 140ms var(--ease-out),
@@ -591,34 +592,33 @@ kbd {
   height: 2.5rem;
 }
 
-/* Sits on the edge itself rather than on a surface, so it needs the contrast-safe muted colour. */
 .edge-key {
-  color: var(--bar-muted);
+  color: var(--text-muted);
   font-size: 0.8125rem;
   font-weight: 500;
 }
 
 .edge.discard {
   left: var(--inset);
-  border-color: var(--discard-line);
-  background-image: linear-gradient(var(--discard-tint), var(--discard-tint));
-  color: var(--discard);
+  border-color: var(--border-strong);
+  color: var(--text);
 }
 
+/* Keep is the one control that carries the colour. */
 .edge.keep {
   right: var(--inset);
-  border-color: var(--keep-line);
-  background-image: linear-gradient(var(--keep-tint), var(--keep-tint));
-  color: var(--keep);
+  border-color: var(--keep);
+  background-image: linear-gradient(var(--keep), var(--keep));
+  color: var(--on-keep);
 }
 
-/* The flat tint belongs to the card. */
+/* The fill belongs to the card. */
 body:not(.focused) .edge.discard:hover:not(:disabled) {
-  background-image: linear-gradient(var(--discard-tint-hover), var(--discard-tint-hover));
+  background-image: linear-gradient(var(--surface-hover), var(--surface-hover));
 }
 
 body:not(.focused) .edge.keep:hover:not(:disabled) {
-  background-image: linear-gradient(var(--keep-tint-hover), var(--keep-tint-hover));
+  background-image: linear-gradient(var(--keep-hover), var(--keep-hover));
 }
 
 /* ---------------------------------------------------------- focused mode ---*/
@@ -632,11 +632,6 @@ body:not(.focused) .edge.keep:hover:not(:disabled) {
 
 body.focused .stage {
   inset: 0;
-}
-
-/* The frame belongs to a photo sitting on a page. In here there is no page. */
-body.focused #photo {
-  border-radius: 0;
 }
 
 /* Hidden rather than removed. */
@@ -666,12 +661,15 @@ body.focused .edge {
   opacity: 0.62;
 }
 
+/* With no card under it, each icon takes a mid tone that shows on a dark and on a light photo. */
 body.focused .edge.discard {
   left: 0;
+  color: var(--border-strong);
 }
 
 body.focused .edge.keep {
   right: 0;
+  color: var(--keep);
 }
 
 /* A scale would drag a full-height button around under the pointer, so the press is carried by
@@ -709,7 +707,6 @@ body.focused .edge-label {
 /* Kept at every width here, unlike on the cards: it is the only label left. */
 body.focused .edge-key {
   display: inline;
-  font-size: 0.75rem;
 }
 
 /* Everything the two bars were carrying, in one pill. */
@@ -757,8 +754,9 @@ body.focused .focus-hint {
   display: flex;
   align-items: center;
   gap: var(--space-2);
+  min-height: 2.75rem;
   margin: 0;
-  padding: 0.4375rem var(--space-3);
+  padding: 0.4375rem var(--space-4);
   border: 1px solid var(--border);
   border-radius: var(--radius-full);
   background: var(--bar);
@@ -836,7 +834,7 @@ body.zoomed #photo {
   max-height: min(36rem, calc(100dvh - 4rem));
   padding: var(--space-5);
   border: 1px solid var(--border);
-  border-radius: var(--radius-xl);
+  border-radius: var(--radius-lg);
   background: var(--surface);
   color: var(--text);
 }
@@ -879,8 +877,9 @@ body.zoomed #photo {
 
 .sheet h2 {
   margin: 0;
-  font-size: 1rem;
-  font-weight: 600;
+  font-size: 1.25rem;
+  font-weight: 400;
+  letter-spacing: -0.01em;
 }
 
 .sheet-actions {
@@ -944,8 +943,8 @@ body.zoomed #photo {
 }
 
 .switch input:checked + .switch-track {
-  border-color: var(--keep);
-  background: var(--keep);
+  border-color: var(--fill);
+  background: var(--fill);
 }
 
 .switch input:checked + .switch-track::after {
@@ -964,7 +963,7 @@ body.zoomed #photo {
 code {
   padding: 0.05rem 0.25rem;
   border-radius: var(--radius-sm);
-  background: var(--bg);
+  background: var(--track);
   font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
   font-size: 0.9em;
 }
@@ -978,7 +977,6 @@ code {
   padding: var(--space-1);
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
-  background: var(--bg);
   list-style: none;
   overflow-y: auto;
   overscroll-behavior: contain;
@@ -989,6 +987,7 @@ code {
   align-items: center;
   gap: var(--space-2);
   width: 100%;
+  min-height: 2.75rem;
   padding: 0.35rem 0.5rem;
   border: 0;
   border-radius: var(--radius-sm);

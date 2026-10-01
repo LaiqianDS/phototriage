@@ -12,7 +12,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
       rel="stylesheet"
-      href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..800&amp;family=Martian+Mono:wght@400&amp;display=swap"
+      href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,300&amp;display=swap"
     />
     <link rel="icon" href="favicon.ico" sizes="48x48" />
     <link rel="icon" href="favicon.svg" type="image/svg+xml" />
@@ -20,138 +20,114 @@
     <script src="demo.js" defer></script>
   </head>
   <body>
-    <!-- The sample frames. -->
+    <!-- The sample roll: photos by Bernard Gagnon from Wikimedia Commons, each one CC0. -->
     <svg class="plates" aria-hidden="true">
       <symbol id="p1" viewBox="0 0 60 40">
-        <rect class="sky" width="60" height="40" />
-        <circle class="sun" cx="44" cy="13" r="6" />
-        <path class="sand-far" d="M0 28Q20 16 38 26T60 22V40H0Z" />
-        <path class="sand" d="M0 34Q18 26 34 33T60 30V40H0Z" />
+        <image href="photos/01.jpg" width="60" height="40" preserveAspectRatio="xMidYMid slice" />
       </symbol>
-      <!-- The same dune with the horizon off level. -->
       <symbol id="p2" viewBox="0 0 60 40">
-        <rect class="sky" width="60" height="40" />
-        <g transform="rotate(-8 30 20) scale(1.2)">
-          <circle class="sun" cx="40" cy="12" r="6" />
-          <path class="sand-far" d="M-10 28Q20 16 38 26T70 22V50H-10Z" />
-          <path class="sand" d="M-10 34Q18 26 34 33T70 30V50H-10Z" />
-        </g>
+        <image href="photos/02.jpg" width="60" height="40" preserveAspectRatio="xMidYMid slice" />
       </symbol>
       <symbol id="p3" viewBox="0 0 60 40">
-        <rect class="sky" width="60" height="40" />
-        <rect class="sea" y="25" width="60" height="15" />
-        <path class="sail" d="M30 24V8l11 16Z" />
-        <path class="hull" d="M23 25h22l-3 4H26Z" />
+        <image href="photos/03.jpg" width="60" height="40" preserveAspectRatio="xMidYMid slice" />
       </symbol>
-      <!-- The same boat, cut by the edge of the frame. -->
       <symbol id="p4" viewBox="0 0 60 40">
-        <rect class="sky" width="60" height="40" />
-        <rect class="sea" y="25" width="60" height="15" />
-        <g transform="translate(26 0)">
-          <path class="sail" d="M30 24V8l11 16Z" />
-          <path class="hull" d="M23 25h22l-3 4H26Z" />
-        </g>
+        <image href="photos/04.jpg" width="60" height="40" preserveAspectRatio="xMidYMid slice" />
       </symbol>
       <symbol id="p5" viewBox="0 0 60 40">
-        <rect class="wall" width="60" height="40" />
-        <rect class="shade" x="24" y="14" width="12" height="26" />
-        <rect class="sky" x="6" y="8" width="10" height="10" />
-        <rect class="sky" x="44" y="8" width="10" height="10" />
+        <image href="photos/05.jpg" width="60" height="40" preserveAspectRatio="xMidYMid slice" />
       </symbol>
-      <!-- The same wall, overexposed until nothing is left. -->
       <symbol id="p6" viewBox="0 0 60 40">
-        <rect class="blown" width="60" height="40" />
-        <rect class="blown-2" x="24" y="14" width="12" height="26" />
+        <image href="photos/06.jpg" width="60" height="40" preserveAspectRatio="xMidYMid slice" />
       </symbol>
       <symbol id="p7" viewBox="0 0 60 40">
-        <rect class="night" width="60" height="40" />
-        <circle class="blown" cx="15" cy="11" r="5" />
-        <path class="sea" d="M0 40L18 18l10 10 9-14 23 26Z" />
+        <image href="photos/07.jpg" width="60" height="40" preserveAspectRatio="xMidYMid slice" />
       </symbol>
       <symbol id="p8" viewBox="0 0 60 40">
-        <rect class="sky" width="60" height="40" />
-        <rect class="field" y="25" width="60" height="15" />
-        <rect class="shade" x="41" y="22" width="2" height="9" />
-        <circle class="leaf" cx="42" cy="17" r="8" />
+        <image href="photos/08.jpg" width="60" height="40" preserveAspectRatio="xMidYMid slice" />
       </symbol>
       <symbol id="p9" viewBox="0 0 60 40">
-        <rect class="wall" width="60" height="40" />
-        <circle class="sand" cx="30" cy="15" r="7" />
-        <path class="shade" d="M14 40c0-10 7-15 16-15s16 5 16 15Z" />
+        <image href="photos/09.jpg" width="60" height="40" preserveAspectRatio="xMidYMid slice" />
+      </symbol>
+      <symbol id="p10" viewBox="0 0 60 40">
+        <image href="photos/10.jpg" width="60" height="40" preserveAspectRatio="xMidYMid slice" />
+      </symbol>
+      <symbol id="p11" viewBox="0 0 60 40">
+        <image href="photos/11.jpg" width="60" height="40" preserveAspectRatio="xMidYMid slice" />
       </symbol>
     </svg>
 
-    <header class="top">
+    <header class="top wrap">
       <span class="wordmark"><img src="logo.svg" alt="" width="30" height="21" />PhotoTriage</span>
-      <span class="score"><span id="demo-count">208 / 480</span><span class="score-word"> reviewed</span></span>
-      <a class="top-link" href="https://github.com/LaiqianDS/phototriage">GitHub</a>
+      <a class="btn btn-outline" href="https://github.com/LaiqianDS/phototriage">GitHub</a>
     </header>
 
     <main>
       <!-- ============ The table: the mechanism, working ============ -->
-      <section class="hero field">
-      <div class="table wrap">
-        <div class="table-copy">
+      <section class="hero">
+        <div class="wrap hero-copy">
           <h1>Two keys. 480 photos. One folder worth keeping.</h1>
-          <p>
-            One photo fills the screen and asks one question. Left arrow leaves it, right arrow
-            keeps it. When the roll runs out, your keepers are collected into a folder of their
-            own, and every photo you passed on is exactly where you left it.
-          </p>
-          <p class="cta-row">
-            <a class="btn" href="https://github.com/LaiqianDS/phototriage">Get it on GitHub</a>
-            <span class="note">Free. No account. Works offline.</span>
-          </p>
+          <div>
+            <p>
+              One photo fills the screen and asks one question. Left arrow leaves it, right arrow
+              keeps it. When the roll runs out, your keepers are collected into a folder of their
+              own, and every photo you passed on is exactly where you left it.
+            </p>
+            <p class="cta-row">
+              <a class="btn" href="https://github.com/LaiqianDS/phototriage">Get it on GitHub</a>
+              <code>uv run phototriage ~/Pictures/2024</code>
+            </p>
+            <p class="note">Free. No account. Works offline.</p>
+          </div>
         </div>
 
-        <div class="bench" role="group" aria-label="Try it: a sample review">
-          <div class="tray">
-            <p class="tray-count"><b id="demo-left">195</b> left alone</p>
-            <div class="mount mount-small">
-              <svg viewBox="0 0 60 40" aria-hidden="true"><use id="demo-left-plate" href="#p6" /></svg>
-            </div>
-          </div>
+        <div class="wrap">
+          <div class="bench" id="demo-bench" role="group" aria-label="Try it: a sample review">
+            <p class="bench-head">
+              <span>A sample roll</span>
+              <span class="score"><span id="demo-count">208 / 480</span> reviewed</span>
+            </p>
 
-          <div class="stack">
-            <div class="mount mount-next" aria-hidden="true">
-              <svg viewBox="0 0 60 40"><use id="demo-next" href="#p2" /></svg>
-              <span class="mount-label">&nbsp;</span>
+            <div class="tray">
+              <p class="tray-count"><b id="demo-left">195</b> left alone</p>
+              <div class="mount mount-small">
+                <svg viewBox="0 0 60 40" aria-hidden="true"><use id="demo-left-plate" href="#p11" /></svg>
+              </div>
             </div>
-            <div class="mount" id="demo-slide">
-              <svg viewBox="0 0 60 40" aria-hidden="true"><use id="demo-plate" href="#p1" /></svg>
-              <span class="mount-label" id="demo-name">IMG_0412.JPG</span>
-            </div>
-          </div>
 
-          <div class="tray tray-kept">
-            <p class="tray-count"><b id="demo-kept">13</b> kept</p>
-            <div class="mount mount-small">
-              <svg viewBox="0 0 60 40" aria-hidden="true"><use id="demo-kept-plate" href="#p3" /></svg>
+            <div class="stack">
+              <div class="mount mount-next" aria-hidden="true">
+                <svg viewBox="0 0 60 40"><use id="demo-next" href="#p2" /></svg>
+                <span class="mount-label">&nbsp;</span>
+              </div>
+              <div class="mount" id="demo-slide">
+                <svg viewBox="0 0 60 40" aria-hidden="true"><use id="demo-plate" href="#p1" /></svg>
+                <span class="mount-label" id="demo-name">IMG_0412.JPG</span>
+              </div>
             </div>
-          </div>
 
-          <div class="keys">
-            <button type="button" class="key" id="demo-leave"><kbd>&larr;</kbd> Leave</button>
-            <button type="button" class="key" id="demo-undo" disabled><kbd>U</kbd> Undo</button>
-            <button type="button" class="key key-keep" id="demo-keep">Keep <kbd>&rarr;</kbd></button>
+            <div class="tray tray-kept">
+              <p class="tray-count"><b id="demo-kept">13</b> kept</p>
+              <div class="mount mount-small">
+                <svg viewBox="0 0 60 40" aria-hidden="true"><use id="demo-kept-plate" href="#p10" /></svg>
+              </div>
+            </div>
+
+            <!-- Shown by the script, so a page without it offers no dead control. -->
+            <div class="keys" id="demo-keys" hidden>
+              <button type="button" class="key" id="demo-leave"><kbd>&larr;</kbd> Leave</button>
+              <button type="button" class="key" id="demo-undo" disabled><kbd>U</kbd> Undo</button>
+              <button type="button" class="key key-keep" id="demo-keep">Keep <kbd>&rarr;</kbd></button>
+            </div>
+            <p class="note bench-note">
+              <span id="demo-hint" hidden>Press the arrow keys. </span>Sample photos by Bernard
+              Gagnon, CC0, from
+              <a href="https://commons.wikimedia.org/wiki/File:Khongoryn_Els_03.jpg">Wikimedia Commons</a>.
+            </p>
+            <p class="visually-hidden" id="demo-status" role="status"></p>
           </div>
-          <p class="note bench-note">
-            A sample roll. Press the arrow keys. The frames are drawings, not photographs.
-          </p>
-          <p class="visually-hidden" id="demo-status" role="status"></p>
         </div>
-      </div>
       </section>
-
-      <div class="strip" aria-hidden="true">
-          <div class="mount"><svg viewBox="0 0 60 40"><use href="#p8" /></svg></div>
-          <div class="mount"><svg viewBox="0 0 60 40"><use href="#p3" /></svg></div>
-          <div class="mount"><svg viewBox="0 0 60 40"><use href="#p7" /></svg></div>
-          <div class="mount"><svg viewBox="0 0 60 40"><use href="#p1" /></svg></div>
-          <div class="mount"><svg viewBox="0 0 60 40"><use href="#p9" /></svg></div>
-          <div class="mount"><svg viewBox="0 0 60 40"><use href="#p5" /></svg></div>
-          <div class="mount"><svg viewBox="0 0 60 40"><use href="#p2" /></svg></div>
-      </div>
 
       <!-- ============ The pile: the tension ============ -->
       <section class="pile">
@@ -187,7 +163,7 @@
           <svg class="heap-sheet" viewBox="0 0 150 40" aria-hidden="true">
             <pattern id="blank" width="15" height="10" patternUnits="userSpaceOnUse">
               <rect class="blank" x="1" y="1" width="13" height="8" />
-              <rect class="shade" x="3" y="2" width="9" height="6" />
+              <rect class="blank-frame" x="3" y="2" width="9" height="6" />
             </pattern>
             <rect width="150" height="40" fill="url(#blank)" />
           </svg>
@@ -196,12 +172,12 @@
       </section>
 
       <!-- ============ The rule: the reframe ============ -->
-      <section class="wrap rule">
+      <section class="wrap rule band">
         <h2>
           Stop choosing between photos. Answer a question about <span class="mark">this one</span>.
         </h2>
         <div class="rule-grid">
-          <div class="rule-lead">
+          <div>
             <h3>The photo gets the screen</h3>
             <p>
               Full window, measured rather than guessed: no part of a frame ever hides behind the
@@ -257,7 +233,7 @@
       </section>
 
       <!-- ============ The ledger: the trust ============ -->
-      <section class="wrap split">
+      <section class="wrap split ledger">
         <div>
           <h2>No surprises, no losses, no black box.</h2>
           <p>
@@ -316,16 +292,22 @@
       </section>
 
       <!-- ============ The keep: the payoff ============ -->
-      <section class="keep field">
+      <section class="keep" id="demo-payoff">
       <div class="wrap">
         <svg class="heap-sheet" viewBox="0 0 150 40" role="img" aria-label="The same forty mounts. Three show a frame and carry the wax mark. The others are as they were.">
           <rect width="150" height="40" fill="url(#blank)" />
-          <use href="#p1" x="33" y="2" width="9" height="6" />
-          <circle class="wax" cx="43.5" cy="1.5" r="1.3" />
-          <use href="#p3" x="93" y="12" width="9" height="6" />
-          <circle class="wax" cx="103.5" cy="11.5" r="1.3" />
-          <use href="#p5" x="123" y="32" width="9" height="6" />
-          <circle class="wax" cx="133.5" cy="31.5" r="1.3" />
+          <g class="kept-one">
+            <use href="#p1" x="33" y="2" width="9" height="6" />
+            <circle class="wax" cx="43.5" cy="1.5" r="1.3" />
+          </g>
+          <g class="kept-one">
+            <use href="#p3" x="93" y="12" width="9" height="6" />
+            <circle class="wax" cx="103.5" cy="11.5" r="1.3" />
+          </g>
+          <g class="kept-one">
+            <use href="#p5" x="123" y="32" width="9" height="6" />
+            <circle class="wax" cx="133.5" cy="31.5" r="1.3" />
+          </g>
         </svg>
         <p class="statement">
           480 undecided files in. <span class="mark">31 photos</span> worth showing out.

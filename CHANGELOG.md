@@ -15,12 +15,22 @@ and the project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ### Changed
 
-- The landing page has more colour and more to look at.
-  The hero and the result stand on a soft wash of the wax colour, the close is
-  on the ink, a strip of slides crosses the edge of the hero, and the sample
-  roll has three more frames.
-  The demo sits on a lit panel, and the next slide comes up straight after a
-  verdict.
+- The landing page and the app have a new look, described in `DESIGN.md`:
+  warm paper, the ink and the orange of the logo, light headlines and pill
+  buttons.
+  Orange marks what is kept and nothing else.
+  In the app, Discard has no colour of its own, the area around the photo is
+  a grey with no hue, and the photo has square corners.
+- The landing page shows the run command in the hero, and the sample roll has
+  three more frames.
+  The next slide comes up straight after a verdict.
+- The demo on the landing page answers the arrow keys only while it is on
+  screen, and its buttons appear only when the script runs.
+- The sample roll on the landing page is photographs, not drawings: eleven
+  frames of the Gobi desert by Bernard Gagnon, CC0, from Wikimedia Commons.
+- The demo shows where a photo goes: the slide travels to its tray, the count
+  of that tray moves, and Undo brings the slide back.
+  The three kept frames of the result arrive when the section is on screen.
 
 ## [0.5.0] - 2026-10-01
 

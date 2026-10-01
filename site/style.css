@@ -1,53 +1,31 @@
-/* Hallmark · genre: editorial · macrostructure: Marquee Hero · nav: N9 · footer: Ft4 · design-system: PRODUCT.md · designed-as-app
- * theme: custom · vibe: "slides on a lit table, sorted by hand" · paper: oklch(95.5% 0.005 230) · accent: oklch(63% 0.19 38)
- * display: Archivo condensed 800 · body: Archivo · axes: light / display-condensed-bold / warm
- * enrichment: Tier B hand-built SVG plates, working demo · studied: no · context: user-provided
- * contrast: pass (40-41) · tokens: pass (48) · mobile: not seen in a browser (34, 49-57 read from the code)
- * pre-emit critique: P4 H4 E3 S4 R4 V4
- */
-
-/* PhotoTriage landing page. */
+/* PhotoTriage landing page. The tokens, and the rules they follow, are in DESIGN.md. */
 
 :root {
   color-scheme: light;
 
-  --color-glass: oklch(95.5% 0.005 230);
-  --color-glass-2: oklch(91.5% 0.007 230);
-  --color-mount: oklch(98% 0.006 90);
-  --color-film: oklch(24% 0.01 230);
-  --color-ink: oklch(21% 0.01 230);
-  --color-ink-2: oklch(42% 0.012 230);
-  --color-rule: oklch(79% 0.01 230);
-  --color-accent: oklch(63% 0.19 38);
-  /* The accent, dark enough to carry small text on the glass. */
-  --color-accent-strong: oklch(49% 0.17 38);
-  --color-focus: oklch(49% 0.17 38);
-  /* The wax colour as a ground: the same hue, thinned to a wash. */
-  --color-field: oklch(89% 0.065 55);
+  /* Paper, one step deeper, and the hairline. */
+  --color-eggshell: #fdfcfc;
+  --color-taupe: #f5f3f1;
+  --color-stone: #ebe8e4;
+  /* The ink of the logo. */
+  --color-ink: #14191c;
+  --color-graphite: #44403b;
+  /* The orange of the kept slide in the logo. It marks what is kept and nothing else, and it is
+     too light to carry small text. */
+  --color-kept: #e4531f;
+  --color-kept-hover: #ee6a3a;
 
-  /* The inks of the sample frames. */
-  --plate-sky: oklch(82% 0.07 232);
-  --plate-sea: oklch(52% 0.1 242);
-  --plate-sand: oklch(80% 0.09 82);
-  --plate-sand-far: oklch(68% 0.1 66);
-  --plate-wall: oklch(70% 0.09 52);
-  --plate-blown: oklch(97% 0.012 90);
-  --plate-blown-2: oklch(93% 0.02 85);
-  --plate-night: oklch(33% 0.09 270);
-  --plate-field: oklch(80% 0.14 118);
-  --plate-leaf: oklch(58% 0.14 146);
-
-  /* The fallbacks are named rather than left to the generic families: the page has to hold its
-     shape when the Google Fonts request fails, which is the only request it makes. */
-  --font-display: "Archivo", "Arial Narrow", "Helvetica Neue", Arial, sans-serif;
-  --font-body: "Archivo", "Helvetica Neue", Helvetica, Arial, sans-serif;
-  --font-outlier: "Martian Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  /* Only the display face is requested. The page has to hold its shape when that request fails,
+     so the fallback is the system face at the same light weight. */
+  --font-display: "Bricolage Grotesque", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-body: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 
   --text-sm: 0.8125rem;
-  --text-base: 1.0625rem;
-  --text-md: 1.375rem;
-  --text-xl: clamp(1.875rem, 2.2vw + 1.25rem, 3rem);
-  --text-display: clamp(2.5rem, 4.5vw + 1rem, 4.75rem);
+  --text-base: 1rem;
+  --text-md: 1.125rem;
+  --text-xl: clamp(1.75rem, 1.5vw + 1.25rem, 2.25rem);
+  --text-display: clamp(2.25rem, 3vw + 1.25rem, 3.5rem);
 
   --space-2xs: 0.25rem;
   --space-xs: 0.5rem;
@@ -56,19 +34,29 @@
   --space-lg: 1.5rem;
   --space-xl: 2.5rem;
   --space-2xl: 4rem;
-  --space-3xl: 6rem;
+  --space-section: clamp(4rem, 8vw, 6rem);
+  --gutter: clamp(1rem, 4vw, 4rem);
 
-  --radius-mount: 3px;
-  --rule-hair: 1px;
+  --radius-sm: 4px;
+  --radius-md: 10px;
+  --radius-lg: 24px;
+  --radius-full: 9999px;
+  /* An edge more than a shadow. */
+  --shadow-whisper: 0 0 1px rgb(0 0 0 / 0.4), 0 1px 1px rgb(0 0 0 / 0.04), 0 2px 4px rgb(0 0 0 / 0.04);
+
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
   --dur-micro: 120ms;
-  --z-sticky: 200;
 }
 
 *,
 *::before,
 *::after {
   box-sizing: border-box;
+}
+
+/* A rule with a `display` must not leave a hidden element on screen. */
+[hidden] {
+  display: none !important;
 }
 
 html,
@@ -78,18 +66,18 @@ body {
 
 body {
   margin: 0;
-  background: var(--color-glass);
-  color: var(--color-ink);
-  font: 400 var(--text-base) / 1.6 var(--font-body);
+  background: var(--color-eggshell);
+  color: var(--color-graphite);
+  font: 400 var(--text-base) / 1.5 var(--font-body);
 }
 
 ::selection {
-  background: var(--color-accent-strong);
-  color: var(--color-glass);
+  background: var(--color-ink);
+  color: var(--color-eggshell);
 }
 
 :focus-visible {
-  outline: 2px solid var(--color-focus);
+  outline: 2px solid var(--color-ink);
   outline-offset: 3px;
 }
 
@@ -107,13 +95,22 @@ pre {
 
 h1,
 h2,
+h3,
+dt,
+th,
+b,
 .statement,
 .wordmark {
+  color: var(--color-ink);
+}
+
+h1,
+h2,
+.statement {
   font-family: var(--font-display);
-  font-stretch: 75%;
-  font-weight: 800;
-  line-height: 1.06;
-  letter-spacing: -0.015em;
+  font-weight: 300;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
   text-wrap: balance;
   overflow-wrap: anywhere;
   min-width: 0;
@@ -121,18 +118,20 @@ h2,
 
 h1 {
   font-size: var(--text-display);
+  max-width: 16ch;
 }
 
 h2,
 .statement {
   font-size: var(--text-xl);
-  max-width: 24ch;
+  line-height: 1.15;
+  max-width: 26ch;
 }
 
 h3 {
   font-size: var(--text-md);
-  font-weight: 700;
-  line-height: 1.2;
+  font-weight: 500;
+  line-height: 1.3;
 }
 
 p,
@@ -142,9 +141,8 @@ dd {
 }
 
 a {
-  color: inherit;
-  text-decoration-color: var(--color-accent);
-  text-decoration-thickness: 2px;
+  color: var(--color-ink);
+  text-decoration-thickness: 1px;
   text-underline-offset: 0.2em;
 }
 
@@ -152,35 +150,45 @@ a {
 code,
 kbd,
 pre,
-table,
+td,
 .path,
 .mount-label,
 .score {
-  font-family: var(--font-outlier);
+  font-family: var(--font-mono);
   font-size: var(--text-sm);
   font-variant-numeric: tabular-nums;
+}
+
+code {
+  padding: 0.15em 0.4em;
+  border-radius: var(--radius-sm);
+  background: var(--color-taupe);
+  color: var(--color-ink);
 }
 
 kbd {
   display: inline-block;
   min-width: 1.6em;
   padding: 0 var(--space-2xs);
-  border: var(--rule-hair) solid currentColor;
-  border-radius: var(--radius-mount);
+  border: 1px solid currentColor;
+  border-radius: var(--radius-sm);
   text-align: center;
 }
 
 .note {
-  color: var(--color-ink-2);
   font-size: var(--text-sm);
 }
 
-/* The wax mark: a drawn line under the words that carry the sentence. */
+/* A drawn line under the words that carry the sentence. */
 .mark {
   text-decoration-line: underline;
-  text-decoration-color: var(--color-accent);
   text-decoration-thickness: 2px;
-  text-underline-offset: 0.12em;
+  text-underline-offset: 0.14em;
+}
+
+/* The line is orange only under the photos that were kept. */
+.statement .mark {
+  text-decoration-color: var(--color-kept);
 }
 
 /* Off the layout, still read aloud. */
@@ -200,70 +208,20 @@ kbd {
   height: 0;
 }
 
-.sky {
-  fill: var(--plate-sky);
-}
-
-.sea {
-  fill: var(--plate-sea);
-}
-
-.sun {
-  fill: var(--color-accent);
-}
-
-.sand {
-  fill: var(--plate-sand);
-}
-
-.sand-far,
-.hull {
-  fill: var(--plate-sand-far);
-}
-
-.sail,
-.blown {
-  fill: var(--plate-blown);
-}
-
-.blown-2 {
-  fill: var(--plate-blown-2);
-}
-
-.wall {
-  fill: var(--plate-wall);
-}
-
-.night {
-  fill: var(--plate-night);
-}
-
-rect.field {
-  fill: var(--plate-field);
-}
-
-.leaf {
-  fill: var(--plate-leaf);
-}
-
 .wax {
-  fill: var(--color-ink);
-}
-
-.shade {
-  fill: var(--color-film);
+  fill: var(--color-kept);
 }
 
 /* ---------- shell ---------- */
 
 .wrap {
-  max-width: 76rem;
+  max-width: 80rem;
   margin-inline: auto;
-  padding-inline: clamp(1rem, 4vw, 3.5rem);
+  padding-inline: var(--gutter);
 }
 
 section {
-  padding-block: var(--space-2xl);
+  padding-block: var(--space-section);
 }
 
 section > * + *,
@@ -282,46 +240,31 @@ section > * + *,
   min-width: 0;
 }
 
-/* ---------- colour fields ---------- */
-
-/* Colour means decided. The hero and the payoff stand on the wax colour, the
-   pile stays grey, and the page closes on the ink. */
-section.field {
-  background: var(--color-field);
-  --color-focus: var(--color-ink);
+/* A band of the deeper paper, edge to edge, on a section that is itself only as wide as the text. */
+.band {
+  background: var(--color-taupe);
+  box-shadow: 0 0 0 100vmax var(--color-taupe);
+  clip-path: inset(0 -100vmax);
 }
 
-.field .note {
-  color: var(--color-ink);
-}
-
-.field .mark,
-.field a {
-  text-decoration-color: var(--color-ink);
-}
-
-@media (hover: hover) {
-  .field .btn:hover,
-  .close .btn:hover {
-    border-color: var(--color-mount);
-    background: var(--color-mount);
-    color: var(--color-ink);
-  }
+.band code,
+.keep code,
+.close code {
+  background: var(--color-stone);
 }
 
 /* ---------- top ---------- */
 
 .top {
-  position: sticky;
-  top: 0;
-  z-index: var(--z-sticky);
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: var(--space-lg);
-  padding: var(--space-sm) clamp(1rem, 4vw, 3.5rem);
-  line-height: 1;
-  border-bottom: var(--rule-hair) solid var(--color-rule);
-  background: var(--color-glass);
+  padding-block: var(--space-sm);
+}
+
+.top > * {
+  margin-top: 0;
 }
 
 .wordmark {
@@ -329,24 +272,12 @@ section.field {
   align-items: center;
   gap: var(--space-xs);
   font-size: var(--text-md);
+  font-weight: 500;
 }
 
 .wordmark img {
   width: auto;
   height: 1em;
-}
-
-.score {
-  margin-left: auto;
-  color: var(--color-ink-2);
-  white-space: nowrap;
-}
-
-.score-word,
-.top-link {
-  display: none;
-  font-size: var(--text-sm);
-  white-space: nowrap;
 }
 
 /* ---------- buttons ---------- */
@@ -358,9 +289,13 @@ section.field {
   justify-content: center;
   gap: var(--space-xs);
   min-height: 2.75rem;
-  border: var(--rule-hair) solid var(--color-ink);
-  border-radius: var(--radius-mount);
-  font: 700 var(--text-base) / 1 var(--font-body);
+  padding: var(--space-xs) var(--space-lg);
+  border: 1px solid var(--color-ink);
+  border-radius: var(--radius-full);
+  background: var(--color-ink);
+  color: var(--color-eggshell);
+  font: 500 0.875rem / 1 var(--font-body);
+  text-decoration: none;
   white-space: nowrap;
   cursor: pointer;
   transition:
@@ -368,37 +303,33 @@ section.field {
     transform var(--dur-micro) var(--ease-out);
 }
 
-.btn {
-  background: var(--color-ink);
-  color: var(--color-glass);
-  text-decoration: none;
-}
-
-.btn {
-  padding: var(--space-sm) var(--space-lg);
-}
-
+.btn-outline,
 .key {
-  padding: var(--space-xs) var(--space-sm);
-  background: var(--color-mount);
+  border-color: var(--color-stone);
+  background: var(--color-eggshell);
+  box-shadow: var(--shadow-whisper);
   color: var(--color-ink);
-  font-size: var(--text-sm);
 }
 
+/* Keep is the one control that carries the colour. */
 .key-keep {
-  background: var(--color-ink);
-  color: var(--color-glass);
+  border-color: var(--color-kept);
+  background: var(--color-kept);
+  box-shadow: none;
 }
 
 @media (hover: hover) {
-  .btn:hover,
-  .key-keep:hover:not(:disabled) {
-    border-color: var(--color-accent-strong);
-    background: var(--color-accent-strong);
+  .btn:hover {
+    background: var(--color-graphite);
   }
 
-  .key:hover:not(:disabled, .key-keep) {
-    background: var(--color-glass-2);
+  .btn-outline:hover,
+  .key:hover:not(:disabled) {
+    background: var(--color-taupe);
+  }
+
+  .key-keep:hover:not(:disabled) {
+    background: var(--color-kept-hover);
   }
 }
 
@@ -422,86 +353,86 @@ section.field {
 /* ---------- the table ---------- */
 
 .hero {
-  padding-block: 0 var(--space-3xl);
+  padding-block: var(--space-2xl) var(--space-section);
 }
 
-/* A row of slides, laid across the edge where the colour ends. */
-.strip {
-  position: relative;
-  display: flex;
-  justify-content: center;
-  gap: var(--space-lg);
-  margin-top: calc(var(--space-3xl) * -1);
-}
-
-.strip .mount {
-  flex: none;
-  width: clamp(9rem, 20vw, 17rem);
-  padding-bottom: 7%;
-}
-
-.strip .mount:nth-child(odd) {
-  transform: rotate(-2deg);
-}
-
-.strip .mount:nth-child(3n) {
-  transform: rotate(1.5deg) translateY(var(--space-md));
-}
-
-.table {
+.hero-copy {
   display: grid;
   gap: var(--space-xl);
-  padding-block: var(--space-xl) var(--space-2xl);
 }
 
-.table > * {
+.hero-copy > * {
   margin-top: 0;
   min-width: 0;
 }
 
-.table-copy > * + * {
+.hero-copy > div > * + * {
   margin-top: var(--space-lg);
 }
 
-/* The lit panel of the table. */
+.hero-copy p {
+  font-size: var(--text-md);
+}
+
+.hero-copy .note {
+  font-size: var(--text-sm);
+}
+
+.hero > .wrap + .wrap {
+  margin-top: var(--space-2xl);
+}
+
+/* The one large panel of the page: a review the visitor runs. */
 .bench {
-  padding: var(--space-lg);
-  border: var(--rule-hair) solid var(--color-rule);
-  border-radius: var(--radius-mount);
-  background: var(--color-mount);
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   grid-template-areas:
+    "head head"
     "stack stack"
     "left kept"
     "keys keys"
     "note note";
   gap: var(--space-lg) var(--space-md);
   align-items: end;
+  padding: clamp(1rem, 4vw, 2.5rem);
+  border-radius: var(--radius-lg);
+  background: var(--color-taupe);
 }
 
-/* A slide mount. */
+.bench-head {
+  grid-area: head;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: var(--space-xs) var(--space-md);
+  max-width: none;
+  color: var(--color-ink);
+  font-weight: 500;
+}
+
+.score {
+  color: var(--color-graphite);
+  font-weight: 400;
+}
+
+/* A slide mount. The frame inside it is a photo, so it keeps its square corners. */
 .mount {
   padding: 7% 7% 0;
-  border: var(--rule-hair) solid var(--color-rule);
-  border-radius: var(--radius-mount);
-  background: var(--color-mount);
+  border-radius: var(--radius-md);
+  background: var(--color-eggshell);
+  box-shadow: var(--shadow-whisper);
 }
 
 .mount svg {
   display: block;
   width: 100%;
-  background: var(--color-film);
-}
-
-/* On the lit panel a mount is the darker card, as it is on a real table. */
-.bench .mount {
-  background: var(--color-glass-2);
+  background: var(--color-ink);
 }
 
 .mount-label {
   display: block;
   padding-block: var(--space-sm);
+  color: var(--color-ink);
 }
 
 .mount-small {
@@ -515,6 +446,14 @@ section.field {
 
 .stack > :last-child {
   position: relative;
+}
+
+/* The copy of a slide on its way to a tray. */
+.mount-flying {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
 }
 
 /* The frame the next key press brings, already on the table. */
@@ -536,7 +475,7 @@ section.field {
   position: relative;
 }
 
-/* The wax mark on a kept slide. */
+/* The kept mark on a kept slide. */
 .tray-kept .mount::after {
   content: "";
   position: absolute;
@@ -545,7 +484,7 @@ section.field {
   width: 0.75rem;
   height: 0.75rem;
   border-radius: 50%;
-  background: var(--color-accent);
+  background: var(--color-kept);
 }
 
 .tray-count {
@@ -554,27 +493,31 @@ section.field {
 }
 
 .tray-count b {
+  /* A box of its own, so the count can move when it changes. */
+  display: inline-block;
   font-size: var(--text-md);
+  font-weight: 500;
   font-variant-numeric: tabular-nums;
 }
 
 .keys {
   grid-area: keys;
   display: flex;
-  justify-content: space-between;
+  flex-wrap: wrap;
+  justify-content: center;
   gap: var(--space-xs);
 }
 
 .bench-note {
   grid-area: note;
+  max-width: none;
+  text-align: center;
 }
 
 /* ---------- the pile ---------- */
 
 .pile {
-  margin-top: calc(var(--space-2xl) * -1);
-  padding-block: calc(var(--space-3xl) + var(--space-2xl)) var(--space-3xl);
-  background: var(--color-glass-2);
+  padding-top: 0;
 }
 
 /* Forty mounts nobody has looked at yet. */
@@ -584,9 +527,13 @@ section.field {
 }
 
 .blank {
-  fill: var(--color-mount);
-  stroke: var(--color-rule);
+  fill: var(--color-eggshell);
+  stroke: var(--color-stone);
   stroke-width: 0.25;
+}
+
+.blank-frame {
+  fill: var(--color-stone);
 }
 
 .heap {
@@ -602,18 +549,18 @@ section.field {
   display: grid;
   grid-template-columns: 5.5rem minmax(0, 1fr);
   gap: var(--space-md);
-  padding-block: var(--space-sm);
-  border-top: var(--rule-hair) solid var(--color-rule);
+  padding-block: var(--space-md);
+  border-top: 1px solid var(--color-stone);
 }
 
 .rows dt {
-  font-weight: 700;
+  font-weight: 500;
 }
 
 .rows-wide > div {
   grid-template-columns: minmax(0, 1fr);
   gap: var(--space-2xs);
-  padding-block: var(--space-md);
+  padding-block: var(--space-lg);
 }
 
 .rows-wide dt {
@@ -621,10 +568,6 @@ section.field {
 }
 
 /* ---------- the rule ---------- */
-
-.rule {
-  padding-block: var(--space-3xl) var(--space-2xl);
-}
 
 .rule-grid {
   display: grid;
@@ -639,31 +582,32 @@ section.field {
 /* ---------- the pass ---------- */
 
 .steps {
-  display: grid;
-  gap: var(--space-xl);
   margin-top: var(--space-xl);
   padding: 0;
   list-style: none;
 }
 
 .steps li {
-  padding-top: var(--space-md);
-  border-top: 2px solid var(--color-ink);
-}
-
-.steps li > * + * {
-  margin-top: var(--space-xs);
+  display: grid;
+  gap: var(--space-xs) var(--space-xl);
+  padding-block: var(--space-lg);
+  border-top: 1px solid var(--color-stone);
 }
 
 .path {
-  color: var(--color-ink-2);
+  color: var(--color-graphite);
 }
 
 .path-kept {
-  color: var(--color-accent-strong);
+  color: var(--color-ink);
 }
 
 /* ---------- the ledger ---------- */
+
+.ledger,
+.fine {
+  border-top: 1px solid var(--color-stone);
+}
 
 .scroll {
   overflow-x: auto;
@@ -677,30 +621,29 @@ table {
 caption {
   caption-side: bottom;
   padding-top: var(--space-sm);
-  font-family: var(--font-body);
   text-align: left;
 }
 
 th,
 td {
   padding: var(--space-sm) var(--space-md) var(--space-sm) 0;
-  border-bottom: var(--rule-hair) solid var(--color-rule);
+  border-bottom: 1px solid var(--color-stone);
   text-align: left;
   white-space: nowrap;
 }
 
 th {
-  border-bottom-color: var(--color-ink);
-  color: var(--color-ink-2);
-  font-weight: 400;
+  font-size: var(--text-sm);
+  font-weight: 500;
 }
 
 .is-kept td {
-  color: var(--color-accent-strong);
+  color: var(--color-ink);
 }
 
-/* The wax mark, so a kept row is not told by colour alone. */
-td:first-child::before {
+/* The kept mark, so a kept row is told by more than its ink. */
+td:first-child::before,
+.path-kept::before {
   content: "";
   display: inline-block;
   width: var(--space-xs);
@@ -709,26 +652,44 @@ td:first-child::before {
   border-radius: 50%;
 }
 
-.is-kept td:first-child::before {
-  background: var(--color-accent);
+.is-kept td:first-child::before,
+.path-kept::before {
+  background: var(--color-kept);
 }
 
 /* ---------- the keep ---------- */
 
 .keep {
-  padding-block: var(--space-3xl);
+  background: var(--color-taupe);
+}
+
+/* The three kept frames arrive one after the other. */
+.kept-one {
+  transform-box: fill-box;
+  transform-origin: center;
+  transition:
+    opacity 500ms var(--ease-out),
+    transform 500ms var(--ease-out);
+}
+
+.kept-one:nth-of-type(2) {
+  transition-delay: 150ms;
+}
+
+.kept-one:nth-of-type(3) {
+  transition-delay: 300ms;
+}
+
+.is-waiting .kept-one {
+  opacity: 0;
+  transform: scale(0.8);
 }
 
 /* ---------- the guarantee ---------- */
 
-.guarantee {
-  padding-block: var(--space-3xl);
-  background: var(--color-mount);
-}
-
 .guarantee h2 {
   max-width: 30ch;
-  line-height: 1.12;
+  line-height: 1.2;
 }
 
 .rows-wide {
@@ -741,6 +702,7 @@ td:first-child::before {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(min(15rem, 100%), 1fr));
   gap: var(--space-lg) var(--space-xl);
+  margin-top: var(--space-xl);
 }
 
 .fine h3 {
@@ -749,32 +711,14 @@ td:first-child::before {
 
 .fine p {
   margin-top: var(--space-2xs);
-  color: var(--color-ink-2);
   font-size: var(--text-sm);
 }
 
 /* ---------- the close ---------- */
 
 .close {
-  padding-block: var(--space-3xl) var(--space-lg);
-  background: var(--color-ink);
-  color: var(--color-glass);
-  --color-focus: var(--color-accent);
-}
-
-.close .note,
-.close .colophon {
-  color: var(--color-rule);
-}
-
-.close pre {
-  border-color: var(--color-rule);
-}
-
-.close .btn {
-  border-color: var(--color-accent);
-  background: var(--color-accent);
-  color: var(--color-ink);
+  padding-block: var(--space-section) var(--space-lg);
+  background: var(--color-taupe);
 }
 
 .close .split > div > * + * {
@@ -782,19 +726,28 @@ td:first-child::before {
 }
 
 pre {
-  padding-block: var(--space-md);
-  border-block: var(--rule-hair) solid var(--color-ink);
+  padding: var(--space-md) var(--space-lg);
+  border-radius: var(--radius-md);
+  background: var(--color-eggshell);
+  box-shadow: var(--shadow-whisper);
   overflow-x: auto;
   line-height: 1.9;
+}
+
+pre code {
+  padding: 0;
+  background: none;
 }
 
 .colophon {
   display: flex;
   flex-wrap: wrap;
+  align-items: center;
   justify-content: space-between;
   gap: var(--space-sm) var(--space-xl);
   margin-top: var(--space-2xl);
-  color: var(--color-ink-2);
+  padding-top: var(--space-md);
+  border-top: 1px solid var(--color-stone);
   font-size: var(--text-sm);
 }
 
@@ -805,21 +758,18 @@ pre {
 .colophon-links {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--space-xs) var(--space-lg);
+  gap: 0 var(--space-lg);
 }
 
+/* Tall enough for a finger. */
 .colophon-links a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.75rem;
   white-space: nowrap;
 }
 
 /* ========================================================================== Wider screens. */
-
-@media (min-width: 26rem) {
-  .score-word,
-  .top-link {
-    display: inline;
-  }
-}
 
 @media (min-width: 40rem) {
   .rows-wide > div {
@@ -827,47 +777,47 @@ pre {
     gap: var(--space-xl);
   }
 
+  .steps li {
+    grid-template-columns: 14rem minmax(0, 1fr);
+  }
+
+  .steps .path {
+    grid-row: span 2;
+  }
+
   .bench {
-    grid-template-columns: minmax(0, 1fr) minmax(0, 2.6fr) minmax(0, 1fr);
+    grid-template-columns: minmax(0, 1fr) minmax(0, 34rem) minmax(0, 1fr);
     grid-template-areas:
+      "head head head"
       "left stack kept"
       "keys keys keys"
       "note note note";
+    gap: var(--space-lg) var(--space-xl);
+  }
+
+  .tray {
+    width: min(100%, 13rem);
+    justify-self: end;
+  }
+
+  .tray-kept {
+    justify-self: start;
   }
 }
 
 @media (min-width: 60rem) {
-  .table {
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-    align-items: center;
-    gap: var(--space-2xl);
-  }
-
+  .hero-copy,
   .split {
     grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
     gap: var(--space-2xl);
   }
 
+  .hero-copy {
+    align-items: end;
+  }
+
   .rule-grid {
-    grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
-  }
-
-  /* The first rule is the one the other two follow from, so it gets the wide column to itself and
-     the larger text. */
-  .rule-lead {
-    grid-row: span 2;
-    font-size: var(--text-md);
-    line-height: 1.45;
-  }
-
-  .rule-lead h3 {
-    font-size: var(--text-xl);
-    font-family: var(--font-display);
-    font-stretch: 75%;
-  }
-
-  .steps {
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr) minmax(0, 1fr);
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
 
