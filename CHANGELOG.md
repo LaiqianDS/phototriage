@@ -6,6 +6,15 @@ and the project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## [Unreleased]
 
+### Changed
+
+- The landing page has more colour and more to look at.
+  The hero and the result stand on a soft wash of the wax colour, the close is
+  on the ink, a strip of slides crosses the edge of the hero, and the sample
+  roll has three more frames.
+  The demo sits on a lit panel, and the next slide comes up straight after a
+  verdict.
+
 ## [0.5.0] - 2026-10-01
 
 ### Changed
