@@ -12,7 +12,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
       rel="stylesheet"
-      href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..800&amp;family=Martian+Mono:wght@400&amp;display=swap"
+      href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,300&amp;display=swap"
     />
     <link rel="icon" href="favicon.ico" sizes="48x48" />
     <link rel="icon" href="favicon.svg" type="image/svg+xml" />
@@ -81,77 +81,76 @@
       </symbol>
     </svg>
 
-    <header class="top">
+    <header class="top wrap">
       <span class="wordmark"><img src="logo.svg" alt="" width="30" height="21" />PhotoTriage</span>
-      <span class="score"><span id="demo-count">208 / 480</span><span class="score-word"> reviewed</span></span>
-      <a class="top-link" href="https://github.com/LaiqianDS/phototriage">GitHub</a>
+      <a class="btn btn-outline" href="https://github.com/LaiqianDS/phototriage">GitHub</a>
     </header>
 
     <main>
       <!-- ============ The table: the mechanism, working ============ -->
-      <section class="hero field">
-      <div class="table wrap">
-        <div class="table-copy">
+      <section class="hero">
+        <div class="wrap hero-copy">
           <h1>Two keys. 480 photos. One folder worth keeping.</h1>
-          <p>
-            One photo fills the screen and asks one question. Left arrow leaves it, right arrow
-            keeps it. When the roll runs out, your keepers are collected into a folder of their
-            own, and every photo you passed on is exactly where you left it.
-          </p>
-          <p class="cta-row">
-            <a class="btn" href="https://github.com/LaiqianDS/phototriage">Get it on GitHub</a>
-            <span class="note">Free. No account. Works offline.</span>
-          </p>
+          <div>
+            <p>
+              One photo fills the screen and asks one question. Left arrow leaves it, right arrow
+              keeps it. When the roll runs out, your keepers are collected into a folder of their
+              own, and every photo you passed on is exactly where you left it.
+            </p>
+            <p class="cta-row">
+              <a class="btn" href="https://github.com/LaiqianDS/phototriage">Get it on GitHub</a>
+              <code>uv run phototriage ~/Pictures/2024</code>
+            </p>
+            <p class="note">Free. No account. Works offline.</p>
+          </div>
         </div>
 
-        <div class="bench" role="group" aria-label="Try it: a sample review">
-          <div class="tray">
-            <p class="tray-count"><b id="demo-left">195</b> left alone</p>
-            <div class="mount mount-small">
-              <svg viewBox="0 0 60 40" aria-hidden="true"><use id="demo-left-plate" href="#p6" /></svg>
-            </div>
-          </div>
+        <div class="wrap">
+          <div class="bench" id="demo-bench" role="group" aria-label="Try it: a sample review">
+            <p class="bench-head">
+              <span>A sample roll</span>
+              <span class="score"><span id="demo-count">208 / 480</span> reviewed</span>
+            </p>
 
-          <div class="stack">
-            <div class="mount mount-next" aria-hidden="true">
-              <svg viewBox="0 0 60 40"><use id="demo-next" href="#p2" /></svg>
-              <span class="mount-label">&nbsp;</span>
+            <div class="tray">
+              <p class="tray-count"><b id="demo-left">195</b> left alone</p>
+              <div class="mount mount-small">
+                <svg viewBox="0 0 60 40" aria-hidden="true"><use id="demo-left-plate" href="#p6" /></svg>
+              </div>
             </div>
-            <div class="mount" id="demo-slide">
-              <svg viewBox="0 0 60 40" aria-hidden="true"><use id="demo-plate" href="#p1" /></svg>
-              <span class="mount-label" id="demo-name">IMG_0412.JPG</span>
-            </div>
-          </div>
 
-          <div class="tray tray-kept">
-            <p class="tray-count"><b id="demo-kept">13</b> kept</p>
-            <div class="mount mount-small">
-              <svg viewBox="0 0 60 40" aria-hidden="true"><use id="demo-kept-plate" href="#p3" /></svg>
+            <div class="stack">
+              <div class="mount mount-next" aria-hidden="true">
+                <svg viewBox="0 0 60 40"><use id="demo-next" href="#p2" /></svg>
+                <span class="mount-label">&nbsp;</span>
+              </div>
+              <div class="mount" id="demo-slide">
+                <svg viewBox="0 0 60 40" aria-hidden="true"><use id="demo-plate" href="#p1" /></svg>
+                <span class="mount-label" id="demo-name">IMG_0412.JPG</span>
+              </div>
             </div>
-          </div>
 
-          <div class="keys">
-            <button type="button" class="key" id="demo-leave"><kbd>&larr;</kbd> Leave</button>
-            <button type="button" class="key" id="demo-undo" disabled><kbd>U</kbd> Undo</button>
-            <button type="button" class="key key-keep" id="demo-keep">Keep <kbd>&rarr;</kbd></button>
+            <div class="tray tray-kept">
+              <p class="tray-count"><b id="demo-kept">13</b> kept</p>
+              <div class="mount mount-small">
+                <svg viewBox="0 0 60 40" aria-hidden="true"><use id="demo-kept-plate" href="#p3" /></svg>
+              </div>
+            </div>
+
+            <!-- Shown by the script, so a page without it offers no dead control. -->
+            <div class="keys" id="demo-keys" hidden>
+              <button type="button" class="key" id="demo-leave"><kbd>&larr;</kbd> Leave</button>
+              <button type="button" class="key" id="demo-undo" disabled><kbd>U</kbd> Undo</button>
+              <button type="button" class="key key-keep" id="demo-keep">Keep <kbd>&rarr;</kbd></button>
+            </div>
+            <p class="note bench-note">
+              <span id="demo-hint" hidden>Press the arrow keys. </span>The frames are drawings, not
+              photographs.
+            </p>
+            <p class="visually-hidden" id="demo-status" role="status"></p>
           </div>
-          <p class="note bench-note">
-            A sample roll. Press the arrow keys. The frames are drawings, not photographs.
-          </p>
-          <p class="visually-hidden" id="demo-status" role="status"></p>
         </div>
-      </div>
       </section>
-
-      <div class="strip" aria-hidden="true">
-          <div class="mount"><svg viewBox="0 0 60 40"><use href="#p8" /></svg></div>
-          <div class="mount"><svg viewBox="0 0 60 40"><use href="#p3" /></svg></div>
-          <div class="mount"><svg viewBox="0 0 60 40"><use href="#p7" /></svg></div>
-          <div class="mount"><svg viewBox="0 0 60 40"><use href="#p1" /></svg></div>
-          <div class="mount"><svg viewBox="0 0 60 40"><use href="#p9" /></svg></div>
-          <div class="mount"><svg viewBox="0 0 60 40"><use href="#p5" /></svg></div>
-          <div class="mount"><svg viewBox="0 0 60 40"><use href="#p2" /></svg></div>
-      </div>
 
       <!-- ============ The pile: the tension ============ -->
       <section class="pile">
@@ -187,7 +186,7 @@
           <svg class="heap-sheet" viewBox="0 0 150 40" aria-hidden="true">
             <pattern id="blank" width="15" height="10" patternUnits="userSpaceOnUse">
               <rect class="blank" x="1" y="1" width="13" height="8" />
-              <rect class="shade" x="3" y="2" width="9" height="6" />
+              <rect class="blank-frame" x="3" y="2" width="9" height="6" />
             </pattern>
             <rect width="150" height="40" fill="url(#blank)" />
           </svg>
@@ -196,12 +195,12 @@
       </section>
 
       <!-- ============ The rule: the reframe ============ -->
-      <section class="wrap rule">
+      <section class="wrap rule band">
         <h2>
           Stop choosing between photos. Answer a question about <span class="mark">this one</span>.
         </h2>
         <div class="rule-grid">
-          <div class="rule-lead">
+          <div>
             <h3>The photo gets the screen</h3>
             <p>
               Full window, measured rather than guessed: no part of a frame ever hides behind the
@@ -257,7 +256,7 @@
       </section>
 
       <!-- ============ The ledger: the trust ============ -->
-      <section class="wrap split">
+      <section class="wrap split ledger">
         <div>
           <h2>No surprises, no losses, no black box.</h2>
           <p>
@@ -316,7 +315,7 @@
       </section>
 
       <!-- ============ The keep: the payoff ============ -->
-      <section class="keep field">
+      <section class="keep">
       <div class="wrap">
         <svg class="heap-sheet" viewBox="0 0 150 40" role="img" aria-label="The same forty mounts. Three show a frame and carry the wax mark. The others are as they were.">
           <rect width="150" height="40" fill="url(#blank)" />
