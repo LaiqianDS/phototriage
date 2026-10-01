@@ -1,6 +1,6 @@
 # Roadmap
 
-What is planned after 0.4.1, in the order it is worth doing.
+What is planned after 0.5.0, in the order it is worth doing.
 
 This file records intent, not promises.
 The [Known limits](README.md#known-limits) section of the README describes what
@@ -67,7 +67,7 @@ What is left to learn needs a real card and real photos.
 A slow disk makes each directory read dearer, which the SSD above hides, and
 the decode of a large JPEG in the browser is not timed by the script at all.
 
-## 0.4.2: what the first real use turns up
+## 0.5.1: what the first real use turns up
 
 Fixes for whatever a session on real photos and a second browser reveal.
 
@@ -101,7 +101,7 @@ Fonts request blocked.
 The table at the top of the page answers the arrow keys and `U`, and that is
 the second thing to try.
 
-## 0.5.0: confidence and comfort
+## 0.6.0: confidence and comfort
 
 **A grid of the decisions.**
 Seeing what was kept and what was discarded, and changing one photo directly.

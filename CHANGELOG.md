@@ -6,6 +6,8 @@ and the project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## [Unreleased]
 
+## [0.5.0] - 2026-10-01
+
 ### Changed
 
 - The interface and the messages of the server are now in English.
@@ -169,7 +171,8 @@ First release.
   network.
 - Command line: `phototriage [source] [--state-file PATH] [--port N]`.
 
-[Unreleased]: https://github.com/LaiqianDS/phototriage/compare/v0.4.1...dev
+[Unreleased]: https://github.com/LaiqianDS/phototriage/compare/v0.5.0...dev
+[0.5.0]: https://github.com/LaiqianDS/phototriage/releases/tag/v0.5.0
 [0.4.1]: https://github.com/LaiqianDS/phototriage/releases/tag/v0.4.1
 [0.4.0]: https://github.com/LaiqianDS/phototriage/releases/tag/v0.4.0
 [0.3.0]: https://github.com/LaiqianDS/phototriage/releases/tag/v0.3.0
