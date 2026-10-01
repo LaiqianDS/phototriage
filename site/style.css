@@ -6,17 +6,7 @@
  * pre-emit critique: P4 H4 E3 S4 R4 V4
  */
 
-/*
- * PhotoTriage landing page.
- *
- * The world is a light table: a lit glass ground, slide mounts in card stock,
- * and one orange wax mark for what is kept. Nothing casts a shadow, because
- * the light comes from below.
- *
- * The palette is the same one the app uses, in src/phototriage/web/style.css.
- * The two folders ship apart and neither has a build step, so the values are
- * written twice. Change one, change the other.
- */
+/* PhotoTriage landing page. */
 
 :root {
   color-scheme: light;
@@ -42,11 +32,8 @@
   --plate-blown: oklch(97% 0.012 90);
   --plate-blown-2: oklch(93% 0.02 85);
 
-  /*
-   * The fallbacks are named rather than left to the generic families: the page
-   * has to hold its shape when the Google Fonts request fails, which is the
-   * only request it makes.
-   */
+  /* The fallbacks are named rather than left to the generic families: the page has to hold its
+     shape when the Google Fonts request fails, which is the only request it makes. */
   --font-display: "Archivo", "Arial Narrow", "Helvetica Neue", Arial, sans-serif;
   --font-body: "Archivo", "Helvetica Neue", Helvetica, Arial, sans-serif;
   --font-outlier: "Martian Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
@@ -405,8 +392,7 @@ section > * + *,
   align-items: end;
 }
 
-/* A slide mount. The window shows the frame, the card under it carries the
-   name. Lit from below, so it has an edge and no shadow. */
+/* A slide mount. */
 .mount {
   padding: 7% 7% 0;
   border: var(--rule-hair) solid var(--color-rule);
@@ -697,9 +683,7 @@ pre {
   white-space: nowrap;
 }
 
-/* ==========================================================================
-   Wider screens. The base above is the phone; the columns open out here.
-   ========================================================================== */
+/* ========================================================================== Wider screens. */
 
 @media (min-width: 26rem) {
   .score-word,
@@ -743,8 +727,8 @@ pre {
     grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
   }
 
-  /* The first rule is the one the other two follow from, so it gets the
-     wide column to itself and the larger text. */
+  /* The first rule is the one the other two follow from, so it gets the wide column to itself and
+     the larger text. */
   .rule-lead {
     grid-row: span 2;
     font-size: var(--text-md);

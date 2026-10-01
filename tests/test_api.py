@@ -136,12 +136,7 @@ def test_decide_past_the_end_is_refused(
 def test_a_verdict_on_a_photo_that_is_no_longer_next_is_refused(
     client: TestClient, source: Path, write_image: Callable[[Path], Path]
 ) -> None:
-    """A verdict used to land on whatever was next when it arrived, seen or not.
-
-    Two windows both show `a.png`. One keeps it, and a discard from the other
-    then went to `b.png`, which that window never showed. A file that sorts in
-    front of the photo on screen does the same without a second window.
-    """
+    """A verdict used to land on whatever was next when it arrived, seen or not."""
     write_image(source / "a.png")
     write_image(source / "b.png")
     choose(client, source)
@@ -372,7 +367,7 @@ def test_apply_reports_an_unwritable_destination(
     response = client.post("/api/apply", json={"mode": "copy"})
 
     assert response.status_code == 500
-    assert "destino" in response.json()["detail"]
+    assert "destination" in response.json()["detail"]
 
 
 def test_apply_carries_on_past_a_file_it_cannot_read(
@@ -431,11 +426,7 @@ def test_settings_turn_raw_pairing_off_and_apply_obeys(
 def test_the_queue_reaches_into_subfolders_once_the_switch_is_on(
     client: TestClient, source: Path, write_image: Callable[[Path], Path]
 ) -> None:
-    """The folder per day case, which is how a camera imports.
-
-    Before the switch this folder has nothing to review at all, which is the
-    dead end the option exists to open.
-    """
+    """The folder per day case, which is how a camera imports."""
     write_image(source / "2024-08-30" / "IMG_1.png")
     write_image(source / "2024-08-31" / "IMG_2.png")
 
@@ -492,12 +483,7 @@ def test_settings_send_a_video_with_the_image_that_shares_its_name(
 
 
 def test_settings_change_only_the_flag_they_name(client: TestClient) -> None:
-    """A stale view of one switch must not drag the other back with it.
-
-    Both preferences answer on the same route, so a request that always sent
-    the pair it had on screen would undo a change taken in another window, or
-    in this one before the dialog was opened.
-    """
+    """A stale view of one switch must not drag the other back with it."""
     client.post("/api/settings", json={"pair_raws": False})
 
     state = client.post("/api/settings", json={"search_subfolders": True}).json()
@@ -509,11 +495,7 @@ def test_settings_change_only_the_flag_they_name(client: TestClient) -> None:
 def test_a_destination_inside_the_source_stays_out_of_the_queue(
     client: TestClient, source: Path, write_image: Callable[[Path], Path]
 ) -> None:
-    """A copy run used to put its own copies back in front of the reviewer.
-
-    With the subfolder switch on, the walk reached the destination like any
-    other folder, and the counters grew with the reviewer's own work.
-    """
+    """A copy run used to put its own copies back in front of the reviewer."""
     write_image(source / "2024-08-30" / "IMG_1.png")
     write_image(source / "2024-08-30" / "IMG_2.png")
     choose(client, source)
@@ -545,11 +527,7 @@ def test_a_destination_that_is_the_source_itself_leaves_the_queue_whole(
 def test_the_plan_names_the_files_their_size_and_where_they_go(
     client: TestClient, source: Path, tmp_path: Path, write_image: Callable[[Path], Path]
 ) -> None:
-    """The confirmation used to say nothing about how much a run would move.
-
-    The count is the plan the run would execute, companions included, so it is
-    the number of files that leave the source in move mode.
-    """
+    """The confirmation used to say nothing about how much a run would move."""
     image = write_image(source / "keep.png")
     write_image(source / "drop.png")
     (source / "keep.CR2").write_bytes(b"x" * 1000)
@@ -595,11 +573,7 @@ def test_a_run_reports_its_progress_and_refuses_a_second_one(
     write_image: Callable[[Path], Path],
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    """The status line used to read `Procesando...` for minutes with no sign of life.
-
-    Both questions are asked from inside the copy of the second file, which is
-    the only moment a run is observably in flight.
-    """
+    """The status line used to read `Working...` for minutes with no sign of life."""
     first = write_image(source / "a.png")
     write_image(source / "b.png")
     choose(client, source)
@@ -610,8 +584,8 @@ def test_a_run_reports_its_progress_and_refuses_a_second_one(
     real_copy = transfer.shutil.copy2
 
     def observed_copy(src: str, dst: str) -> None:
-        # Once only: without the lock, the second run would copy `b.png` too and
-        # land here again, nesting runs until the server runs out of threads.
+        # Once only: without the lock, the second run would copy `b.png` too and land here again,
+        # nesting runs until the server runs out of threads.
         if src.endswith("b.png") and not seen:
             seen.append(client.get("/api/progress").json())
             refused.append(client.post("/api/apply", json={"mode": "copy"}).status_code)

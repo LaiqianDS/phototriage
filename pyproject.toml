@@ -5,7 +5,6 @@ description = "Review a folder of photos one by one and collect the ones you kee
 readme = "README.md"
 requires-python = ">=3.12"
 authors = [{ name = "LaiqianDS", email = "lqj.2004@gmail.com" }]
-maintainers = [{ name = "LaiqianDS", email = "lqj.2004@gmail.com" }]
 license = "MIT"
 license-files = ["LICENSE"]
 keywords = ["photos", "images", "raw", "culling", "review", "fastapi", "local"]
@@ -14,7 +13,7 @@ classifiers = [
     "Environment :: Web Environment",
     "Framework :: FastAPI",
     "Intended Audience :: End Users/Desktop",
-    "Natural Language :: Spanish",
+    "Natural Language :: English",
     "Operating System :: OS Independent",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.12",

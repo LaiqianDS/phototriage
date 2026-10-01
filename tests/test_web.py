@@ -8,29 +8,27 @@ from pathlib import Path
 from phototriage.api import WEB_DIR, create_app
 from phototriage.store import Store
 
-# The script reaches the page through one helper, `el("id")`, and could also
-# call `document.getElementById("id")` directly. Both spellings are collected.
+# The script reaches the page through one helper, `el("id")`, and could also call
+# `document.getElementById("id")` directly.
 SCRIPT_IDS = re.compile(r"""(?:\bel|document\.getElementById)\(\s*["']([^"']+)["']\s*\)""")
 MARKUP_IDS = re.compile(r"""\bid=["']([^"']+)["']""")
-# `for` names the control a label belongs to; the two `aria-*` attributes name
-# the elements that title and describe a control. All three hold ids.
+# `for` names the control a label belongs to; the two `aria-*` attributes name the elements that
+# title and describe a control.
 MARKUP_REFS = re.compile(r"""\b(?:for|aria-labelledby|aria-describedby)=["']([^"']+)["']""")
 
 # Focused mode hides both bars, so what they report is reported again here.
 HUD_IDS = ("hud-filename", "hud-progress", "hud-kept", "hud-status")
 
-# The states the script drives from the body element. The stylesheet is the
-# whole of what each one does, so the two files have to agree on the name.
+# The states the script drives from the body element.
 BODY_STATES = ("resting", "focused", "zoomed")
 BODY_CLASSES = re.compile(r"""document\.body\.classList\.\w+\(\s*["']([^"']+)["']""")
 
-# Every request the script makes goes through `call("endpoint", ...)`, with the
-# endpoint either quoted or at the start of a template string.
+# Every request the script makes goes through `call("endpoint", ...)`, with the endpoint either
+# quoted or at the start of a template string.
 CALLED_ENDPOINTS = re.compile(r"""\bcall\(\s*["'`]([a-z-]+)""")
 
-# Focused mode and the zoom were reached from the keyboard alone. These are the
-# buttons that let a pointer in and out, each named after its key.
-POINTER_CONTROLS = {"enter-focused": "F", "toggle-zoom": "Espacio", "leave-focused": "Esc"}
+# Focused mode and the zoom were reached from the keyboard alone.
+POINTER_CONTROLS = {"enter-focused": "F", "toggle-zoom": "Space", "leave-focused": "Esc"}
 BUTTONS = re.compile(r"""<button\b[^>]*\bid=["']([^"']+)["'][^>]*>(.*?)</button>""", re.DOTALL)
 CLICKS = re.compile(r"""\bel\(\s*["']([^"']+)["']\s*\)\.addEventListener\(\s*["']click["']""")
 
@@ -60,12 +58,7 @@ def declarations(stylesheet: str, selector: str) -> str:
 
 
 def test_every_id_the_script_asks_for_exists_in_the_page() -> None:
-    """The two files are the only pair nothing else checks.
-
-    `document.getElementById` answers a typo with `null` instead of an error, so
-    a renamed or misspelled id stays silent until a handler runs in front of the
-    user and fails on a line that names neither file.
-    """
+    """The two files are the only pair nothing else checks."""
     used = set(SCRIPT_IDS.findall(read("app.js")))
     defined = set(MARKUP_IDS.findall(read("index.html")))
 
@@ -74,12 +67,7 @@ def test_every_id_the_script_asks_for_exists_in_the_page() -> None:
 
 
 def test_every_label_and_aria_reference_points_at_a_real_element() -> None:
-    """A dangling reference costs the accessible name, and nothing complains.
-
-    The browser drops a `for` or an `aria-describedby` that names no element
-    without a word, so the control simply reaches a screen reader unnamed or
-    unexplained. Only a reader of both attributes would notice.
-    """
+    """A dangling reference costs the accessible name, and nothing complains."""
     markup = read("index.html")
     defined = set(MARKUP_IDS.findall(markup))
     referenced = {name for value in MARKUP_REFS.findall(markup) for name in value.split()}
@@ -89,13 +77,7 @@ def test_every_label_and_aria_reference_points_at_a_real_element() -> None:
 
 
 def test_the_focused_mode_display_is_defined_and_kept_up_to_date() -> None:
-    """A twin the script never writes is worse than no twin at all.
-
-    It would sit on screen reporting the previous photo, and the failure is
-    silent in both directions: an element the page drops leaves the script
-    writing to `null`, and an element the script stops writing keeps its last
-    value. Only reading the two files together catches either one.
-    """
+    """A twin the script never writes is worse than no twin at all."""
     defined = set(MARKUP_IDS.findall(read("index.html")))
     written = set(SCRIPT_IDS.findall(read("app.js")))
 
@@ -107,17 +89,7 @@ def test_the_focused_mode_display_is_defined_and_kept_up_to_date() -> None:
 
 
 def test_focused_mode_paints_no_colour_of_its_own_over_the_photo() -> None:
-    """The verdict colour belongs to the card, and in here there is no card.
-
-    The two edge buttons carry a flat tint as cards. Focused mode turns them
-    into full height strips down the sides of the photo, where any colour of
-    ours shifts the colour the eye reads at that edge of the image, and reading
-    colour is half of what a review is for.
-
-    What holds the line is one declaration cancelling a background the button
-    already has, so deleting it brings the tint back with nothing on screen to
-    explain it and nothing anywhere to complain.
-    """
+    """The verdict colour belongs to the card, and in here there is no card."""
     stylesheet = read("style.css")
     edge = declarations(stylesheet, "body.focused .edge")
 
@@ -134,12 +106,7 @@ def test_focused_mode_paints_no_colour_of_its_own_over_the_photo() -> None:
 
 
 def test_focused_mode_and_the_zoom_can_be_reached_without_a_keyboard() -> None:
-    """A button the script never listens to looks like the way in and does nothing.
-
-    Each button also names its key, so a pointer user learns the shortcut by
-    using the button, and a key nothing on screen names stays a feature only the
-    README knows about.
-    """
+    """A button the script never listens to looks like the way in and does nothing."""
     buttons = dict(BUTTONS.findall(read("index.html")))
     clicked = set(CLICKS.findall(read("app.js")))
 
@@ -150,13 +117,7 @@ def test_focused_mode_and_the_zoom_can_be_reached_without_a_keyboard() -> None:
 
 
 def test_every_state_on_the_body_is_drawn_by_the_stylesheet() -> None:
-    """A class name is the whole contract between the script and the stylesheet.
-
-    Resting, focused mode and zoom are each one class on `body` and a set of
-    rules that answer it. Rename either side and the key still works, the class
-    still lands, and nothing on screen moves. Nothing throws, so only reading
-    the two files together catches it.
-    """
+    """A class name is the whole contract between the script and the stylesheet."""
     driven = set(BODY_CLASSES.findall(read("app.js")))
     stylesheet = read("style.css")
 
@@ -168,14 +129,7 @@ def test_every_state_on_the_body_is_drawn_by_the_stylesheet() -> None:
 
 
 def test_leaving_focused_mode_survives_a_browser_without_the_fullscreen_api() -> None:
-    """Safari before 16.4 spells fullscreen with a `webkit` prefix only.
-
-    There `document.fullscreenElement` is undefined, not null, so a comparison
-    with null reads as "in fullscreen" and calls an `exitFullscreen` that does
-    not exist. The page throws every time focused mode is left. Focused mode
-    there never went fullscreen in the first place, so asking whether the
-    element is set at all is both correct and enough.
-    """
+    """Safari before 16.4 spells fullscreen with a `webkit` prefix only."""
     script = read("app.js")
 
     compared = re.findall(r"fullscreenElement\s*[!=]==?\s*null", script)
@@ -184,12 +138,7 @@ def test_leaving_focused_mode_survives_a_browser_without_the_fullscreen_api() ->
 
 
 def test_every_endpoint_the_script_calls_is_a_route_the_server_answers(tmp_path: Path) -> None:
-    """A misspelled endpoint answers 404 only when someone presses the button.
-
-    The static mount at `/` would answer any other path with its own 404, so
-    nothing fails at startup, and the interface shows `Not Found` on the status
-    line in front of the user.
-    """
+    """A misspelled endpoint answers 404 only when someone presses the button."""
     app = create_app(Store(tmp_path / "state.json"))
     served = {
         route.path.removeprefix("/api/") for route in app.routes if route.path.startswith("/api/")

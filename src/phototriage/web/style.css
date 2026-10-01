@@ -2,16 +2,8 @@
  * states: default · hover · focus · active · disabled · loading (aria-busy) · error (.status.error) · success (status line)
  */
 
-/* One palette, two themes. Only the values below change between light and
-   dark, so every component is written once.
-
-   The light theme is a light table switched on, and the dark theme is the same
-   table switched off. The greys are the ones the landing page uses, in
-   site/style.css. The two folders ship apart and neither has a build step, so
-   the values are written twice. Change one, change the other.
-
-   Nothing casts a shadow and nothing blurs what is behind it: a surface is
-   told from the next one by an edge. */
+/* One palette, two themes. The greys are written again in site/style.css: change one, change the
+   other. */
 
 :root {
   color-scheme: light;
@@ -29,8 +21,7 @@
   --radius-xl: 6px;
   --radius-full: 999px;
 
-  /* How much of the window the photo gives back. Also where the edge buttons
-     sit, so the frame reads as one margin. */
+  /* How much of the window the photo gives back. */
   --inset: 0.5rem;
 
   --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
@@ -45,8 +36,7 @@
   --border-strong: oklch(63% 0.012 230);
   --text: oklch(21% 0.01 230);
   --text-muted: oklch(42% 0.012 230);
-  /* The chrome around the photo. Opaque, so the text on it reads the same over
-     any photo. */
+  /* The chrome around the photo. */
   --bar: oklch(98.5% 0.004 230);
   --bar-muted: oklch(42% 0.012 230);
   --bar-line: oklch(79% 0.01 230);
@@ -58,8 +48,7 @@
   --discard-tint: oklch(52% 0.19 28 / 0.1);
   --discard-tint-hover: oklch(52% 0.19 28 / 0.18);
   --discard-line: oklch(52% 0.19 28 / 0.4);
-  /* The ring is the ink. A colour of its own would sit beside the two verdict
-     colours and beside the photo. */
+  /* The ring is the ink. */
   --focus: oklch(21% 0.01 230);
   --fill: oklch(21% 0.01 230);
   --fill-hover: oklch(32% 0.012 230);
@@ -67,8 +56,7 @@
   --scrim: oklch(21% 0.01 230 / 0.45);
 }
 
-/* Set by the script in the page head before the first paint, so the theme
-   never flashes. The system preference decides it until the button is used. */
+/* Set by the script in the page head before the first paint, so the theme never flashes. */
 :root[data-theme="dark"] {
   color-scheme: dark;
 
@@ -106,16 +94,16 @@
   box-sizing: border-box;
 }
 
-/* Set on the element rather than by attribute, so a rule with a `display`
-   cannot leave a hidden element on screen. */
+/* Set on the element rather than by attribute, so a rule with a `display` cannot leave a hidden
+   element on screen. */
 [hidden] {
   display: none !important;
 }
 
 body {
   margin: 0;
-  /* Nothing on the page is in flow, so any scrolling would only be the window
-     rubber-banding away from the photo. */
+  /* Nothing on the page is in flow, so any scrolling would only be the window rubber-banding away
+     from the photo. */
   overflow: hidden;
   background: var(--bg);
   color: var(--text);
@@ -152,9 +140,7 @@ body {
 
 /* ----------------------------------------------------------------- stage ---*/
 
-/* The window, less the chrome. The bars and the verdict buttons reserve their
-   room through the variables the script measures, so no part of a photo is ever
-   hidden behind the interface. */
+/* The window, less the chrome. */
 .stage {
   position: fixed;
   top: calc(var(--bar-top, 4rem) + var(--inset));
@@ -167,8 +153,8 @@ body {
   transition: opacity 150ms var(--ease-out);
 }
 
-/* The wait is only visible when the server is slow: a local decision answers
-   long before the delay elapses, so the photo never flickers. */
+/* The wait is only visible when the server is slow: a local decision answers long before the delay
+   elapses, so the photo never flickers. */
 body[aria-busy="true"] .stage {
   opacity: 0.55;
   transition-delay: 250ms;
@@ -182,9 +168,8 @@ body[aria-busy="true"] .stage {
   height: 100%;
 }
 
-/* The browser applies the EXIF orientation on its own, so the server can send
-   the original file untouched. Neither dimension is forced, so a photo smaller
-   than the window is shown at its own size instead of being enlarged. */
+/* The browser applies the EXIF orientation on its own, so the server can send the original file
+   untouched. */
 #photo {
   max-width: 100%;
   max-height: 100%;
@@ -217,8 +202,8 @@ body[aria-busy="true"] .stage {
   color: var(--text);
 }
 
-/* Faded rather than removed, so the tab order and the reading order of the
-   page are the same whether the chrome is on screen or not. */
+/* Faded rather than removed, so the tab order and the reading order of the page are the same
+   whether the chrome is on screen or not. */
 body.resting .bar {
   opacity: 0;
   pointer-events: none;
@@ -232,9 +217,7 @@ body.resting .bottombar {
   translate: 0 0.75rem;
 }
 
-/* Whoever is navigating by keyboard must not lose sight of the control they are
-   on. Written against the ring rather than plain focus, so a bar the mouse left
-   focus in still fades. */
+/* Whoever is navigating by keyboard must not lose sight of the control they are on. */
 body.resting .bar:has(:focus-visible) {
   opacity: 1;
   translate: 0;
@@ -287,9 +270,7 @@ body.resting .bar:has(:focus-visible) {
   font-weight: 600;
 }
 
-/* The colour is carried by the dot, not by the label. A dot is a graphical
-   object and needs 3:1, while the small text keeps the full contrast of plain
-   text against the bar. */
+/* The colour is carried by the dot, not by the label. */
 .chip {
   display: inline-flex;
   align-items: center;
@@ -326,8 +307,7 @@ body.resting .bar:has(:focus-visible) {
   background: var(--discard);
 }
 
-/* Along the edge of the bar: a full-width reading of the run that costs no
-   row of its own. */
+/* Along the edge of the bar: a full-width reading of the run that costs no row of its own. */
 .topbar .progress {
   position: absolute;
   left: 0;
@@ -352,8 +332,8 @@ body.resting .bar:has(:focus-visible) {
   min-width: 0;
 }
 
-/* Stacked inside a sheet, where the column direction would otherwise turn the
-   row's `flex: 1 1 18rem` into an 18rem tall field. */
+/* Stacked inside a sheet, where the column direction would otherwise turn the row's `flex: 1 1
+   18rem` into an 18rem tall field. */
 .field.stacked {
   flex: none;
   flex-direction: column;
@@ -419,8 +399,8 @@ input[type="text"]:disabled {
   background: var(--track);
 }
 
-/* Invisible but still focusable, so the arrow keys keep moving between the two
-   choices the way a native segmented control does. */
+/* Invisible but still focusable, so the arrow keys keep moving between the two choices the way a
+   native segmented control does. */
 .segmented input {
   position: absolute;
   width: 1px;
@@ -452,8 +432,7 @@ input[type="text"]:disabled {
   outline-offset: 2px;
 }
 
-/* One line always reserved, so a message never resizes the bar under the
-   pointer. The three parts share it and each gives way with an ellipsis. */
+/* One line always reserved, so a message never resizes the bar under the pointer. */
 .bar-note {
   display: flex;
   align-items: baseline;
@@ -539,8 +518,7 @@ input[type="text"]:disabled {
   cursor: default;
 }
 
-/* A toggle that is on reads as pressed in, the way the chosen half of the
-   segmented control does. */
+/* A toggle that is on reads as pressed in, the way the chosen half of the segmented control does. */
 .button[aria-pressed="true"] {
   background: var(--track);
 }
@@ -572,8 +550,7 @@ kbd {
 
 /* ---------------------------------------------------------- verdict edges ---*/
 
-/* Left and right, where the arrow keys point, over the space a portrait photo
-   cannot use. These never fade: they are the reason the app is open. */
+/* Left and right, where the arrow keys point, over the space a portrait photo cannot use. */
 .edge {
   position: fixed;
   top: 50%;
@@ -614,8 +591,7 @@ kbd {
   height: 2.5rem;
 }
 
-/* Sits on the edge itself rather than on a surface, so it needs the
-   contrast-safe muted colour. */
+/* Sits on the edge itself rather than on a surface, so it needs the contrast-safe muted colour. */
 .edge-key {
   color: var(--bar-muted);
   font-size: 0.8125rem;
@@ -636,9 +612,7 @@ kbd {
   color: var(--keep);
 }
 
-/* The flat tint belongs to the card. Focused mode replaces the card with a
-   directional wash, and these are more specific than the rules that draw it, so
-   without the guard a hover there would flatten the gradient back out. */
+/* The flat tint belongs to the card. */
 body:not(.focused) .edge.discard:hover:not(:disabled) {
   background-image: linear-gradient(var(--discard-tint-hover), var(--discard-tint-hover));
 }
@@ -649,11 +623,7 @@ body:not(.focused) .edge.keep:hover:not(:disabled) {
 
 /* ---------------------------------------------------------- focused mode ---*/
 
-/* Not the resting state, which only fades the bars and keeps their room. Here
-   the chrome is gone and the photo takes the whole window, because the question
-   in front of the user is about the photo and nothing else. Three things stay:
-   the progress hairline, the two verdict buttons reduced to their icons, and
-   one pill. */
+/* Not the resting state, which only fades the bars and keeps their room. */
 
 .hud,
 .focus-hint {
@@ -669,26 +639,19 @@ body.focused #photo {
   border-radius: 0;
 }
 
-/* Hidden rather than removed: `visibility` takes the bars out of the tab order
-   and out of the accessibility tree, and still leaves the heights `fitStage`
-   measured, so leaving focused mode does not have to measure again first. */
+/* Hidden rather than removed. */
 body.focused .bar {
   visibility: hidden;
 }
 
-/* The one control that never leaves. It lives inside the top bar, so it turns
-   its own visibility back on and moves to the top edge of the window. */
+/* The one control that never leaves. */
 body.focused .topbar .progress {
   visibility: visible;
   top: 0;
   bottom: auto;
 }
 
-/* The cards lose everything but their icon. Nothing of ours is painted over the
-   photo: a tint along an edge moves the colour the eye reads there, and judging
-   colour is half of what the review is for. `background-image: none` is the
-   line that does it, because the flat tint on `.edge.discard` would otherwise
-   still show through the transparent background colour. */
+/* The cards lose everything but their icon. */
 body.focused .edge {
   top: 0;
   bottom: 0;
@@ -711,8 +674,8 @@ body.focused .edge.keep {
   right: 0;
 }
 
-/* A scale would drag a full-height button around under the pointer, so the
-   press is carried by brightness instead. */
+/* A scale would drag a full-height button around under the pointer, so the press is carried by
+   brightness instead. */
 body.focused .edge:hover:not(:disabled) {
   opacity: 1;
 }
@@ -731,8 +694,7 @@ body.focused .edge-icon {
   height: 1.875rem;
 }
 
-/* Off the layout, still the accessible name of the button. `display: none` here
-   would leave a button that reads to a screen reader as nothing at all. */
+/* Off the layout, still the accessible name of the button. */
 body.focused .edge-label {
   position: absolute;
   width: 1px;
@@ -782,9 +744,7 @@ body.focused .hud {
   font-variant-numeric: tabular-nums;
 }
 
-/* The status line is usually empty, and an empty child would still spend a gap.
-   It is in the pill at all because focused mode hides the bar it normally sits
-   in, and an error nobody can see is the same as no error at all. */
+/* The status line is usually empty, and an empty child would still spend a gap. */
 #hud-status:empty {
   display: none;
 }
@@ -813,8 +773,7 @@ body.focused .focus-hint:hover {
   color: var(--text);
 }
 
-/* Both come and go with the bars, on the same timer and the same rule. The two
-   verdicts do not, for the same reason the cards never faded. */
+/* Both come and go with the bars, on the same timer and the same rule. */
 body.resting .hud,
 body.resting .focus-hint {
   opacity: 0;
@@ -829,8 +788,7 @@ body.resting .focus-hint {
   translate: 0 -0.375rem;
 }
 
-/* A button now, so it can hold the focus ring, and like a bar it stays up for
-   as long as it does. */
+/* A button now, so it can hold the focus ring, and like a bar it stays up for as long as it does. */
 body.resting .focus-hint:focus-visible {
   opacity: 1;
   translate: 0;
@@ -848,28 +806,15 @@ body.resting .focus-hint:focus-visible {
 
 /* ------------------------------------------------------------------ zoom ---*/
 
-/* Fitted to the window, every photo looks sharp: the browser is scaling it
-   down, and scaling down hides softness. Whether the photo is actually sharp is
-   the one question a review asks, and only one image pixel per screen pixel
-   answers it. The width that produces is set by the script, because it depends
-   on `devicePixelRatio`, which CSS cannot read.
+/* Fitted to the window, every photo looks sharp: the browser is scaling it down, and scaling down
+   hides softness. */
 
-   Independent of focused mode. Either can be on without the other, and both
-   together is the view this feature exists for. */
-
-/* The centring is handed over to the photo's own margins for as long as the
-   zoom lasts. A photo larger than the window is what this state is for, and a
-   centred flex item that overflows spills equally to both sides: the half that
-   goes past the start edge is then unreachable, because a scroll container has
-   no negative offset to scroll to. Auto margins take the free space while there
-   is any and collapse to zero when there is none, which leaves the photo
-   centred while it fits and against the start edge once it does not. */
+/* The centring is handed over to the photo's own margins for as long as the zoom lasts. */
 body.zoomed .viewer {
   justify-content: flex-start;
   align-items: flex-start;
   overflow: auto;
-  /* The photo is the end of the scroll. Nothing behind it moves when a pan
-     reaches an edge. */
+  /* The photo is the end of the scroll. */
   overscroll-behavior: contain;
   cursor: grab;
 }
@@ -896,8 +841,8 @@ body.zoomed #photo {
   color: var(--text);
 }
 
-/* Scoped to the open state: a bare `display` would defeat the dialog's own
-   `display: none` and leave it on screen. */
+/* Scoped to the open state: a bare `display` would defeat the dialog's own `display: none` and
+   leave it on screen. */
 .sheet[open] {
   display: flex;
   flex-direction: column;
@@ -964,8 +909,8 @@ body.zoomed #photo {
   cursor: pointer;
 }
 
-/* Invisible but still focusable and still the element the label names, so the
-   control stays a checkbox to the keyboard and to a screen reader. */
+/* Invisible but still focusable and still the element the label names, so the control stays a
+   checkbox to the keyboard and to a screen reader. */
 .switch input {
   position: absolute;
   width: 1px;
@@ -1086,8 +1031,8 @@ code {
 /* ------------------------------------------------------------ responsive ---*/
 
 @media (max-width: 60rem) {
-  /* The reassurance is the first thing to go: the filename and the status both
-     change, and this line never does. */
+  /* The reassurance is the first thing to go: the filename and the status both change, and this
+     line never does. */
   .bar-note .hint {
     display: none;
   }
@@ -1123,8 +1068,8 @@ code {
   }
 }
 
-/* The delays survive on purpose: the one that matters holds the busy state back
-   until a request is genuinely slow, which is what stops the photo flickering. */
+/* The delays survive on purpose: the one that matters holds the busy state back until a request is
+   genuinely slow, which is what stops the photo flickering. */
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

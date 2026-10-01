@@ -8,6 +8,9 @@ and the project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ### Changed
 
+- The interface and the messages of the server are now in English.
+  They were in Spanish.
+  Sizes use a decimal point: `8.4 GB`.
 - The landing page has a new design: slide mounts on a light table.
   The table at the top is a sample review that answers the arrow keys and `U`.
 - The landing page no longer says that subfolders are never searched or that
@@ -37,14 +40,14 @@ and the project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
   Before, a second window showing a photo already decided, or a new file that
   sorted in front of the photo on screen, sent the verdict to a photo nobody
   saw.
-  The page then shows the photo that is next, with `La cola ha cambiado`.
+  The page then shows the photo that is next, with `The queue has changed`.
 
 ## [0.4.0] - 2026-09-17
 
 ### Added
 
 - The confirmation before a run names how many files would go, their size and
-  the destination: `¿Copiar 312 archivos (8,4 GB) a ...?`.
+  the destination: `Copy 312 files (8.4 GB) to ...?`.
   A new route, `GET /api/plan`, counts the plan without touching the
   destination.
 - Progress during a run on the status line: `Copiando 120 de 312 (3,2 GB de

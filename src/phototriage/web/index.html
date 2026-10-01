@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -19,21 +19,21 @@
     <!-- The stage is the window. Everything below floats on top of it. -->
     <main class="stage">
       <div id="viewer" class="viewer" hidden><img id="photo" alt="" /></div>
-      <p id="idle" class="notice">Elige una carpeta de origen para empezar.</p>
-      <p id="empty" class="notice" hidden>Esa carpeta no tiene imágenes.</p>
-      <p id="done" class="notice" hidden>Revisión terminada.</p>
+      <p id="idle" class="notice">Choose a source folder to start.</p>
+      <p id="empty" class="notice" hidden>That folder has no images.</p>
+      <p id="done" class="notice" hidden>Review finished.</p>
     </main>
 
     <header id="topbar" class="bar topbar">
       <h1 class="visually-hidden">PhotoTriage</h1>
       <p class="tally">
-        <span><span id="progress">0 / 0</span> revisadas</span>
-        <span class="chip keep"><span id="kept">0</span> mantenidas</span>
-        <span class="chip discard"><span id="discarded">0</span> desechadas</span>
+        <span><span id="progress">0 / 0</span> reviewed</span>
+        <span class="chip keep"><span id="kept">0</span> kept</span>
+        <span class="chip discard"><span id="discarded">0</span> discarded</span>
       </p>
 
       <label class="field" for="source">
-        <span>Origen</span>
+        <span>Source</span>
         <input
           id="source"
           type="text"
@@ -42,11 +42,11 @@
           autocomplete="off"
         />
       </label>
-      <button id="browse" type="button" class="button">Explorar</button>
+      <button id="browse" type="button" class="button">Browse</button>
 
       <button id="toggle-theme" type="button" class="button icon">
-        <!-- Both icons ship; the stylesheet shows the one matching the theme
-             in use, so the button reads as the state it is in. -->
+        <!-- Both icons ship; the stylesheet shows the one matching the theme in use, so the
+             button reads as the state it is in. -->
         <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
           <circle cx="12" cy="12" r="4" stroke-width="1.8" />
           <path
@@ -64,7 +64,7 @@
         </svg>
       </button>
 
-      <button id="open-settings" type="button" class="button icon" aria-label="Ajustes">
+      <button id="open-settings" type="button" class="button icon" aria-label="Settings">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
           <circle cx="12" cy="12" r="3.2" stroke-width="1.8" />
           <path
@@ -81,8 +81,7 @@
       </div>
     </header>
 
-    <!-- On the edges the arrow keys point to. The stage reserves their width,
-         so they sit beside the photo and never over it. -->
+    <!-- On the edges the arrow keys point to. -->
     <button id="discard" type="button" class="edge discard">
       <svg
         class="edge-icon"
@@ -95,7 +94,7 @@
       >
         <path d="M6.5 6.5l11 11M17.5 6.5l-11 11" />
       </svg>
-      <span class="edge-label">Desechar</span>
+      <span class="edge-label">Discard</span>
       <kbd class="edge-key" aria-hidden="true">&larr;</kbd>
     </button>
 
@@ -112,7 +111,7 @@
       >
         <path d="M4.5 12.8l5.2 5.2L19.5 6.5" />
       </svg>
-      <span class="edge-label">Mantener</span>
+      <span class="edge-label">Keep</span>
       <kbd class="edge-key" aria-hidden="true">&rarr;</kbd>
     </button>
 
@@ -130,12 +129,10 @@
           >
             <path d="M4 9h11a4.5 4.5 0 0 1 0 9h-3.5M8 5L4 9l4 4" />
           </svg>
-          Deshacer <kbd aria-hidden="true">U</kbd>
+          Undo <kbd aria-hidden="true">U</kbd>
         </button>
 
-        <!-- Each names its key, like undo, so using the button teaches the
-             shortcut. Focused mode hides this bar, so in there the zoom is
-             reached by its key alone. -->
+        <!-- Each names its key, like undo, so using the button teaches the shortcut. -->
         <button id="enter-focused" type="button" class="button">
           <svg
             viewBox="0 0 24 24"
@@ -148,7 +145,7 @@
           >
             <path d="M4 9V4h5M15 4h5v5M20 15v5h-5M9 20H4v-5" />
           </svg>
-          Modo enfocado <kbd aria-hidden="true">F</kbd>
+          Focused mode <kbd aria-hidden="true">F</kbd>
         </button>
 
         <!-- A toggle, so `aria-pressed` tells a screen reader which view is on. -->
@@ -164,59 +161,57 @@
             <circle cx="10.5" cy="10.5" r="6" />
             <path d="M15 15l5 5" />
           </svg>
-          Zoom 1:1 <kbd aria-hidden="true">Espacio</kbd>
+          Zoom 1:1 <kbd aria-hidden="true">Space</kbd>
         </button>
 
         <fieldset class="mode">
-          <legend>Al ejecutar</legend>
+          <legend>On run</legend>
           <div class="segmented">
             <input id="mode-copy" type="radio" name="mode" value="copy" checked />
-            <label for="mode-copy">Copiar</label>
+            <label for="mode-copy">Copy</label>
             <input id="mode-move" type="radio" name="mode" value="move" />
-            <label for="mode-move">Mover</label>
+            <label for="mode-move">Move</label>
           </div>
         </fieldset>
-        <button id="apply" type="button" class="button primary">Ejecutar</button>
+        <button id="apply" type="button" class="button primary">Run</button>
       </div>
 
       <div class="bar-note">
         <p id="filename" class="filename"></p>
-        <p class="hint">Las desechadas se quedan donde están.</p>
+        <p class="hint">Discarded images stay where they are.</p>
         <p id="status" class="status" role="status" aria-live="polite"></p>
       </div>
     </footer>
 
-    <!-- Focused mode. The bars are gone rather than faded, so these two carry
-         what the bars carried: the four values a decision needs, and the way
-         back out. Both rest on the same timer the bars use. -->
+    <!-- Focused mode. -->
     <div id="hud" class="hud">
       <span id="hud-filename" class="hud-name"></span>
       <span class="hud-sep" aria-hidden="true"></span>
       <span id="hud-progress" class="hud-tally"></span>
-      <span class="chip keep"><span id="hud-kept">0</span> mantenidas</span>
+      <span class="chip keep"><span id="hud-kept">0</span> kept</span>
       <span id="hud-status" class="status" role="status" aria-live="polite"></span>
     </div>
 
     <button id="leave-focused" type="button" class="focus-hint">
-      <kbd aria-hidden="true">Esc</kbd> Salir del modo enfocado
+      <kbd aria-hidden="true">Esc</kbd> Leave focused mode
     </button>
 
     <dialog id="explorer" class="sheet" aria-labelledby="explorer-title">
       <header class="sheet-head">
-        <h2 id="explorer-title">Elegir carpeta</h2>
+        <h2 id="explorer-title">Choose folder</h2>
         <p id="explorer-path" class="path"></p>
       </header>
       <ul id="explorer-list" class="folder-list"></ul>
       <p id="explorer-count" class="note"></p>
       <div class="sheet-actions">
-        <button id="explorer-close" type="button" class="button">Cancelar</button>
-        <button id="explorer-choose" type="button" class="button primary">Usar esta carpeta</button>
+        <button id="explorer-close" type="button" class="button">Cancel</button>
+        <button id="explorer-choose" type="button" class="button primary">Use this folder</button>
       </div>
     </dialog>
 
     <dialog id="settings" class="sheet" aria-labelledby="settings-title">
       <header class="sheet-head">
-        <h2 id="settings-title">Ajustes</h2>
+        <h2 id="settings-title">Settings</h2>
       </header>
 
       <div class="setting">
@@ -228,11 +223,11 @@
             aria-describedby="search-subfolders-note"
           />
           <span class="switch-track" aria-hidden="true"></span>
-          <span class="switch-text">Buscar en subcarpetas</span>
+          <span class="switch-text">Search subfolders</span>
         </label>
         <p id="search-subfolders-note" class="note">
-          Activado, la revisión incluye las imágenes que hay dentro de las carpetas del origen.
-          Cada imagen mantenida conserva su subcarpeta en el destino.
+          On, the review includes the images inside the folders of the source. Each kept image
+          keeps its subfolder in the destination.
         </p>
       </div>
 
@@ -240,11 +235,11 @@
         <label class="switch" for="pair-raws">
           <input id="pair-raws" type="checkbox" role="switch" aria-describedby="pair-raws-note" />
           <span class="switch-track" aria-hidden="true"></span>
-          <span class="switch-text">Mover los RAW junto a la imagen</span>
+          <span class="switch-text">Move RAW files with the image</span>
         </label>
         <p id="pair-raws-note" class="note">
-          Activado, un archivo como <code>IMG_0042.CR2</code> viaja con
-          <code>IMG_0042.JPG</code>. Desactivado, solo se transfiere la imagen.
+          On, a file such as <code>IMG_0042.CR2</code> travels with
+          <code>IMG_0042.JPG</code>. Off, only the image is transferred.
         </p>
       </div>
 
@@ -252,18 +247,18 @@
         <label class="switch" for="pair-videos">
           <input id="pair-videos" type="checkbox" role="switch" aria-describedby="pair-videos-note" />
           <span class="switch-track" aria-hidden="true"></span>
-          <span class="switch-text">Mover los vídeos junto a la imagen</span>
+          <span class="switch-text">Move videos with the image</span>
         </label>
         <p id="pair-videos-note" class="note">
-          Activado, un archivo como <code>IMG_0042.MOV</code> viaja con
-          <code>IMG_0042.JPG</code>, que es como un móvil guarda una foto en vivo. Desactivado, el
-          vídeo se queda donde está.
+          On, a file such as <code>IMG_0042.MOV</code> travels with
+          <code>IMG_0042.JPG</code>, which is how a phone saves a live photo. Off, the video stays
+          where it is.
         </p>
       </div>
 
       <div class="setting">
         <label class="field stacked" for="destination">
-          <span>Carpeta destino</span>
+          <span>Destination folder</span>
           <input
             id="destination"
             type="text"
@@ -272,11 +267,11 @@
             aria-describedby="destination-note"
           />
         </label>
-        <p id="destination-note" class="note">Ruta absoluta. La carpeta se crea al ejecutar.</p>
+        <p id="destination-note" class="note">Absolute path. The folder is created on run.</p>
       </div>
 
       <div class="sheet-actions">
-        <button id="settings-close" type="button" class="button primary">Listo</button>
+        <button id="settings-close" type="button" class="button primary">Done</button>
       </div>
     </dialog>
 

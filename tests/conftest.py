@@ -1,8 +1,4 @@
-"""Fixtures shared by the test suite.
-
-Every fixture builds inside `tmp_path`, so a test run never reads or writes a
-real photo folder and two tests never see each other's files.
-"""
+"""Fixtures shared by the test suite."""
 
 from __future__ import annotations
 
@@ -14,8 +10,7 @@ import pytest
 
 from phototriage.store import Store
 
-# A real 1x1 PNG. The API serves the bytes straight from disk, so the tests use
-# a genuine image rather than a stub that a decoder would reject.
+# A real 1x1 PNG.
 PNG_BYTES = base64.b64decode(
     "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJ"
     "AAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg=="
@@ -36,11 +31,7 @@ def write_image() -> Callable[[Path], Path]:
 
 @pytest.fixture
 def source(tmp_path: Path) -> Path:
-    """An empty source folder, one level below `tmp_path`.
-
-    The extra level leaves room for the default destination, which is a sibling
-    of the source.
-    """
+    """An empty source folder, one level below `tmp_path`."""
     folder = tmp_path / "source"
     folder.mkdir()
     return folder

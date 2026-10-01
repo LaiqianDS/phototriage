@@ -39,12 +39,7 @@ def test_list_images_skips_files_that_are_not_images(
 
 
 def test_list_images_reads_an_extension_the_way_pathlib_does(source: Path) -> None:
-    """The listing reads names as strings, for speed, and must agree with `Path.suffix`.
-
-    `resolve_image` still asks `Path.suffix`, so a name the two read differently
-    would be listed and then refused, or served and never listed.
-    `os.path.splitext` is not that reading: it gives `..jpg` no extension.
-    """
+    """The listing reads names as strings, for speed, and must agree with `Path.suffix`."""
     names = ["a.JPG", ".jpg", "..jpg", ".hidden.png", "photo.", "noext", "x.tar.jpeg", "b.jpg.txt"]
     for name in names:
         (source / name).write_bytes(b"")
@@ -78,13 +73,7 @@ def test_list_images_reaches_into_subfolders_when_asked(
 def test_list_images_names_a_top_level_file_the_same_way_either_way(
     source: Path, write_image: Callable[[Path], Path]
 ) -> None:
-    """This is what lets an existing state file keep its decisions.
-
-    Decisions are keyed by the name in this list. If reaching into subfolders
-    renamed the files already in the folder itself, every decision taken before
-    the switch was turned on would stop matching, and the queue would start
-    again from the first photo.
-    """
+    """This is what lets an existing state file keep its decisions."""
     write_image(source / "IMG_1.png")
     write_image(source / "inner" / "IMG_2.png")
 
@@ -105,11 +94,7 @@ def test_list_images_leaves_dot_folders_alone(
 def test_list_images_does_not_follow_a_folder_that_is_a_link(
     source: Path, write_image: Callable[[Path], Path]
 ) -> None:
-    """A link to a parent of its own would otherwise walk until it ran out.
-
-    It also keeps the queue to files the source folder really holds, which is
-    the same rule `resolve_image` applies when it refuses to serve one.
-    """
+    """A link to a parent of its own would otherwise walk until it ran out."""
     write_image(source / "real" / "IMG_1.png")
     (source / "loop").symlink_to(source, target_is_directory=True)
 
@@ -178,11 +163,7 @@ def test_resolve_image_accepts_a_subfolder_when_it_goes_deep(
 def test_resolve_image_going_deep_still_refuses_to_leave_the_source(
     source: Path, write_image: Callable[[Path], Path]
 ) -> None:
-    """Reaching further inside must not mean reaching outside.
-
-    Both routes out are closed by resolving first and asking afterwards: `..`
-    climbs out of the tree, and a link is followed to wherever it really points.
-    """
+    """Reaching further inside must not mean reaching outside."""
     write_image(source.parent / "outside.png")
     (source / "inner").mkdir()
     (source / "inner" / "escape.png").symlink_to(source.parent / "outside.png")
@@ -224,11 +205,7 @@ def test_resolve_image_rejects_a_missing_file(source: Path) -> None:
 
 
 def test_companion_index_pairs_an_uppercase_raw_with_a_lowercase_image(source: Path) -> None:
-    """Lock down the extension comparison.
-
-    An earlier version matched the suffix without lowering it, so a camera that
-    writes `IMG_1.CR2` next to `IMG_1.png` lost its RAW original.
-    """
+    """Lock down the extension comparison."""
     raw = source / "IMG_1.CR2"
     raw.write_bytes(b"raw")
 
@@ -259,12 +236,7 @@ def test_companion_index_leaves_out_images_and_other_files(
 def test_companion_index_keeps_every_raw_in_its_own_folder(
     source: Path, write_image: Callable[[Path], Path]
 ) -> None:
-    """Two days of the same card number their files alike.
-
-    Keyed by the bare stem, the RAW of the thirtieth would be handed to the
-    image of the thirty first, and a kept photo would travel with the original
-    of a different one.
-    """
+    """Two days of the same card number their files alike."""
     first = source / "2024-08-30" / "IMG_1.CR2"
     second = source / "2024-08-31" / "IMG_1.CR2"
     for raw in (first, second):

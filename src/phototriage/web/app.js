@@ -13,21 +13,19 @@ async function call(endpoint, body) {
           body: JSON.stringify(body),
         };
   const response = await fetch(`/api/${endpoint}`, options);
-  // A crash inside the server answers with plain text instead of `detail`, and
-  // the parser error would otherwise reach the user in place of the failure.
+  // A crash inside the server answers with plain text instead of `detail`, and the parser error
+  // would otherwise reach the user in place of the failure.
   const payload = await response.json().catch(() => null);
   if (response.ok) return payload;
   if (typeof payload?.detail === "string") throw new Error(payload.detail);
-  // The validator answers a body it cannot read with a list in `detail`, which
-  // would read `[object Object]`. This page only sends such a body when it is
-  // older than the server, left open across an upgrade, and a reload fixes it.
-  if (response.status === 422) throw new Error("La página es de otra versión. Recárgala.");
+  // The validator answers a body it cannot read with a list in `detail`, which would read `[object
+  // Object]`.
+  if (response.status === 422) throw new Error("This page is from another version. Reload it.");
   throw new Error(response.statusText);
 }
 
-// Written to both places, because focused mode hides the bar the first one
-// lives in and an error nobody can see is the same as no error at all. Only one
-// of the two is ever in the accessibility tree, so nothing is announced twice.
+// Written to both places, because focused mode hides the bar the first one lives in and an error
+// nobody can see is the same as no error at all.
 function report(message, isError = false) {
   el("status").textContent = message;
   el("status").classList.toggle("error", isError);
@@ -35,19 +33,13 @@ function report(message, isError = false) {
   el("hud-status").classList.toggle("error", isError);
 }
 
-/**
- * Run one API action at a time.
- *
- * A burst of keystrokes would otherwise send several decisions against the
- * same image before the first response arrives.
- */
+/** Run one API action at a time. */
 let pending = false;
 async function run(action) {
   if (pending) return;
   pending = true;
   document.body.setAttribute("aria-busy", "true");
-  // The previous message belonged to the previous action. Clearing it here also
-  // lets the chrome rest again, which a message on screen holds back.
+  // The previous message belonged to the previous action.
   report("");
   try {
     render(await action());
@@ -62,7 +54,6 @@ async function run(action) {
 // ---------------------------------------------------------------- review ---
 
 function render(state) {
-  // The tally and the kept count reach the bar and the focused-mode pill alike.
   const tally = `${state.reviewed} / ${state.total}`;
   el("progress").textContent = tally;
   el("hud-progress").textContent = tally;
@@ -111,9 +102,8 @@ function render(state) {
   el("destination").disabled = !chosen;
 }
 
-// The verdict names the photo on screen, and the server refuses it when that
-// photo is no longer the next one. The page then shows the one that is, so the
-// refusal is never repeated against the same stale photo.
+// The verdict names the photo on screen, and the server refuses it when that photo is no longer the
+// next one.
 function decide(verdict) {
   if (shown === null) return;
   run(() =>
@@ -128,13 +118,8 @@ const undo = () => run(() => call("undo", {}));
 
 const setSource = (path) => run(() => call("source", { path }));
 const setDestination = (path) => run(() => call("destination", { path }));
-const setPairRaws = (pairRaws) => run(() => call("settings", { pair_raws: pairRaws }));
-// Each switch sends only itself. The route leaves out what it is not told, so
-// one control can never carry a stale reading of the other along with it.
-const setSearchSubfolders = (deep) => run(() => call("settings", { search_subfolders: deep }));
-const setPairVideos = (pairVideos) => run(() => call("settings", { pair_videos: pairVideos }));
 
-/** A size the way Finder writes it: powers of 1000, one decimal, a Spanish comma. */
+/** A size the way Finder writes it: powers of 1000, one decimal. */
 function weight(bytes) {
   const units = ["B", "KB", "MB", "GB", "TB"];
   let value = bytes;
@@ -143,25 +128,17 @@ function weight(bytes) {
     value /= 1000;
     unit += 1;
   }
-  return `${value.toLocaleString("es", { maximumFractionDigits: 1 })} ${units[unit]}`;
+  return `${value.toLocaleString("en", { maximumFractionDigits: 1 })} ${units[unit]}`;
 }
 
 /** The status line for a run in flight: the file it is on, and the bytes before it. */
 function describe(progress) {
-  const verb = progress.mode === "copy" ? "Copiando" : "Moviendo";
-  const files = `${progress.files} de ${progress.total_files}`;
-  return `${verb} ${files} (${weight(progress.bytes)} de ${weight(progress.total_bytes)})`;
+  const verb = progress.mode === "copy" ? "Copying" : "Moving";
+  const files = `${progress.files} of ${progress.total_files}`;
+  return `${verb} ${files} (${weight(progress.bytes)} of ${weight(progress.total_bytes)})`;
 }
 
-/**
- * Report the run in flight on the status line, twice a second.
- *
- * `onEnd` is for a page that did not start the run and has no response to wait
- * for: it learns the run is over when the progress is gone. The page that did
- * start it stops the watch itself when its response arrives. Either way a poll
- * still in the air when the watch stops is ignored, so a late answer cannot
- * write `Copiando 312 de 312` over the result.
- */
+/** Report the run in flight on the status line, twice a second. */
 function watchTransfer(onEnd) {
   let watching = true;
   const stop = () => {
@@ -183,31 +160,29 @@ function watchTransfer(onEnd) {
 
 function apply() {
   const mode = el("mode-move").checked ? "move" : "copy";
-  const verb = mode === "copy" ? "Copiar" : "Mover";
+  const verb = mode === "copy" ? "Copy" : "Move";
   run(async () => {
-    // Asked inside `run`, so a second press while the dialog is open is dropped
-    // instead of asking twice. The count is what a first run would transfer; a
-    // copy skips what the destination already holds, and says so afterwards.
+    // Asked inside `run`, so a second press while the dialog is open is dropped instead of asking
+    // twice.
     const plan = await call("plan");
-    const files = `${plan.files} archivos (${weight(plan.bytes)})`;
-    const question = `¿${verb} ${files} a ${plan.destination}?`;
+    const files = `${plan.files} files (${weight(plan.bytes)})`;
+    const question = `${verb} ${files} to ${plan.destination}?`;
     if (!confirm(question)) return call("state");
-    report("Procesando...");
+    report("Working...");
     const stopWatching = watchTransfer();
     const result = await call("apply", { mode }).finally(stopWatching);
     const { transferred, already_present, failed, destination } = result;
-    // Without the second half, a repeated copy reads as `0 archivos`, which looks
-    // like a failure rather than a selection that is already safe.
-    const present = already_present > 0 ? `, ${already_present} ya estaban` : "";
-    const summary = `${transferred} archivos en ${destination}${present}`;
-    // The line has room for one reason. The first names the file to look at,
-    // and running again retries every file that failed.
+    // Without the second half, a repeated copy reads as `0 files`, which looks like a failure
+    // rather than a selection that is already safe.
+    const present = already_present > 0 ? `, ${already_present} already there` : "";
+    const summary = `${transferred} files in ${destination}${present}`;
+    // The line has room for one reason.
     const failures = Object.entries(failed);
     if (failures.length === 0) {
       report(summary);
     } else {
       const [name, reason] = failures[0];
-      report(`${summary}. ${failures.length} con error. ${name}: ${reason}`, true);
+      report(`${summary}. ${failures.length} failed. ${name}: ${reason}`, true);
     }
     return call("state");
   });
@@ -222,12 +197,11 @@ function paint(theme) {
   document.documentElement.dataset.theme = theme;
   el("toggle-theme").setAttribute(
     "aria-label",
-    theme === "dark" ? "Cambiar a tema claro" : "Cambiar a tema oscuro",
+    theme === "dark" ? "Switch to light theme" : "Switch to dark theme",
   );
 }
 
-// Until the button is used the system decides, and keeps deciding when it
-// changes. A stored choice wins from then on.
+// Until the button is used the system decides, and keeps deciding when it changes.
 system.addEventListener("change", () => {
   if (localStorage.getItem("theme") === null) {
     paint(system.matches ? "dark" : "light");
@@ -242,14 +216,7 @@ el("toggle-theme").addEventListener("click", () => {
 
 // ----------------------------------------------------------------- stage ---
 
-/**
- * Reserve the room the chrome occupies.
- *
- * The bars and the verdict buttons float, so without this the photo would run
- * underneath them and lose its top and bottom edges. Their heights depend on
- * their contents and on how the text wraps, so they are measured rather than
- * guessed.
- */
+/** Reserve the room the chrome occupies. */
 function fitStage() {
   const style = document.documentElement.style;
   style.setProperty("--bar-top", `${el("topbar").offsetHeight}px`);
@@ -269,31 +236,16 @@ const viewer = el("viewer");
 /** The photo on screen, which a verdict names and a new photo is compared with. */
 let shown = null;
 
-/**
- * Show the photo at one image pixel per screen pixel.
- *
- * Fitted to the window a soft photo still looks sharp, because the browser is
- * scaling it down. Whether it is sharp is the question the review asks, and
- * only this view answers it.
- *
- * `devicePixelRatio` is what makes it one pixel per screen pixel rather than
- * per CSS pixel. On a 2x display the natural width would otherwise be painted
- * twice as large, and the interpolation that costs reads as softness the file
- * does not have, which is the exact mistake this view exists to prevent. It
- * also carries the browser's own page zoom, so the ratio stays honest there.
- */
+/** Show the photo at one image pixel per screen pixel. */
 function enterZoom() {
   const photo = el("photo");
   if (!photo.complete || photo.naturalWidth === 0) return;
-  // Never smaller than the photo already is. A photo below the size of the
-  // window is shown at its own size rather than enlarged, and on a 2x display
-  // one screen pixel each would then shrink it, which reads as a broken zoom.
+  // Never smaller than the photo already is.
   const fitted = photo.clientWidth;
   document.body.classList.add("zoomed");
   el("toggle-zoom").setAttribute("aria-pressed", "true");
   photo.style.width = `${Math.max(photo.naturalWidth / devicePixelRatio, fitted)}px`;
-  // The middle of the photo, which is where it was before. Reading the sizes is
-  // also what forces the new width to be laid out first.
+  // The middle of the photo, which is where it was before.
   viewer.scrollLeft = (viewer.scrollWidth - viewer.clientWidth) / 2;
   viewer.scrollTop = (viewer.scrollHeight - viewer.clientHeight) / 2;
 }
@@ -309,28 +261,14 @@ function toggleZoom() {
   else enterZoom();
 }
 
-/**
- * Fit a new photo to the window again.
- *
- * `render` runs after every action, and most of them leave the photo where it
- * is: a new destination should not throw away the view being looked at. A new
- * photo should, because the width was measured against the previous one, and
- * because a verdict on a corner of a frame nobody saw whole is not a verdict.
- */
+/** Fit a new photo to the window again. */
 function fitNewPhoto(current) {
   if (current === shown) return;
   shown = current;
   leaveZoom();
 }
 
-/**
- * Drag the photo under the pointer.
- *
- * The pan is a scroll, so the browser clamps it at the edges of the photo and a
- * trackpad pans without a line of code here. Capturing the pointer keeps the
- * drag alive when it leaves the window, and refusing the default press stops
- * the browser from starting a drag of the image itself instead.
- */
+/** Drag the photo under the pointer. */
 let panFrom = null;
 
 viewer.addEventListener("pointerdown", (event) => {
@@ -355,17 +293,7 @@ for (const event of ["pointerup", "pointercancel"]) {
 
 // --------------------------------------------------------- focused mode ---
 
-/**
- * Give the photo the whole window.
- *
- * The bars rest; here they go. What is left is what the decision in front of
- * the user needs, so the controls that belong to before it and after it, the
- * source folder and the transfer, stay behind.
- *
- * The browser goes fullscreen along with it when it will. The request needs a
- * user gesture and a document that is allowed to ask, and neither is worth
- * refusing focused mode over: a maximised window is the fallback.
- */
+/** Give the photo the whole window. */
 async function enterFocused() {
   document.body.classList.add("focused");
   releaseFocusFrom(".bar");
@@ -379,28 +307,17 @@ async function enterFocused() {
 function leaveFocused() {
   document.body.classList.remove("focused");
   releaseFocusFrom(".focus-hint");
-  // Asked by truth, not against null: Safari before 16.4 has no unprefixed API,
-  // leaves this undefined, and has no `exitFullscreen` to call. Focused mode
-  // there stayed in a window, so there is nothing to exit.
+  // Asked by truth, not against null.
   if (document.fullscreenElement) document.exitFullscreen();
 }
 
-/**
- * Let go of a control that the mode change takes off the screen.
- *
- * A button pressed with the mouse keeps the focus, and the bars and the exit
- * pill are hidden rather than removed, so the focus would stay on a control
- * nobody can see. `Space` belongs to a focused button, so it would press that
- * hidden button again instead of zooming. Giving the focus back to the page
- * puts the keys back where the shortcuts expect them.
- */
+/** Let go of a control that the mode change takes off the screen. */
 function releaseFocusFrom(selector) {
   if (document.activeElement?.closest(selector)) document.activeElement.blur();
 }
 
-// Escape leaves fullscreen without the keypress ever reaching the page, and the
-// window chrome offers its own way out as well. So focused mode follows the
-// browser rather than the other way round.
+// Escape leaves fullscreen without the keypress ever reaching the page, and the window chrome
+// offers its own way out as well.
 document.addEventListener("fullscreenchange", () => {
   if (!document.fullscreenElement) leaveFocused();
 });
@@ -418,14 +335,14 @@ async function browse(path) {
     const listing = await call(`browse?path=${encodeURIComponent(path)}`);
     browsing = listing.path;
     el("explorer-path").textContent = listing.path;
-    el("explorer-count").textContent = `${listing.images} imágenes aquí`;
+    el("explorer-count").textContent = `${listing.images} images here`;
     el("explorer-count").classList.remove("error");
     const items = listing.folders.map((name) => folderItem(name, join(listing.path, name)));
     if (listing.parent !== null) {
-      items.unshift(folderItem("Subir un nivel", listing.parent, true));
+      items.unshift(folderItem("Up one level", listing.parent, true));
     }
     if (listing.folders.length === 0) {
-      items.push(emptyItem("No hay subcarpetas."));
+      items.push(emptyItem("No subfolders."));
     }
     el("explorer-list").replaceChildren(...items);
   } catch (error) {
@@ -460,13 +377,7 @@ const REST_DELAY = 2500;
 const stillness = matchMedia("(prefers-reduced-motion: reduce)");
 let restTimer = 0;
 
-/** Whether hiding the bars right now would take something away from the user.
- *
- * A focus ring is not on this list. Closing a dialog restores focus to the
- * button that opened it and leaves it `:focus-visible`, which here would have
- * kept the chrome up for good; the stylesheet holds up only the one bar that
- * carries the ring, and stops as soon as the ring moves.
- */
+/** Whether hiding the bars right now would take something away from the user. */
 function chromeInUse() {
   const focused = document.activeElement;
   return (
@@ -478,8 +389,8 @@ function chromeInUse() {
 }
 
 function rest() {
-  // Re-armed rather than dropped, so the bars still go once the dialog closes,
-  // the field is left, or the message is replaced.
+  // Re-armed rather than dropped, so the bars still go once the dialog closes, the field is left,
+  // or the message is replaced.
   if (chromeInUse()) {
     restTimer = setTimeout(rest, REST_DELAY);
     return;
@@ -507,11 +418,12 @@ el("undo").addEventListener("click", undo);
 el("apply").addEventListener("click", apply);
 el("source").addEventListener("change", (event) => setSource(event.target.value));
 el("destination").addEventListener("change", (event) => setDestination(event.target.value));
-el("pair-raws").addEventListener("change", (event) => setPairRaws(event.target.checked));
-el("search-subfolders").addEventListener("change", (event) =>
-  setSearchSubfolders(event.target.checked),
-);
-el("pair-videos").addEventListener("change", (event) => setPairVideos(event.target.checked));
+// Each switch sends only itself, so one control never carries a stale reading of another.
+for (const id of ["pair-raws", "search-subfolders", "pair-videos"]) {
+  el(id).addEventListener("change", (event) =>
+    run(() => call("settings", { [id.replaceAll("-", "_")]: event.target.checked })),
+  );
+}
 
 el("browse").addEventListener("click", () => {
   explorer.showModal();
@@ -531,20 +443,17 @@ el("settings-close").addEventListener("click", () => settings.close());
 
 document.addEventListener("keydown", (event) => {
   if (explorer.open || settings.open || event.target.matches("input, select, textarea")) return;
-  // Space belongs to the button that holds the focus. Taking it for the zoom
-  // would leave whoever is on that button unable to press it.
+  // Space belongs to the button that holds the focus.
   if (event.key === " " && event.target.matches("button")) return;
   const shortcuts = {
     ArrowLeft: () => decide("discard"),
     ArrowRight: () => decide("keep"),
     u: undo,
-    // Nothing to look at closely when there is no photo, which is the same
-    // condition that leaves the verdict buttons disabled.
+    // Nothing to look at closely when there is no photo, which is the same condition that leaves
+    // the verdict buttons disabled.
     f: () => {
       if (!el("keep").disabled) enterFocused();
     },
-    // One image pixel per screen pixel, and back. Same condition as `f`: with
-    // no photo on screen there is nothing to look at closely.
     " ": () => {
       if (!el("keep").disabled) toggleZoom();
     },
@@ -563,9 +472,8 @@ fitStage();
 wake();
 run(() => call("state"));
 
-// A run started before a reload goes on in the server, and its response went to
-// the page that is gone. Show how far it has got, and read the state again when
-// it is over, which is all this page can know of its result.
+// A run started before a reload goes on in the server, and its response went to the page that is
+// gone.
 call("progress")
   .then((progress) => {
     if (progress === null) return;
@@ -573,7 +481,7 @@ call("progress")
     // After `run`, which clears the status line as it starts.
     watchTransfer(async () => {
       await run(() => call("state"));
-      report("La transferencia ha terminado.");
+      report("The transfer has finished.");
     });
   })
   .catch(() => {});

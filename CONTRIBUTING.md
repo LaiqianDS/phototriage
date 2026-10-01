@@ -94,9 +94,7 @@ Run it before and after a change to how the queue is listed, and put both result
   Do not comment the obvious.
 - Line length is 100, set in `pyproject.toml`.
   `ruff format` handles it.
-- Code, comments, docstrings and documentation are in English.
-  Strings shown in the interface are in Spanish.
-  Keep that split.
+- Code, comments, docstrings, documentation and the strings shown in the interface are in English.
 
 ## Documentation
 
@@ -108,7 +106,7 @@ Run it before and after a change to how the queue is listed, and put both result
   A new route, a new field or a new status code is only finished when it appears there.
 - A control added to, moved in or removed from the interface changes the control
   table in `README.md`.
-  Quote its Spanish label there exactly as `index.html` spells it.
+  Quote its label there exactly as `index.html` spells it.
 - Write one sentence per line.
   It keeps diffs readable.
 

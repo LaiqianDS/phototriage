@@ -24,14 +24,7 @@ class Decision:
 
 @dataclass
 class Review:
-    """Where the kept images go, and what has been decided so far.
-
-    The decisions are the only state. The cursor position and the keep and
-    discard counts are derived from them, so undo cannot leave two copies of
-    the state disagreeing. Decisions are keyed by file name rather than by
-    position, so adding or removing files in the source folder does not shift
-    the pending queue.
-    """
+    """Where the kept images go, and what has been decided so far."""
 
     destination: Path
     decisions: list[Decision] = field(default_factory=list)

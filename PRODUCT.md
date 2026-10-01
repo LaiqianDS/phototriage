@@ -68,8 +68,7 @@ A discarded image is not moved, not marked and not renamed.
 ## Brand Commitments
 
 - The name is PhotoTriage.
-- The app interface is in Spanish.
-  The public page and the documentation are in English.
+- The app interface, the public page and the documentation are in English.
 - The public page tells its limits plainly ("the parts we would rather not mention").
 - No visual identity is binding.
   The maintainer asked for a replacement of the look on 2026-10-01.

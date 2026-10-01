@@ -1,11 +1,5 @@
-/*
- * The table at the top of the page is a review the visitor runs with their own
- * arrow keys: a roll of 480 frames, opened mid-way, the same figures the rest
- * of the page quotes.
- *
- * The markup already carries the opening state, so the page is complete with
- * this file blocked or missing. All the script does is answer the keys.
- */
+/* The table at the top of the page is a review the visitor runs with their own arrow keys: a roll
+   of 480 frames, opened mid-way, the same figures the rest of the page quotes. */
 
 const TOTAL = 480;
 
@@ -86,8 +80,7 @@ el("demo-keep").addEventListener("click", () => decide(true));
 el("demo-leave").addEventListener("click", () => decide(false));
 el("demo-undo").addEventListener("click", undo);
 
-/* The same three keys as the app. A key held with a modifier is a browser
-   shortcut, back and forward among them, and is left alone. */
+/* The same three keys as the app. */
 document.addEventListener("keydown", (event) => {
   if (event.metaKey || event.ctrlKey || event.altKey) return;
   if (event.key === "ArrowRight") decide(true);

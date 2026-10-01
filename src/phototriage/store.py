@@ -12,12 +12,7 @@ SCHEMA_VERSION = 1
 
 
 class Store:
-    """The reviews started so far, keyed by source folder.
-
-    Every review is kept, so switching folders and coming back does not lose
-    the decisions. One file means one atomic write per change, instead of a
-    scheme that has to keep several files in step.
-    """
+    """The reviews started so far, keyed by source folder."""
 
     def __init__(
         self,
@@ -30,23 +25,13 @@ class Store:
     ) -> None:
         self._path = path
         self._reviews = reviews if reviews is not None else {}
-        self._last = last
+        self.last = last
         #: Whether a RAW original travels with the image that shares its name.
-        #: A working habit rather than a property of one folder, so it is stored
-        #: once instead of per review.
         self.pair_raws = pair_raws
-        #: Whether the review reaches into the subfolders of the source. Also a
-        #: working habit: a camera that imports one folder per day imports that
-        #: way for every shoot. Off by default, because turning it on where it
-        #: is not wanted turns a picture library into one queue of everything.
+        #: Whether the review reaches into the subfolders of the source.
         self.search_subfolders = search_subfolders
-        #: Whether a video travels with the image that shares its name, the way
-        #: a phone writes one beside a still. Off by default, unlike the RAW
-        #: switch: a RAW is the original of the photo and leaving it behind is
-        #: nearly always wrong, while a video of the same name is sometimes the
-        #: other half of a live photo and sometimes an unrelated clip. Turning
-        #: it on by itself would also make the next move take files out of the
-        #: source folder that the last one left alone.
+        #: Whether a video travels with the image that shares its name, the way a phone writes one
+        #: beside a still.
         self.pair_videos = pair_videos
 
     @classmethod
@@ -67,8 +52,8 @@ class Store:
                 for source, review in payload["reviews"].items()
             }
             last = Path(payload["last"]) if payload["last"] is not None else None
-            # Read with a default rather than a key, so a file written before
-            # the option existed loads instead of being thrown away whole.
+            # Read with a default rather than a key, so a file written before the option existed
+            # loads instead of being thrown away whole.
             pair_raws = bool(payload.get("pair_raws", True))
             search_subfolders = bool(payload.get("search_subfolders", False))
             pair_videos = bool(payload.get("pair_videos", False))
@@ -77,15 +62,10 @@ class Store:
         return cls(path, reviews, last, pair_raws, search_subfolders, pair_videos)
 
     def save(self) -> None:
-        """Write the store to disk in one step.
-
-        The write goes to a temporary file that then replaces the target, so an
-        interrupted run leaves the previous state intact instead of a truncated
-        file.
-        """
+        """Write the store to disk in one step."""
         payload = {
             "version": SCHEMA_VERSION,
-            "last": str(self._last) if self._last is not None else None,
+            "last": str(self.last) if self.last is not None else None,
             "pair_raws": self.pair_raws,
             "search_subfolders": self.search_subfolders,
             "pair_videos": self.pair_videos,
@@ -105,22 +85,13 @@ class Store:
         tmp.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
         tmp.replace(self._path)
 
-    @property
-    def last(self) -> Path | None:
-        """The source folder reviewed most recently, if any."""
-        return self._last
-
     def open(self, source: Path, destination: Path | None = None) -> Review:
-        """Make `source` the active review, resuming it if it already exists.
-
-        `destination` defaults to the one already stored for this source, or to
-        a fresh sibling folder the first time the source is opened.
-        """
+        """Make `source` the active review, resuming it if it already exists."""
         review = self._reviews.get(source)
         if review is None:
             review = Review(destination or default_destination(source))
             self._reviews[source] = review
         elif destination is not None:
             review.destination = destination
-        self._last = source
+        self.last = source
         return review

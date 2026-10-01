@@ -41,8 +41,8 @@ def main() -> None:
 
     store = Store.load(args.state_file)
     source = args.source.expanduser().resolve() if args.source else None
-    # Fixed to the loopback address, with no option to change it: the interface
-    # browses and copies local folders, so anyone who can reach it can read them.
+    # Fixed to the loopback address, with no option to change it: the interface browses and copies
+    # local folders, so anyone who can reach it can read them.
     print(f"Open http://{LOOPBACK}:{args.port}")
     uvicorn.run(create_app(store, source), host=LOOPBACK, port=args.port)
 

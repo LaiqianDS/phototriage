@@ -143,12 +143,7 @@ def test_build_plan_takes_a_shared_raw_once(
 
 
 def test_companion_exts_is_the_union_of_the_two_switches() -> None:
-    """The plan is told which extensions follow an image, not which switch is on.
-
-    Two booleans carried all the way down would have to be read together at the
-    bottom to answer one question, and a third kind of companion would add a
-    third.
-    """
+    """The plan is told which extensions follow an image, not which switch is on."""
     assert companion_exts(pair_raws=False, pair_videos=False) == frozenset()
     assert companion_exts(pair_raws=True, pair_videos=False) == RAW_EXTS
     assert companion_exts(pair_raws=False, pair_videos=True) == VIDEO_EXTS
@@ -174,11 +169,7 @@ def test_build_plan_carries_a_video_that_shares_the_name_of_a_kept_image(
 def test_build_plan_leaves_a_video_of_its_own_name_behind(
     source: Path, write_image: Callable[[Path], Path]
 ) -> None:
-    """A clip is never reviewed, so it can only travel as the half of a name.
-
-    `MVI_0042.MOV` with no image beside it is nobody's companion, and the
-    switch does not turn it into one.
-    """
+    """A clip is never reviewed, so it can only travel as the half of a name."""
     write_image(source / "IMG_1.png")
     (source / "MVI_0042.MOV").write_bytes(b"clip")
 
@@ -192,13 +183,7 @@ def test_build_plan_leaves_a_video_of_its_own_name_behind(
 def test_build_plan_reaches_into_subfolders_only_when_asked(
     source: Path, write_image: Callable[[Path], Path]
 ) -> None:
-    """The transfer has the reach the queue had, and no more.
-
-    A decision about `inner/IMG_1.png` can survive in the state file from a run
-    with the switch on. With it off that image is not in the queue, so it must
-    not be transferred either: what is on screen and what is copied have to be
-    the same set.
-    """
+    """The transfer has the reach the queue had, and no more."""
     write_image(source / "inner" / "IMG_1.png")
     verdicts = {"inner/IMG_1.png": Verdict.KEEP}
 
@@ -221,11 +206,7 @@ def test_execute_keeps_the_subfolder_a_photo_came_from(
 def test_execute_does_not_put_two_days_of_photos_on_one_name(
     source: Path, tmp_path: Path, write_image: Callable[[Path], Path]
 ) -> None:
-    """Flattening would answer this with `IMG_1.png` and `IMG_1_1.png`.
-
-    Both names would be real files and neither would say which day it came
-    from, and in move mode the folder that said so is gone.
-    """
+    """Flattening would answer this with `IMG_1.png` and `IMG_1_1.png`."""
     for day in ("2024-08-30", "2024-08-31"):
         write_image(source / day / "IMG_1.png")
     destination = tmp_path / "source_keep"
@@ -254,11 +235,7 @@ def test_build_plan_leaves_the_raw_behind_when_pairing_is_off(
 def test_a_second_copy_run_copies_nothing_that_is_already_there(
     source: Path, tmp_path: Path, write_image: Callable[[Path], Path]
 ) -> None:
-    """The run button stays enabled after a copy, so a second press is one click away.
-
-    It used to land the whole selection in the destination again under `_1`
-    names, which on a real shoot is gigabytes of duplicates nobody asked for.
-    """
+    """The run button stays enabled after a copy, so a second press is one click away."""
     write_image(source / "keep.png")
     (source / "keep.CR2").write_bytes(b"raw")
     destination = tmp_path / "source_keep"
@@ -275,11 +252,7 @@ def test_a_second_copy_run_copies_nothing_that_is_already_there(
 def test_a_copy_that_landed_on_a_numbered_name_is_recognised(
     source: Path, tmp_path: Path, write_image: Callable[[Path], Path]
 ) -> None:
-    """A stranger holding the name sent the first copy to `photo_1.png`.
-
-    Checking the plain name alone would find the stranger, decide the photo is
-    not there, and copy it again to `photo_2.png`.
-    """
+    """A stranger holding the name sent the first copy to `photo_1.png`."""
     write_image(source / "photo.png")
     destination = tmp_path / "source_keep"
     destination.mkdir()
@@ -310,11 +283,7 @@ def test_a_file_of_the_same_size_but_other_bytes_is_still_copied(
 def test_move_mode_moves_even_when_a_copy_is_already_there(
     source: Path, tmp_path: Path, write_image: Callable[[Path], Path]
 ) -> None:
-    """A move promises to empty the source of what was kept.
-
-    Skipping would leave the photo in the source, and finishing the move by
-    deleting it would be the one deletion the app promises never to make.
-    """
+    """A move promises to empty the source of what was kept."""
     write_image(source / "photo.png")
     destination = tmp_path / "source_keep"
     transfer.execute([source / "photo.png"], source, destination, transfer.Mode.COPY)
@@ -328,12 +297,7 @@ def test_move_mode_moves_even_when_a_copy_is_already_there(
 def test_a_copy_changed_since_the_last_run_is_not_taken_for_the_original(
     source: Path, tmp_path: Path
 ) -> None:
-    """The server lives for hours, and `filecmp` remembers what it compared.
-
-    Its memory is keyed by the size and the time of both files, so a copy
-    rewritten in place with both kept would be answered from the first run.
-    That is the size and date check the byte comparison exists to avoid.
-    """
+    """The server lives for hours, and `filecmp` remembers what it compared."""
     (source / "photo.png").write_bytes(b"aaaa")
     destination = tmp_path / "source_keep"
     transfer.execute([source / "photo.png"], source, destination, transfer.Mode.COPY)
@@ -366,11 +330,7 @@ def test_a_file_that_fails_does_not_stop_the_rest(
 def test_a_copy_cut_short_leaves_no_half_file_behind(
     source: Path, tmp_path: Path, write_image: Callable[[Path], Path], monkeypatch
 ) -> None:
-    """A full disk stops a copy after part of it is written.
-
-    A truncated file under the real name looks like a kept photo, and a later
-    run would find the name taken and put the good copy beside it as `_1`.
-    """
+    """A full disk stops a copy after part of it is written."""
     write_image(source / "photo.png")
     destination = tmp_path / "source_keep"
 
@@ -407,11 +367,7 @@ def test_a_move_that_fails_after_the_original_is_gone_keeps_the_copy(
 def test_execute_announces_each_file_before_sending_it(
     source: Path, tmp_path: Path, write_image: Callable[[Path], Path]
 ) -> None:
-    """Progress counts every file of the plan, whatever becomes of it.
-
-    A skipped copy and a failed file still move the run forward, so a count of
-    transfers alone would stop short of the total and never reach the end.
-    """
+    """Progress counts every file of the plan, whatever becomes of it."""
     destination = tmp_path / "source_keep"
     present = write_image(source / "present.png")
     transfer.execute([present], source, destination, transfer.Mode.COPY)

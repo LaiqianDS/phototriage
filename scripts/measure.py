@@ -1,20 +1,4 @@
-"""Time the requests a review makes, against a real folder of photos.
-
-ROADMAP.md asks for this before anything else: the queue is listed again on
-every request, and with the subfolder switch on that is a walk of the whole
-tree under the source, twice per decision. Whether that is felt depends on the
-tree, so it is timed on one rather than guessed.
-
-    uv run python scripts/measure.py ~/Pictures/2024
-
-The photos are only read. The decisions go to a state file inside a temporary
-folder that is removed at the end, so `~/.phototriage/state.json` is never
-touched, and no transfer is ever run.
-
-The requests go through the test client, in the same process, so the numbers
-leave out the network and the browser. On the loopback address both are small
-next to a walk of the disk, and they are the same for either switch.
-"""
+"""Time the requests a review makes, against a real folder of photos."""
 
 from __future__ import annotations
 
@@ -50,7 +34,6 @@ def measure(folder: Path, deep: bool, runs: int, decisions: int) -> None:
             total = client.get("/api/state").json()["total"]
             state = timed(lambda: client.get("/api/state").raise_for_status(), runs)
             # A verdict names its photo, and the queue goes in listing order.
-            # One past the end is refused, so never ask for more.
             queue = iter(library.list_images(folder, deep))
             decide = timed(
                 lambda: client.post(

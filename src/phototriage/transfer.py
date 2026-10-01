@@ -1,7 +1,4 @@
-"""Turn the kept decisions into file copies or moves.
-
-Discarded images are never touched: they simply stay in the source folder.
-"""
+"""Turn the kept decisions into file copies or moves."""
 
 from __future__ import annotations
 
@@ -32,20 +29,7 @@ def build_plan(
     deep: bool = False,
     skip: Path | None = None,
 ) -> list[Path]:
-    """Files to transfer: every kept image, and what shares its name.
-
-    `companions` is the set of extensions that follow a kept image, so an empty
-    set sends the images alone. Images that were reviewed but are no longer on
-    disk are skipped, so a plan is always executable. `deep` is the same reach
-    the queue was listed with, so an image left out of the review is left out of
-    the transfer as well, even when a decision about it survives in the state
-    file from an earlier run. Each file appears once, because two kept images
-    can share a name and therefore the same original beside it.
-
-    `skip` narrows that reach like it narrows the queue. The companion index
-    needs no such limit: a companion only ever sits beside its own image, so an
-    image outside `skip` never pairs with a file inside it.
-    """
+    """Files to transfer: every kept image, and what shares its name."""
     beside = library.companion_index(source, companions, deep) if companions else {}
     plan: list[Path] = []
     seen: set[Path] = set()
@@ -80,36 +64,7 @@ def execute(
     mode: Mode,
     on_file: Callable[[int], None] | None = None,
 ) -> Outcome:
-    """Send every file in the plan to `destination` and count what happened.
-
-    A file keeps the subfolder it came from: `2024-08-30/IMG_1.jpg` arrives as
-    `2024-08-30/IMG_1.jpg` under the destination. Flattening the tree instead
-    would put the `IMG_0042.jpg` of two different days on one name, where the
-    second becomes `IMG_0042_1.jpg` and no longer says which day it belongs to.
-    In move mode that reading cannot be recovered, because the folder it came
-    from is the only place it was written down.
-
-    A source with no subfolders is unaffected: the relative path of a file
-    directly inside it is its own name.
-
-    In copy mode a file already copied is not copied again, so a second run
-    transfers only what the first one did not. Move mode has no such check: the
-    file is still in the source, so it was never moved, and the move goes ahead.
-
-    A file that cannot be transferred is recorded and the run carries on, so
-    one unreadable file does not keep the rest of the selection back, and the
-    count of what did arrive is never lost. Whatever that file left under its
-    new name is removed: the name was free a moment before, so it can only be
-    the start of a copy cut short, and a truncated photo under a real name
-    reads as a kept one. Only a destination that cannot be created at all
-    stops the run, because then nothing can arrive.
-
-    `on_file` is called with the position of each file in the plan just before
-    it is handled, whatever then becomes of it, so a caller can tell how far a
-    long run has gone. A
-    count of transfers alone would stop short of the total whenever a file is
-    skipped or fails.
-    """
+    """Send every file in the plan to `destination` and count what happened."""
     operation = shutil.copy2 if mode is Mode.COPY else shutil.move
     root = source.resolve()
     destination.mkdir(parents=True, exist_ok=True)
@@ -128,12 +83,8 @@ def execute(
             landing = free_name(target)
             operation(str(path), str(landing))
         except OSError as error:
-            # Across two disks a move is a copy and then a removal of the
-            # original, so what is left here may also be a whole copy of a file
-            # whose original could not be removed. Taking it away then leaves
-            # the file untransferred rather than in two places. The original is
-            # checked first: if it is gone, what is here is the only copy left,
-            # and it stays, whatever step of the move raised.
+            # Across two disks a move is a copy and then a removal of the original, so what is left
+            # here may also be a whole copy of a file whose original could not be removed.
             if landing is not None and path.exists():
                 landing.unlink(missing_ok=True)
             outcome.failed[relative.as_posix()] = error.strerror or str(error)
@@ -150,30 +101,13 @@ def variants(target: Path) -> Iterator[Path]:
 
 
 def free_name(target: Path) -> Path:
-    """`target` itself, or the first `name_1`, `name_2`... variant that is free.
-
-    Checked immediately before each transfer, so two sources with the same name
-    in one run cannot overwrite each other.
-    """
+    """`target` itself, or the first `name_1`, `name_2`... variant that is free."""
     return next(candidate for candidate in variants(target) if not candidate.exists())
 
 
 def already_copied(path: Path, target: Path) -> bool:
-    """Whether `target`, or a numbered variant of it, holds the same bytes as `path`.
-
-    The variants are searched as far as the first free name, because that is
-    as far as `free_name` would have gone: a stranger holding `photo.png` sends
-    the first copy to `photo_1.png`, and that is where a second run has to look.
-
-    The bytes are compared, not the size and the date. Taking a different file
-    for a copy would leave a kept photo out of the destination, with nothing to
-    say so. The price is reading both files whenever the sizes match, which on a
-    second run costs about what the copy would have, and writes nothing.
-
-    `filecmp` remembers its answers, keyed by the size and the time of both
-    files, and the server lives for hours. The memory is dropped first, so a
-    copy rewritten in place since an earlier run is read again.
-    """
+    """Whether `target`, or a numbered variant of it, holds the same bytes as `path`."""
+    # `filecmp` remembers its answers by size and time, and the server lives for hours.
     filecmp.clear_cache()
     taken = itertools.takewhile(Path.exists, variants(target))
     return any(filecmp.cmp(path, candidate, shallow=False) for candidate in taken)

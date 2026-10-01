@@ -12,9 +12,6 @@ A RAW original travels with the image it belongs to, unless you turn that off.
 Everything runs on your machine.
 The server listens on `127.0.0.1` only, so no image and no folder name leaves the computer.
 
-The interface is in Spanish.
-This documentation is in English.
-
 ## What the app never does
 
 - It never deletes a file.
@@ -81,10 +78,10 @@ The bars go, along with the room reserved for them, the photo loses its rounded 
 Three things are left: the progress line, now along the top edge of the window, the two verdict buttons reduced to their icons on the left and right edges, and one pill carrying the file name, the counters and any message.
 Nothing of the interface is painted over the photo, not even a tint along an edge to name the verdict on that side, because a colour next to the image changes the colour you read in it and judging colour is half of what the review is for.
 The pill fades and comes back exactly like the bars, and the two verdicts never fade, exactly like the buttons they replace.
-`Escape` leaves, and so does the pill `Salir del modo enfocado` in the top right corner, and whatever way out of fullscreen your browser offers.
+`Escape` leaves, and so does the pill `Leave focused mode` in the top right corner, and whatever way out of fullscreen your browser offers.
 The arrow keys and `U` work unchanged.
 The source folder, the settings and the run button stay behind, because they belong to before the review and after it, not to the photo in front of you.
-The button `Modo enfocado` in the bottom bar enters it as well.
+The button `Focused mode` in the bottom bar enters it as well.
 `F` and the button do nothing when there is no photo on screen.
 A button you pressed to enter or leave hands the focus back to the page, so `Space` zooms straight after instead of pressing a button that is no longer on screen.
 
@@ -114,25 +111,25 @@ The controls are:
 
 | Control | Where | What it does |
 | --- | --- | --- |
-| Counters | Top bar | Images reviewed out of the total (`revisadas`), kept (`mantenidas`) and discarded (`desechadas`), with a progress bar along the edge of the bar. |
-| Source field (`Origen`) | Top bar | Opens the folder you type, when you press Enter or leave the field. |
-| Browse button (`Explorar`) | Top bar | Opens the folder browser. |
-| Theme button | Top bar | Switches between light and dark. It carries no text, and it is named after the theme it switches to: `Cambiar a tema oscuro` or `Cambiar a tema claro`. |
-| Settings button (`Ajustes`) | Top bar | Opens the settings dialog. |
-| Discard button (`Desechar`) | Left edge | Marks the current image as discarded and moves on. |
-| Keep button (`Mantener`) | Right edge | Marks the current image as kept and moves on. |
-| Undo button (`Deshacer`) | Bottom bar | Cancels the most recent decision. |
-| Focused mode button (`Modo enfocado`) | Bottom bar | Enters focused mode, like `F`. |
+| Counters | Top bar | Images reviewed out of the total (`reviewed`), kept (`kept`) and discarded (`discarded`), with a progress bar along the edge of the bar. |
+| Source field (`Source`) | Top bar | Opens the folder you type, when you press Enter or leave the field. |
+| Browse button (`Browse`) | Top bar | Opens the folder browser. |
+| Theme button | Top bar | Switches between light and dark. It carries no text, and it is named after the theme it switches to: `Switch to dark theme` or `Switch to light theme`. |
+| Settings button (`Settings`) | Top bar | Opens the settings dialog. |
+| Discard button (`Discard`) | Left edge | Marks the current image as discarded and moves on. |
+| Keep button (`Keep`) | Right edge | Marks the current image as kept and moves on. |
+| Undo button (`Undo`) | Bottom bar | Cancels the most recent decision. |
+| Focused mode button (`Focused mode`) | Bottom bar | Enters focused mode, like `F`. |
 | Zoom button (`Zoom 1:1`) | Bottom bar | Shows the photo at one image pixel per screen pixel, and back, like `Space`. Pressed while the zoom is on. |
-| Exit button (`Salir del modo enfocado`) | Top right corner, in focused mode only | Leaves focused mode, like `Escape`. It fades with the pill. |
-| Mode control (`Al ejecutar`) | Bottom bar | Copy the kept images (`Copiar`), or move them (`Mover`). |
-| Run button (`Ejecutar`) | Bottom bar | Asks you to confirm, naming how many files would go, their size and the destination, then transfers the kept images there. |
+| Exit button (`Leave focused mode`) | Top right corner, in focused mode only | Leaves focused mode, like `Escape`. It fades with the pill. |
+| Mode control (`On run`) | Bottom bar | Copy the kept images (`Copy`), or move them (`Move`). |
+| Run button (`Run`) | Bottom bar | Asks you to confirm, naming how many files would go, their size and the destination, then transfers the kept images there. |
 | File name | Bottom bar | The name of the image on screen. |
 | Status line | Bottom bar | The result of the last action, the error it ran into, or how far a run in flight has gone. |
-| Subfolder switch (`Buscar en subcarpetas`) | Settings dialog | Whether the review reaches into the folders inside the source. Off by default. |
-| RAW switch (`Mover los RAW junto a la imagen`) | Settings dialog | Whether a RAW original travels with the image that shares its name. On by default. |
-| Video switch (`Mover los vídeos junto a la imagen`) | Settings dialog | Whether a video travels with the image that shares its name. Off by default. |
-| Destination field (`Carpeta destino`) | Settings dialog | Sets where the kept images will go. |
+| Subfolder switch (`Search subfolders`) | Settings dialog | Whether the review reaches into the folders inside the source. Off by default. |
+| RAW switch (`Move RAW files with the image`) | Settings dialog | Whether a RAW original travels with the image that shares its name. On by default. |
+| Video switch (`Move videos with the image`) | Settings dialog | Whether a video travels with the image that shares its name. Off by default. |
+| Destination field (`Destination folder`) | Settings dialog | Sets where the kept images will go. |
 
 A control that has nothing to act on is disabled.
 Keep, discard, the focused mode button and the zoom button are disabled when there is no image to review, undo when no decision has been taken, the run button when nothing is kept, and the destination field until a source folder is open.
@@ -140,14 +137,14 @@ Keep, discard, the focused mode button and the zoom button are disabled when the
 ## The review workflow
 
 1. Choose the source folder.
-   Type its path in the source field (`Origen`), or press the browse button (`Explorar`) and walk the disk.
+   Type its path in the source field (`Source`), or press the browse button (`Browse`) and walk the disk.
    The browser starts at the folder in the source field, or at your home folder when that field is empty.
-   `Subir un nivel` takes you up, and a folder name takes you into it.
+   `Up one level` takes you up, and a folder name takes you into it.
    It reports how many images are in the folder you are looking at, which tells you that you are in the right place before you open it.
    That count is of the images directly inside it, even when the subfolder switch is on, because counting the whole tree under every folder you pass through would make walking the disk slow.
-   `Usar esta carpeta` opens the folder you are looking at, and `Cancelar` leaves the review as it was.
+   `Use this folder` opens the folder you are looking at, and `Cancel` leaves the review as it was.
 2. Check the destination.
-   It lives in the settings dialog, behind the settings button (`Ajustes`) in the top bar, because it is configuration rather than review.
+   It lives in the settings dialog, behind the settings button (`Settings`) in the top bar, because it is configuration rather than review.
    It is filled in for you and you can edit it.
    The same dialog holds the subfolder switch and the RAW switch.
    See [Where the kept images go](#where-the-kept-images-go), [Which files are reviewed](#which-files-are-reviewed) and [RAW pairing](#raw-pairing).
@@ -156,13 +153,13 @@ Keep, discard, the focused mode button and the zoom button are disabled when the
    The counters in the top bar show how many images you have reviewed out of the total, how many you kept, and how many you discarded.
    The next image is loaded in the background while you look at the current one.
 4. Run the transfer.
-   When every image has a decision, the app says `Revisión terminada.` in place of the photo.
-   Choose `Copiar` or `Mover`, press the run button (`Ejecutar`), and confirm.
-   The question names what the run would take, such as `¿Copiar 312 archivos (8,4 GB) a /home/you/Pictures/2024_keep?`, counting RAW files and videos that travel with a kept image.
+   When every image has a decision, the app says `Review finished.` in place of the photo.
+   Choose `Copy` or `Move`, press the run button (`Run`), and confirm.
+   The question names what the run would take, such as `Copy 312 files (8.4 GB) to /home/you/Pictures/2024_keep?`, counting RAW files and videos that travel with a kept image.
    In copy mode that is what a first run would copy; files the destination already holds are skipped afterwards and reported on the status line.
-   While the run goes on, the status line says how far it has got: `Copiando 120 de 312 (3,2 GB de 8,4 GB)`.
+   While the run goes on, the status line says how far it has got: `Copying 120 of 312 (3.2 GB of 8.4 GB)`.
    It then reports how many files it transferred and where they went.
-   Reloading the page during a run does not stop it: the new page shows how far it has got, and says `La transferencia ha terminado.` at the end.
+   Reloading the page during a run does not stop it: the new page shows how far it has got, and says `The transfer has finished.` at the end.
    A second press of the run button, in this window or another, is refused while a run is in flight.
    You do not have to reach the end of the queue first: the run button transfers whatever is kept so far.
 
@@ -183,7 +180,7 @@ Until then, a decision is only a line in a file.
 `U` and `F` work in either case.
 
 Shortcuts are ignored while the folder browser or the settings dialog is open, and while the focus is in a text field or on the copy and move control.
-There the arrow keys move between `Copiar` and `Mover` instead.
+There the arrow keys move between `Copy` and `Move` instead.
 `Space` is also left alone while the focus is on a button, where it presses that button.
 There are no other shortcuts.
 
@@ -196,7 +193,7 @@ Files directly inside the source folder are reviewed.
 Subfolders are not searched until you ask for it.
 
 **Searching subfolders.**
-Open the settings dialog with the settings button (`Ajustes`) and turn on the switch `Buscar en subcarpetas`.
+Open the settings dialog with the settings button (`Settings`) and turn on the switch `Search subfolders`.
 The queue then holds every image in the tree under the source folder, which is what a camera or a phone that imports one folder per day leaves you with.
 An image inside a subfolder is named by its path, `2024-08-30/IMG_1.jpg`, and that name is what you see in the bottom bar.
 An image directly inside the source folder keeps the name it always had, so turning the switch on adds images to a review without disturbing the decisions already in it.
@@ -225,10 +222,10 @@ The folder is read again on every action, so an image you add or remove while th
 The kept images are transferred when you press the run button.
 The mode control decides what happens to the source folder.
 
-**Copy** (`Copiar`) leaves the source folder complete.
+**Copy** (`Copy`) leaves the source folder complete.
 Use it when you want to check the result before you change anything.
 
-**Move** (`Mover`) takes the kept images out of the source folder.
+**Move** (`Move`) takes the kept images out of the source folder.
 What stays behind is exactly what you discarded.
 The counters are read from the source folder, so after a move they count only the files that are still there.
 Seeing the total drop and the kept count fall to zero means the move worked.
@@ -274,13 +271,13 @@ You can run the transfer more than once.
 In copy mode the kept count does not change, so the run button stays enabled after a successful run.
 A second run copies only what is not in the destination yet, such as the images you kept since the first one.
 A file is taken as already there when the destination holds one with the same name, or a numbered variant of it such as `IMG_02_1.jpg`, and exactly the same bytes.
-The status line then says how many were already there: `0 archivos en /home/you/Pictures/2024_keep, 2 ya estaban`.
+The status line then says how many were already there: `0 files in /home/you/Pictures/2024_keep, 2 already there`.
 In move mode there is nothing left to transfer the second time, and the run button is disabled once the kept count reaches zero.
 
 A file that fails, because it cannot be read or the disk is full, does not stop the run.
 The other files are still transferred, and the status line counts the failures.
 A copy cut short is removed from the destination, so a half-written file never sits there under the name of a photo.
-Only a destination that cannot be created stops the run before it starts: `No se pudo crear el destino: ...`.
+Only a destination that cannot be created stops the run before it starts: `Could not create the destination: ...`.
 
 ## RAW pairing
 
@@ -298,7 +295,7 @@ Two points follow from pairing by stem:
 - If you keep both `IMG_1.jpg` and `IMG_1.png`, the shared `IMG_1.CR2` is transferred once, not twice.
 
 **Turning it off.**
-Open the settings dialog with the settings button (`Ajustes`) and turn off the switch `Mover los RAW junto a la imagen`.
+Open the settings dialog with the settings button (`Settings`) and turn off the switch `Move RAW files with the image`.
 The next run then transfers the kept images alone, and every RAW file stays in the source folder.
 The switch is on when you first start the app.
 
@@ -316,7 +313,7 @@ A video is never reviewed.
 It cannot be shown in the viewer, and it is not part of the queue.
 
 It can travel with a kept image that shares its name, the way a phone writes `IMG_0042.MOV` beside `IMG_0042.HEIC` for a live photo.
-Open the settings dialog with the settings button (`Ajustes`) and turn on the switch `Mover los vídeos junto a la imagen`.
+Open the settings dialog with the settings button (`Settings`) and turn on the switch `Move videos with the image`.
 
 These extensions count as video: `.mov`, `.mp4`, `.m4v`, `.avi`, `.mts` and `.m2ts`.
 Pairing works exactly like it does for RAW files, by name and inside one folder, so `IMG_0042.MOV` follows `IMG_0042.JPG` and `MVI_0042.MOV` follows nothing at all.
@@ -338,7 +335,7 @@ A kept image from a subfolder takes that subfolder with it: `2024-08-30/IMG_1.jp
 Emptying the tree into one folder would put the `IMG_1.jpg` of two different days on one name, where the second becomes `IMG_1_1.jpg` and no longer says which day it came from.
 In move mode that reading cannot be recovered afterwards, because the folder it came from is the only place it was written down.
 
-Type another path in the destination field (`Carpeta destino`), in the settings dialog, to change it.
+Type another path in the destination field (`Destination folder`), in the settings dialog, to change it.
 The path must be absolute.
 A relative path is refused, because resolving it against the folder the server was started from would scatter your images somewhere you never named.
 `~` is expanded, so `~/Selection` is accepted.
@@ -399,7 +396,7 @@ They are written down so that you do not meet them by surprise.
 
 - **A transfer is not all or nothing.**
   A file that cannot be copied or moved is skipped and the run carries on, so a failure leaves part of the selection in the destination and part of it behind.
-  The status line gives the count and the reason for the first failed file only, in red: `2 archivos en /home/you/Pictures/2024_keep. 1 con error. IMG_03.jpg: Permission denied`.
+  The status line gives the count and the reason for the first failed file only, in red: `2 files in /home/you/Pictures/2024_keep. 1 failed. IMG_03.jpg: Permission denied`.
   Running again retries the files that failed and does not transfer again what already arrived.
 - **A decision can be undone, not changed.**
   There is no way to rewrite the verdict of a named image.
@@ -420,12 +417,12 @@ They are written down so that you do not meet them by surprise.
 
 ## Troubleshooting
 
-**The app says `Esa carpeta no tiene imágenes.`**
-Only files directly inside the folder are reviewed unless you ask for more, so if the images are one level down, in a folder per day, turn on `Buscar en subcarpetas` in the settings dialog.
+**The app says `That folder has no images.`**
+Only files directly inside the folder are reviewed unless you ask for more, so if the images are one level down, in a folder per day, turn on `Search subfolders` in the settings dialog.
 Check the extension as well: a file type outside the list in [Which files are reviewed](#which-files-are-reviewed) is not part of the queue.
 A folder that holds only RAW files looks empty, because a RAW file is transferred with an image and is never reviewed on its own.
 
-**The status line says `La página es de otra versión. Recárgala.`, or `[object Object]`.**
+**The status line says `This page is from another version. Reload it.`, or `[object Object]`.**
 The page was loaded before the app was upgraded and restarted, so it still runs the old script, and the server refuses what that script sends.
 Reload the page.
 The refused request recorded nothing.
@@ -433,7 +430,7 @@ The message is part of the page's own script, so a page loaded from 0.4.1 or ear
 After an upgrade to 0.4.1, that is what a page left open shows on every verdict.
 
 **Permission denied on a folder.**
-The folder browser reports `Sin acceso a ...` for a folder your user account cannot read, and lets you go back up.
+The folder browser reports `No access to ...` for a folder your user account cannot read, and lets you go back up.
 Choosing such a folder as the source is refused with the same message.
 The folder is not recorded, so the review you had open stays open and a restart is unaffected.
 
@@ -462,7 +459,7 @@ It answers `Usa una ruta absoluta` when the path does not start at the root.
 Type the full path, or use `~`.
 
 **The RAW files did not travel with the images.**
-Check the switch `Mover los RAW junto a la imagen` in the settings dialog.
+Check the switch `Move RAW files with the image` in the settings dialog.
 Check the names as well: a RAW file is paired by stem, so `IMG_0042.CR2` follows `IMG_0042.JPG` but `IMG_42.CR2` does not.
 
 **The photo is suddenly much larger than the window.**

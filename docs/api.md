@@ -21,10 +21,10 @@ Responses are JSON, except `GET /api/image/{name}`, which returns file bytes.
 An error carries a single field:
 
 ```json
-{ "detail": "Elige una carpeta origen." }
+{ "detail": "Choose a source folder." }
 ```
 
-Messages in `detail` are in Spanish, because they are shown in the interface.
+Messages in `detail` are shown in the interface as they are.
 
 A 422 comes from the request validator rather than from the app, and there `detail` is a list of objects instead of a string:
 
@@ -114,9 +114,9 @@ List the subfolders of a path, so the interface can walk the disk.
 | Status | Cause |
 | --- | --- |
 | 200 | A [Listing](#listing) object. |
-| 400 | The path could not be resolved. `Ruta inválida: ...` |
-| 403 | The folder exists but cannot be read by the user running the server. `Sin acceso a ...` |
-| 404 | The path is not a folder, or does not exist. `No es una carpeta: ...` |
+| 400 | The path could not be resolved. `Invalid path: ...` |
+| 403 | The folder exists but cannot be read by the user running the server. `No access to ...` |
+| 404 | The path is not a folder, or does not exist. `Not a folder: ...` |
 
 This route does not need an open source folder, and does not change one.
 
@@ -135,10 +135,10 @@ Open a folder for review, or resume it if it was reviewed before.
 | Status | Cause |
 | --- | --- |
 | 200 | A [State](#state) object for the folder now open. |
-| 400 | The path could not be resolved. `Ruta inválida: ...` |
-| 404 | The path is not a folder, or does not exist. `No es una carpeta: ...` |
+| 400 | The path could not be resolved. `Invalid path: ...` |
+| 404 | The path is not a folder, or does not exist. `Not a folder: ...` |
 | 422 | `path` is missing, is not a string, or the body is not JSON. |
-| 403 | The folder exists but cannot be listed. `Sin acceso a ...` It is not recorded, so a restart is unaffected. |
+| 403 | The folder exists but cannot be listed. `No access to ...` It is not recorded, so a restart is unaffected. |
 
 Side effects.
 The folder becomes the active review.
@@ -160,8 +160,8 @@ Set where the kept images will go.
 | Status | Cause |
 | --- | --- |
 | 200 | A [State](#state) object with the new `destination`. |
-| 400 | The path is relative. `Usa una ruta absoluta: ...` |
-| 409 | No source folder is open. `Elige una carpeta origen.` |
+| 400 | The path is relative. `Use an absolute path: ...` |
+| 409 | No source folder is open. `Choose a source folder.` |
 | 422 | `path` is missing, is not a string, or the body is not JSON. |
 
 The path is not resolved and does not have to exist.
@@ -214,9 +214,9 @@ Record a verdict for the current image and move to the next one.
 | Status | Cause |
 | --- | --- |
 | 200 | A [State](#state) object, with `current` already advanced. |
-| 409 | No source folder is open. `Elige una carpeta origen.` |
-| 409 | The queue is empty, so there is nothing to decide. `No hay nada que revisar.` |
-| 409 | `name` is no longer `current`. Nothing is recorded. `La cola ha cambiado. Decide sobre la foto que ves ahora.` |
+| 409 | No source folder is open. `Choose a source folder.` |
+| 409 | The queue is empty, so there is nothing to decide. `Nothing to review.` |
+| 409 | `name` is no longer `current`. Nothing is recorded. `The queue has changed. Decide on the photo you see now.` |
 | 422 | `verdict` or `name` is missing, `verdict` is not one of the two values, or the body is not JSON. |
 
 The verdict applies to `current`, which the server works out from the folder at the moment of the request.
@@ -236,7 +236,7 @@ Sending `{}` and sending nothing both work.
 | Status | Cause |
 | --- | --- |
 | 200 | A [State](#state) object. |
-| 409 | No source folder is open. `Elige una carpeta origen.` |
+| 409 | No source folder is open. `Choose a source folder.` |
 
 Undo with no decisions left is not an error.
 It returns the unchanged state.
@@ -264,7 +264,7 @@ Response:
 | Status | Cause |
 | --- | --- |
 | 200 | The plan, counted. |
-| 409 | No source folder is open. `Elige una carpeta origen.` |
+| 409 | No source folder is open. `Choose a source folder.` |
 
 The plan is built by the same function `POST /api/apply` uses, from the same verdicts and switches, so the two cannot describe different files.
 Nothing is compared with what the destination already holds, because that would mean reading every file.
@@ -303,10 +303,10 @@ Response:
 | Status | Cause |
 | --- | --- |
 | 200 | The run went through the whole plan. Some files may still have failed: read `failed`. |
-| 409 | No source folder is open. `Elige una carpeta origen.` |
-| 409 | Another run is in flight, from this window or another one. `Ya hay una transferencia en curso.` |
+| 409 | No source folder is open. `Choose a source folder.` |
+| 409 | Another run is in flight, from this window or another one. `A transfer is already running.` |
 | 422 | `mode` is missing, is not one of the two values, or the body is not JSON. |
-| 500 | The destination folder could not be created, so nothing was transferred. `No se pudo crear el destino: ...` |
+| 500 | The destination folder could not be created, so nothing was transferred. `Could not create the destination: ...` |
 
 Notes.
 The plan is built from the verdicts and from the three preferences as they stand at the moment of the request.
@@ -367,8 +367,8 @@ The bytes of one image from the source folder.
 | Status | Cause |
 | --- | --- |
 | 200 | The file. `Content-Type` is guessed from the extension, and range requests are supported. |
-| 404 | The file does not exist, is not a reviewable image type, is out of the reach the review was given, lies inside a destination that is a subfolder of the source, or resolves outside the source folder, including through a symbolic link. `No existe la imagen ...` |
-| 409 | No source folder is open. `Elige una carpeta origen.` |
+| 404 | The file does not exist, is not a reviewable image type, is out of the reach the review was given, lies inside a destination that is a subfolder of the source, or resolves outside the source folder, including through a symbolic link. `There is no image ...` |
+| 409 | No source folder is open. `Choose a source folder.` |
 
 The file is sent exactly as it is on disk.
 Nothing is resized or re-encoded, and browsers apply EXIF orientation themselves.

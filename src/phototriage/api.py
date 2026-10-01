@@ -1,8 +1,4 @@
-"""HTTP layer: a thin shell over library, store and transfer.
-
-The API is the transaction boundary: a route mutates the active review and then
-asks the store to persist it, so no lower layer needs to know about the disk.
-"""
+"""HTTP layer: a thin shell over library, store and transfer."""
 
 from __future__ import annotations
 
@@ -37,14 +33,14 @@ class Active:
 class State(BaseModel):
     """Everything the interface needs to draw itself."""
 
-    source: str | None
-    destination: str | None
-    total: int
-    reviewed: int
-    kept: int
-    discarded: int
-    current: str | None
-    upcoming: str | None
+    source: str | None = None
+    destination: str | None = None
+    total: int = 0
+    reviewed: int = 0
+    kept: int = 0
+    discarded: int = 0
+    current: str | None = None
+    upcoming: str | None = None
     pair_raws: bool
     search_subfolders: bool
     pair_videos: bool
@@ -64,11 +60,7 @@ class FolderRequest(BaseModel):
 
 
 class SettingsRequest(BaseModel):
-    """A change to the preferences, naming only the ones that change.
-
-    An omitted field is left as it is, so a window with a stale view of one
-    switch cannot move it by touching the other.
-    """
+    """A change to the preferences, naming only the ones that change."""
 
     pair_raws: bool | None = None
     search_subfolders: bool | None = None
@@ -116,38 +108,25 @@ def as_folder(raw: str) -> Path:
     try:
         resolved = path.resolve()
     except OSError as error:
-        raise HTTPException(status_code=400, detail=f"Ruta inválida: {raw}") from error
+        raise HTTPException(status_code=400, detail=f"Invalid path: {raw}") from error
     if not resolved.is_dir():
-        raise HTTPException(status_code=404, detail=f"No es una carpeta: {resolved}")
+        raise HTTPException(status_code=404, detail=f"Not a folder: {resolved}")
     return resolved
 
 
 def as_destination(raw: str, source: Path) -> Path:
-    """Read a user-typed destination, which need not exist yet.
-
-    An empty field means "back to the default". A relative path is refused
-    rather than resolved against the folder the server was started from, which
-    would scatter the images somewhere the user never named.
-    """
+    """Read a user-typed destination, which need not exist yet."""
     text = raw.strip()
     if not text:
         return default_destination(source)
     path = Path(text).expanduser()
     if not path.is_absolute():
-        raise HTTPException(status_code=400, detail=f"Usa una ruta absoluta: {text}")
+        raise HTTPException(status_code=400, detail=f"Use an absolute path: {text}")
     return path
 
 
 def left_out(folder: Path, destination: Path) -> Path | None:
-    """The destination, when it is a subfolder of the source that the walk would reach.
-
-    Its files are copies of photos already reviewed, so they are kept out of
-    the queue and out of the plan. Resolved first, because the walk spells its
-    paths from the resolved source, and the destination is stored as typed.
-
-    The source itself is never left out. A destination equal to the source is
-    odd but allowed, and leaving it out would empty the queue.
-    """
+    """The destination, when it is a subfolder of the source that the walk would reach."""
     inner = destination.resolve()
     return inner if inner != folder and inner.is_relative_to(folder) else None
 
@@ -156,8 +135,7 @@ def create_app(store: Store, source: Path | None = None) -> FastAPI:
     """Build the application, resuming `source` or the last folder reviewed."""
     app = FastAPI(title="PhotoTriage")
     active = Active()
-    # One run at a time. A second run over the same selection would race the
-    # first for every free name, and in move mode for the files themselves.
+    # One run at a time.
     transferring = threading.Lock()
 
     def open_source(folder: Path, destination: Path | None = None) -> None:
@@ -170,26 +148,15 @@ def create_app(store: Store, source: Path | None = None) -> FastAPI:
         open_source(resumed)
 
     def snapshot() -> State:
-        """Read the source folder and the active review, and combine them.
-
-        The folder is read on every request, so images added or deleted while
-        the server runs are picked up without a restart.
-        """
+        """Read the source folder and the active review, and combine them."""
         folder, review = active.source, active.review
+        switches = {
+            "pair_raws": store.pair_raws,
+            "search_subfolders": store.search_subfolders,
+            "pair_videos": store.pair_videos,
+        }
         if folder is None or review is None:
-            return State(
-                source=None,
-                destination=None,
-                total=0,
-                reviewed=0,
-                kept=0,
-                discarded=0,
-                current=None,
-                upcoming=None,
-                pair_raws=store.pair_raws,
-                search_subfolders=store.search_subfolders,
-                pair_videos=store.pair_videos,
-            )
+            return State(**switches)
         skip = left_out(folder, review.destination)
         images = library.list_images(folder, store.search_subfolders, skip)
         verdicts = review.verdicts
@@ -204,15 +171,13 @@ def create_app(store: Store, source: Path | None = None) -> FastAPI:
             discarded=sum(verdict is Verdict.DISCARD for verdict in reviewed),
             current=pending[0] if pending else None,
             upcoming=pending[1] if len(pending) > 1 else None,
-            pair_raws=store.pair_raws,
-            search_subfolders=store.search_subfolders,
-            pair_videos=store.pair_videos,
+            **switches,
         )
 
     def require_review() -> tuple[Path, Review]:
         folder, review = active.source, active.review
         if folder is None or review is None:
-            raise HTTPException(status_code=409, detail="Elige una carpeta origen.")
+            raise HTTPException(status_code=409, detail="Choose a source folder.")
         return folder, review
 
     @app.get("/api/state")
@@ -221,16 +186,12 @@ def create_app(store: Store, source: Path | None = None) -> FastAPI:
 
     @app.get("/api/browse")
     def browse(path: str = "~") -> Listing:
-        """List the subfolders of `path` so the interface can walk the disk.
-
-        The server is bound to the loopback address, so this stays as reachable
-        as the files it lists.
-        """
+        """List the subfolders of `path` so the interface can walk the disk."""
         folder = as_folder(path)
         try:
             folders = library.list_folders(folder)
         except OSError as error:
-            raise HTTPException(status_code=403, detail=f"Sin acceso a {folder}") from error
+            raise HTTPException(status_code=403, detail=f"No access to {folder}") from error
         return Listing(
             path=str(folder),
             parent=str(folder.parent) if folder.parent != folder else None,
@@ -242,7 +203,7 @@ def create_app(store: Store, source: Path | None = None) -> FastAPI:
     def set_source(request: FolderRequest) -> State:
         folder = as_folder(request.path)
         if not library.is_readable(folder):
-            raise HTTPException(status_code=403, detail=f"Sin acceso a {folder}")
+            raise HTTPException(status_code=403, detail=f"No access to {folder}")
         open_source(folder)
         return snapshot()
 
@@ -268,14 +229,13 @@ def create_app(store: Store, source: Path | None = None) -> FastAPI:
         _, review = require_review()
         current = snapshot().current
         if current is None:
-            raise HTTPException(status_code=409, detail="No hay nada que revisar.")
-        # The queue is read from the folder on every request, so it can move
-        # between the photo a page shows and the verdict taken on it: another
-        # window decides that photo, or a new file sorts in front of it. The
-        # verdict is about the photo that was seen, so it goes nowhere else.
+            raise HTTPException(status_code=409, detail="Nothing to review.")
+        # The queue is read from the folder on every request, so it can move between the photo a
+        # page shows and the verdict taken on it: another window decides that photo, or a new file
+        # sorts in front of it.
         if request.name != current:
             raise HTTPException(
-                status_code=409, detail="La cola ha cambiado. Decide sobre la foto que ves ahora."
+                status_code=409, detail="The queue has changed. Decide on the photo you see now."
             )
         review.decide(current, request.verdict)
         store.save()
@@ -289,11 +249,7 @@ def create_app(store: Store, source: Path | None = None) -> FastAPI:
         return snapshot()
 
     def plan_for(folder: Path, review: Review) -> list[Path]:
-        """The files a run would transfer, from the switches as they stand.
-
-        One function for the preview and the run, so the confirmation can never
-        describe a different set of files from the one that is then moved.
-        """
+        """The files a run would transfer, from the switches as they stand."""
         return transfer.build_plan(
             folder,
             review.verdicts,
@@ -304,12 +260,7 @@ def create_app(store: Store, source: Path | None = None) -> FastAPI:
 
     @app.get("/api/plan")
     def read_plan() -> Plan:
-        """Count and weigh the plan without touching the destination.
-
-        Nothing is compared with what the destination already holds, because
-        that means reading every file. In copy mode the count is therefore what
-        a first run would copy, and a later run may copy fewer.
-        """
+        """Count and weigh the plan without touching the destination."""
         folder, review = require_review()
         plan = plan_for(folder, review)
         return Plan(
@@ -320,20 +271,14 @@ def create_app(store: Store, source: Path | None = None) -> FastAPI:
 
     @app.get("/api/progress")
     def read_progress() -> Progress | None:
-        """How far the run in flight has gone, asked while `POST /api/apply` waits.
-
-        The route is synchronous like every other, so it is served from another
-        thread while the run holds its own. It reads one reference, which the run
-        replaces whole rather than changing field by field, so it never sees a
-        count from one file beside the bytes of another.
-        """
+        """How far the run in flight has gone, asked while `POST /api/apply` waits."""
         return active.progress
 
     @app.post("/api/apply")
     def apply(request: ApplyRequest) -> ApplyResponse:
         folder, review = require_review()
         if not transferring.acquire(blocking=False):
-            raise HTTPException(status_code=409, detail="Ya hay una transferencia en curso.")
+            raise HTTPException(status_code=409, detail="A transfer is already running.")
         try:
             plan = plan_for(folder, review)
             # The bytes sent before each file, and after the last one.
@@ -353,17 +298,15 @@ def create_app(store: Store, source: Path | None = None) -> FastAPI:
                     plan, folder, review.destination, request.mode, on_file=on_file
                 )
             except OSError as error:
-                # A file that fails is reported in the answer, so only a
-                # destination that cannot be created reaches here. Without this,
-                # FastAPI answers in plain text and the interface reports a
-                # parser error instead.
+                # A file that fails is reported in the answer, so only a destination that cannot be
+                # created reaches here.
                 raise HTTPException(
                     status_code=500,
-                    detail=f"No se pudo crear el destino: {error}",
+                    detail=f"Could not create the destination: {error}",
                 ) from error
         finally:
-            # Whatever happened, the next run must not be refused and the
-            # interface must not keep reading a run that has ended.
+            # Whatever happened, the next run must not be refused and the interface must not keep
+            # reading a run that has ended.
             active.progress = None
             transferring.release()
         return ApplyResponse(
@@ -373,16 +316,15 @@ def create_app(store: Store, source: Path | None = None) -> FastAPI:
             destination=str(review.destination),
         )
 
-    # `:path` because a name reaching into a subfolder carries a separator, and
-    # the default converter stops at one. What may be read is decided by
-    # `resolve_image`, not by the shape of the route.
+    # `:path` because a name reaching into a subfolder carries a separator, and the default
+    # converter stops at one.
     @app.get("/api/image/{name:path}")
     def read_image(name: str) -> FileResponse:
         folder, review = require_review()
         skip = left_out(folder, review.destination)
         path = library.resolve_image(folder, name, store.search_subfolders, skip)
         if path is None:
-            raise HTTPException(status_code=404, detail=f"No existe la imagen {name}.")
+            raise HTTPException(status_code=404, detail=f"There is no image {name}.")
         return FileResponse(path)
 
     # Mounted last so that the /api routes above take precedence.
