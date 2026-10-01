@@ -1,70 +1,96 @@
 /*
- * The counter in the hero, and the tally under "Nothing moves until you say so",
- * are one running model of a review: a roll of 480 frames that ends with 31
- * keepers, the same figures the rest of the page quotes.
+ * The table at the top of the page is a review the visitor runs with their own
+ * arrow keys: a roll of 480 frames, opened mid-way, the same figures the rest
+ * of the page quotes.
  *
- * The markup already carries the opening frame of that model, so the page is
- * complete with this file blocked or missing. All the script does is keep the
- * numbers moving.
+ * The markup already carries the opening state, so the page is complete with
+ * this file blocked or missing. All the script does is answer the keys.
  */
 
 const TOTAL = 480;
-const KEPT_AT_END = 31;
 
-/* Where the model starts, and where it returns to when the roll runs out. */
-const FIRST_REVIEWED = 208;
+/* Where the visitor finds the roll: 208 reviewed, 13 of them kept. */
+const REVIEWED_AT_START = 208;
+const KEPT_AT_START = 13;
 
-/* One tick per verdict and one per advance, so a name stays long enough to read. */
-const TICK_MS = 1150;
-
-const NAMES = [
-  "IMG_0412.JPG",
-  "IMG_0413.JPG",
-  "IMG_0414.JPG",
-  "IMG_0415.JPG",
-  "IMG_0416.JPG",
-  "IMG_0417.JPG",
+/* File name and plate. The plates are the <symbol> ids in the page. */
+const FRAMES = [
+  ["IMG_0412.JPG", "p1"],
+  ["IMG_0413.JPG", "p2"],
+  ["IMG_0414.JPG", "p3"],
+  ["IMG_0415.JPG", "p4"],
+  ["IMG_0416.JPG", "p5"],
+  ["IMG_0417.JPG", "p6"],
 ];
 
-/* Which of those six frames is a keeper. */
-const PATTERN = [true, false, true, true, false, true];
+/* What each tray shows before the visitor has sent anything to it. */
+const TRAY_AT_START = { true: "p3", false: "p6" };
 
 const el = (id) => document.getElementById(id);
+const frame = (i) => FRAMES[i % FRAMES.length];
+const calm = matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-const state = { i: 0, verdict: null, reviewed: FIRST_REVIEWED };
+/* One entry per verdict taken on this page, true for a keep. */
+const log = [];
 
-function step() {
-  if (state.verdict === null) {
-    state.verdict = PATTERN[state.i % PATTERN.length] ? "keep" : "discard";
-    return;
-  }
-  state.verdict = null;
-  state.i = (state.i + 1) % NAMES.length;
-  state.reviewed = state.reviewed >= TOTAL ? FIRST_REVIEWED : state.reviewed + 1;
+function trayPlate(kept) {
+  const i = log.lastIndexOf(kept);
+  return i < 0 ? TRAY_AT_START[kept] : frame(i)[1];
 }
 
 function render() {
-  const kept = Math.round(state.reviewed * (KEPT_AT_END / TOTAL));
-  const percent = Math.round((state.reviewed / TOTAL) * 100) + "%";
+  const reviewed = REVIEWED_AT_START + log.length;
+  const kept = KEPT_AT_START + log.filter(Boolean).length;
+  const done = reviewed >= TOTAL;
 
-  el("demo-name").textContent = NAMES[state.i];
-  el("demo-pct").textContent = percent;
-  el("demo-fill").style.width = percent;
-  el("demo-count").textContent = state.reviewed + " / " + TOTAL;
+  el("demo-name").textContent = done ? "Review finished" : frame(log.length)[0];
+  el("demo-plate").setAttribute("href", "#" + frame(log.length)[1]);
+  el("demo-next").setAttribute("href", "#" + frame(log.length + 1)[1]);
+  el("demo-kept-plate").setAttribute("href", "#" + trayPlate(true));
+  el("demo-left-plate").setAttribute("href", "#" + trayPlate(false));
 
-  el("verdict-keep").hidden = state.verdict !== "keep";
-  el("verdict-discard").hidden = state.verdict !== "discard";
-  el("verdict-waiting").hidden = state.verdict !== null;
-
+  el("demo-count").textContent = reviewed + " / " + TOTAL;
   el("demo-kept").textContent = kept;
-  el("demo-discarded").textContent = state.reviewed - kept;
-  el("demo-left").textContent = Math.max(0, TOTAL - state.reviewed);
+  el("demo-left").textContent = reviewed - kept;
+
+  el("demo-keep").disabled = done;
+  el("demo-leave").disabled = done;
+  el("demo-undo").disabled = log.length === 0;
 }
 
-/* A reader who asks for less motion keeps the opening frame instead. */
-if (!matchMedia("(prefers-reduced-motion: reduce)").matches) {
-  setInterval(() => {
-    step();
-    render();
-  }, TICK_MS);
+function decide(kept) {
+  if (REVIEWED_AT_START + log.length >= TOTAL) return;
+
+  el("demo-status").textContent = frame(log.length)[0] + (kept ? " kept" : " left alone");
+  log.push(kept);
+
+  /* The slide leaves towards the tray it goes to, then the next one is there. */
+  const slide = el("demo-slide");
+  if (calm || !slide.animate) return render();
+  slide
+    .animate(
+      { transform: ["none", `translateX(${kept ? 55 : -55}%)`], opacity: [1, 0] },
+      { duration: 170, easing: "cubic-bezier(0.7, 0, 0.84, 0)" },
+    )
+    .finished.then(render);
 }
+
+function undo() {
+  if (!log.length) return;
+  log.pop();
+  el("demo-status").textContent = frame(log.length)[0] + " back on the table";
+  render();
+}
+
+el("demo-keep").addEventListener("click", () => decide(true));
+el("demo-leave").addEventListener("click", () => decide(false));
+el("demo-undo").addEventListener("click", undo);
+
+/* The same three keys as the app. A key held with a modifier is a browser
+   shortcut, back and forward among them, and is left alone. */
+document.addEventListener("keydown", (event) => {
+  if (event.metaKey || event.ctrlKey || event.altKey) return;
+  if (event.key === "ArrowRight") decide(true);
+  else if (event.key === "ArrowLeft") decide(false);
+  else if (event.key === "u" || event.key === "U") undo();
+});

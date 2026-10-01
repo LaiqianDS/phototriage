@@ -1,5 +1,17 @@
+/* Hallmark · component: app shell · genre: editorial · theme: custom (light table, shared with site/style.css) · designed-as-app
+ * states: default · hover · focus · active · disabled · loading (aria-busy) · error (.status.error) · success (status line)
+ */
+
 /* One palette, two themes. Only the values below change between light and
-   dark, so every component is written once. */
+   dark, so every component is written once.
+
+   The light theme is a light table switched on, and the dark theme is the same
+   table switched off. The greys are the ones the landing page uses, in
+   site/style.css. The two folders ship apart and neither has a build step, so
+   the values are written twice. Change one, change the other.
+
+   Nothing casts a shadow and nothing blurs what is behind it: a surface is
+   told from the next one by an edge. */
 
 :root {
   color-scheme: light;
@@ -11,10 +23,10 @@
   --space-5: 1.5rem;
   --space-6: 2rem;
 
-  --radius-sm: 0.375rem;
-  --radius-md: 0.625rem;
-  --radius-lg: 0.875rem;
-  --radius-xl: 1.25rem;
+  --radius-sm: 2px;
+  --radius-md: 3px;
+  --radius-lg: 4px;
+  --radius-xl: 6px;
   --radius-full: 999px;
 
   /* How much of the window the photo gives back. Also where the edge buttons
@@ -23,35 +35,36 @@
 
   --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 
-  --bg: #f5f5f7;
-  --surface: #ffffff;
-  --surface-hover: #f0f0f2;
-  --track: #e6e6ea;
-  --border: rgb(0 0 0 / 0.1);
-  --border-strong: rgb(0 0 0 / 0.18);
-  --text: #1d1d1f;
-  --text-muted: #6e6e73;
-  /* The floating chrome. `--bar` stays opaque enough that text over the
-     darkest possible photo still clears WCAG AA, and `--bar-muted` is a step
-     darker than `--text-muted` for the same reason. */
-  --bar: rgb(255 255 255 / 0.86);
-  --bar-muted: #55555a;
-  --bar-line: rgb(0 0 0 / 0.14);
-  --keep: #0e7a3c;
-  --keep-tint: rgb(14 122 60 / 0.1);
-  --keep-tint-hover: rgb(14 122 60 / 0.18);
-  --keep-line: rgb(14 122 60 / 0.28);
-  --discard: #c4281b;
-  --discard-tint: rgb(196 40 27 / 0.1);
-  --discard-tint-hover: rgb(196 40 27 / 0.18);
-  --discard-line: rgb(196 40 27 / 0.28);
-  --focus: #0066cc;
-  --fill: #1d1d1f;
-  --fill-hover: #38383c;
-  --fill-text: #ffffff;
-  --shadow-sm: 0 1px 2px rgb(0 0 0 / 0.06);
-  --shadow-md: 0 2px 10px rgb(0 0 0 / 0.07);
-  --shadow-lg: 0 16px 48px rgb(0 0 0 / 0.16);
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+
+  --bg: oklch(95.5% 0.005 230);
+  --surface: oklch(98.5% 0.004 230);
+  --surface-hover: oklch(93% 0.006 230);
+  --track: oklch(89% 0.007 230);
+  --border: oklch(84% 0.008 230);
+  --border-strong: oklch(63% 0.012 230);
+  --text: oklch(21% 0.01 230);
+  --text-muted: oklch(42% 0.012 230);
+  /* The chrome around the photo. Opaque, so the text on it reads the same over
+     any photo. */
+  --bar: oklch(98.5% 0.004 230);
+  --bar-muted: oklch(42% 0.012 230);
+  --bar-line: oklch(79% 0.01 230);
+  --keep: oklch(50% 0.13 152);
+  --keep-tint: oklch(50% 0.13 152 / 0.1);
+  --keep-tint-hover: oklch(50% 0.13 152 / 0.18);
+  --keep-line: oklch(50% 0.13 152 / 0.4);
+  --discard: oklch(52% 0.19 28);
+  --discard-tint: oklch(52% 0.19 28 / 0.1);
+  --discard-tint-hover: oklch(52% 0.19 28 / 0.18);
+  --discard-line: oklch(52% 0.19 28 / 0.4);
+  /* The ring is the ink. A colour of its own would sit beside the two verdict
+     colours and beside the photo. */
+  --focus: oklch(21% 0.01 230);
+  --fill: oklch(21% 0.01 230);
+  --fill-hover: oklch(32% 0.012 230);
+  --fill-text: oklch(95.5% 0.005 230);
+  --scrim: oklch(21% 0.01 230 / 0.45);
 }
 
 /* Set by the script in the page head before the first paint, so the theme
@@ -59,32 +72,30 @@
 :root[data-theme="dark"] {
   color-scheme: dark;
 
-  --bg: #141416;
-  --surface: #1c1c1f;
-  --surface-hover: #26262a;
-  --track: #2c2c31;
-  --border: rgb(255 255 255 / 0.1);
-  --border-strong: rgb(255 255 255 / 0.22);
-  --text: #f2f2f5;
-  --text-muted: #a1a1a8;
-  --bar: rgb(22 22 25 / 0.84);
-  --bar-muted: #b6b6bd;
-  --bar-line: rgb(255 255 255 / 0.14);
-  --keep: #30d158;
-  --keep-tint: rgb(48 209 88 / 0.14);
-  --keep-tint-hover: rgb(48 209 88 / 0.22);
-  --keep-line: rgb(48 209 88 / 0.32);
-  --discard: #ff453a;
-  --discard-tint: rgb(255 69 58 / 0.14);
-  --discard-tint-hover: rgb(255 69 58 / 0.22);
-  --discard-line: rgb(255 69 58 / 0.32);
-  --focus: #0a84ff;
-  --fill: #f2f2f5;
-  --fill-hover: #ffffff;
-  --fill-text: #141416;
-  --shadow-sm: 0 1px 2px rgb(0 0 0 / 0.3);
-  --shadow-md: 0 2px 10px rgb(0 0 0 / 0.35);
-  --shadow-lg: 0 16px 48px rgb(0 0 0 / 0.55);
+  --bg: oklch(17% 0.006 230);
+  --surface: oklch(22% 0.008 230);
+  --surface-hover: oklch(27% 0.009 230);
+  --track: oklch(30% 0.01 230);
+  --border: oklch(31% 0.01 230);
+  --border-strong: oklch(57% 0.012 230);
+  --text: oklch(94% 0.005 230);
+  --text-muted: oklch(72% 0.01 230);
+  --bar: oklch(22% 0.008 230);
+  --bar-muted: oklch(72% 0.01 230);
+  --bar-line: oklch(36% 0.01 230);
+  --keep: oklch(76% 0.17 150);
+  --keep-tint: oklch(76% 0.17 150 / 0.14);
+  --keep-tint-hover: oklch(76% 0.17 150 / 0.22);
+  --keep-line: oklch(76% 0.17 150 / 0.4);
+  --discard: oklch(70% 0.19 27);
+  --discard-tint: oklch(70% 0.19 27 / 0.14);
+  --discard-tint-hover: oklch(70% 0.19 27 / 0.22);
+  --discard-line: oklch(70% 0.19 27 / 0.4);
+  --focus: oklch(94% 0.005 230);
+  --fill: oklch(94% 0.005 230);
+  --fill-hover: oklch(99% 0.003 230);
+  --fill-text: oklch(17% 0.006 230);
+  --scrim: oklch(8% 0.006 230 / 0.6);
 }
 
 /* ------------------------------------------------------------------ base ---*/
@@ -153,7 +164,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: opacity 150ms ease;
+  transition: opacity 150ms var(--ease-out);
 }
 
 /* The wait is only visible when the server is slow: a local decision answers
@@ -178,7 +189,6 @@ body[aria-busy="true"] .stage {
   max-width: 100%;
   max-height: 100%;
   border-radius: var(--radius-md);
-  box-shadow: var(--shadow-lg);
 }
 
 .notice {
@@ -188,7 +198,6 @@ body[aria-busy="true"] .stage {
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
   background: var(--surface);
-  box-shadow: var(--shadow-md);
   color: var(--text-muted);
   text-align: center;
 }
@@ -205,8 +214,6 @@ body[aria-busy="true"] .stage {
   gap: var(--space-3);
   padding: var(--space-3) var(--space-4);
   background: var(--bar);
-  backdrop-filter: blur(20px) saturate(180%);
-  -webkit-backdrop-filter: blur(20px) saturate(180%);
   color: var(--text);
 }
 
@@ -237,8 +244,8 @@ body.resting .bar:has(:focus-visible) {
 @media (prefers-reduced-motion: no-preference) {
   .bar {
     transition:
-      opacity 240ms ease,
-      translate 240ms ease;
+      opacity 240ms var(--ease-out),
+      translate 240ms var(--ease-out);
   }
 }
 
@@ -282,7 +289,7 @@ body.resting .bar:has(:focus-visible) {
 
 /* The colour is carried by the dot, not by the label. A dot is a graphical
    object and needs 3:1, while the small text keeps the full contrast of plain
-   text against the translucent bar. */
+   text against the bar. */
 .chip {
   display: inline-flex;
   align-items: center;
@@ -369,7 +376,7 @@ input[type="text"] {
   background: var(--surface);
   color: var(--text);
   font: inherit;
-  transition: border-color 120ms ease;
+  transition: border-color 120ms var(--ease-out);
 }
 
 input[type="text"]:hover:not(:disabled) {
@@ -431,13 +438,12 @@ input[type="text"]:disabled {
   cursor: pointer;
   user-select: none;
   transition:
-    background-color 140ms ease,
-    color 140ms ease;
+    background-color 140ms var(--ease-out),
+    color 140ms var(--ease-out);
 }
 
 .segmented input:checked + label {
   background: var(--surface);
-  box-shadow: var(--shadow-sm);
   color: var(--text);
 }
 
@@ -494,16 +500,15 @@ input[type="text"]:disabled {
   border: 1px solid var(--border-strong);
   border-radius: var(--radius-md);
   background: var(--surface);
-  box-shadow: var(--shadow-sm);
   color: var(--text);
   font: inherit;
   font-weight: 500;
   white-space: nowrap;
   cursor: pointer;
   transition:
-    background-color 120ms ease,
-    border-color 120ms ease,
-    transform 90ms ease;
+    background-color 120ms var(--ease-out),
+    border-color 120ms var(--ease-out),
+    transform 90ms var(--ease-out);
 }
 
 .button svg {
@@ -530,7 +535,6 @@ input[type="text"]:disabled {
 }
 
 .button:disabled {
-  box-shadow: none;
   opacity: 0.4;
   cursor: default;
 }
@@ -539,7 +543,6 @@ input[type="text"]:disabled {
    segmented control does. */
 .button[aria-pressed="true"] {
   background: var(--track);
-  box-shadow: none;
 }
 
 .button.primary {
@@ -587,17 +590,14 @@ kbd {
   border: 1.5px solid;
   border-radius: var(--radius-xl);
   background-color: var(--bar);
-  backdrop-filter: blur(20px) saturate(180%);
-  -webkit-backdrop-filter: blur(20px) saturate(180%);
-  box-shadow: var(--shadow-md);
   font: inherit;
   /* Large text, so the verdict colour only needs the 3:1 that WCAG asks of it. */
   font-size: 1.25rem;
   font-weight: 700;
   cursor: pointer;
   transition:
-    background-image 140ms ease,
-    transform 90ms ease;
+    background-image 140ms var(--ease-out),
+    transform 90ms var(--ease-out);
 }
 
 .edge:active:not(:disabled) {
@@ -605,7 +605,6 @@ kbd {
 }
 
 .edge:disabled {
-  box-shadow: none;
   opacity: 0.35;
   cursor: default;
 }
@@ -615,7 +614,7 @@ kbd {
   height: 2.5rem;
 }
 
-/* Sits on the translucent edge itself rather than on a surface, so it needs the
+/* Sits on the edge itself rather than on a surface, so it needs the
    contrast-safe muted colour. */
 .edge-key {
   color: var(--bar-muted);
@@ -668,7 +667,6 @@ body.focused .stage {
 /* The frame belongs to a photo sitting on a page. In here there is no page. */
 body.focused #photo {
   border-radius: 0;
-  box-shadow: none;
 }
 
 /* Hidden rather than removed: `visibility` takes the bars out of the tab order
@@ -702,9 +700,6 @@ body.focused .edge {
   border-radius: 0;
   background-color: transparent;
   background-image: none;
-  backdrop-filter: none;
-  -webkit-backdrop-filter: none;
-  box-shadow: none;
   opacity: 0.62;
 }
 
@@ -769,8 +764,6 @@ body.focused .hud {
   border: 1px solid var(--border);
   border-radius: var(--radius-full);
   background: var(--bar);
-  backdrop-filter: blur(20px) saturate(180%);
-  -webkit-backdrop-filter: blur(20px) saturate(180%);
   font-size: 0.8125rem;
 }
 
@@ -809,8 +802,6 @@ body.focused .focus-hint {
   border: 1px solid var(--border);
   border-radius: var(--radius-full);
   background: var(--bar);
-  backdrop-filter: blur(20px) saturate(180%);
-  -webkit-backdrop-filter: blur(20px) saturate(180%);
   color: var(--bar-muted);
   font: inherit;
   font-size: 0.8125rem;
@@ -850,8 +841,8 @@ body.resting .focus-hint:focus-visible {
   .hud,
   .focus-hint {
     transition:
-      opacity 240ms ease,
-      translate 240ms ease;
+      opacity 240ms var(--ease-out),
+      translate 240ms var(--ease-out);
   }
 }
 
@@ -902,7 +893,6 @@ body.zoomed #photo {
   border: 1px solid var(--border);
   border-radius: var(--radius-xl);
   background: var(--surface);
-  box-shadow: var(--shadow-lg);
   color: var(--text);
 }
 
@@ -915,14 +905,12 @@ body.zoomed #photo {
   animation: rise 180ms cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
-/* ::backdrop does not inherit the custom properties in every browser. */
 .sheet::backdrop {
-  background: rgb(0 0 0 / 0.35);
-  backdrop-filter: blur(3px);
+  background: var(--scrim);
 }
 
 .sheet[open]::backdrop {
-  animation: fade 180ms ease;
+  animation: fade 180ms var(--ease-out);
 }
 
 @keyframes rise {
@@ -994,8 +982,8 @@ body.zoomed #photo {
   border-radius: var(--radius-full);
   background: var(--track);
   transition:
-    background-color 160ms ease,
-    border-color 160ms ease;
+    background-color 160ms var(--ease-out),
+    border-color 160ms var(--ease-out);
 }
 
 .switch-track::after {
@@ -1007,8 +995,7 @@ body.zoomed #photo {
   height: 1.125rem;
   border-radius: 50%;
   background: var(--surface);
-  box-shadow: var(--shadow-sm);
-  transition: translate 160ms ease;
+  transition: translate 160ms var(--ease-out);
 }
 
 .switch input:checked + .switch-track {

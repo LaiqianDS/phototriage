@@ -39,6 +39,17 @@ def read(name: str) -> str:
     return (WEB_DIR / name).read_text(encoding="utf-8")
 
 
+def test_every_id_the_landing_page_script_asks_for_exists_in_the_landing_page() -> None:
+    """The same silent `null` as in the app, on the page nothing else checks."""
+    site = Path(__file__).parents[1] / "site"
+    used = set(SCRIPT_IDS.findall((site / "demo.js").read_text(encoding="utf-8")))
+    defined = set(MARKUP_IDS.findall((site / "index.html").read_text(encoding="utf-8")))
+
+    assert used, "no id found in demo.js"
+    missing = sorted(used - defined)
+    assert not missing, f"demo.js asks for ids that site/index.html does not define: {missing}"
+
+
 def declarations(stylesheet: str, selector: str) -> str:
     """The body of the one rule written against exactly `selector`."""
     opening = f"\n{selector} {{"

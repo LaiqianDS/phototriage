@@ -71,7 +71,7 @@ the decode of a large JPEG in the browser is not timed by the script at all.
 
 Fixes for whatever a session on real photos and a second browser reveal.
 
-The interface uses `:has()`, `backdrop-filter` and the `translate` property.
+The interface uses `:has()` and the `translate` property.
 They are supported in Safari 15.4 and later and in Firefox 121 and later.
 The maintainer tried the changes of 0.3.0 in Safari, the default browser on the
 machine this was built for, and approved them, before the queue listing was
@@ -91,14 +91,15 @@ instead; the code treats a refusal as normal and does not report it, and
 leaving asks whether `document.fullscreenElement` is set rather than comparing
 it with `null`, which that Safari leaves undefined.
 It also turns the progress line back on with `visibility: visible` inside a bar
-that is hidden and carries `backdrop-filter`, and whether a browser paints that
-child without painting the parent's blur is the one thing that would show as a
-smear across the top edge.
+that is hidden.
 
-The landing page has been seen in Firefox alone, and never with the Google
+The redesign of the landing page and the new look of the interface have been
+seen in no browser at all.
+The landing page sets its headings in Archivo at 75% width, and its fallbacks
+are wider, so the largest headings are the place to look first with the Google
 Fonts request blocked.
-Instrument Serif is much narrower than Georgia, its fallback, so the largest
-headings are the place to look first.
+The table at the top of the page answers the arrow keys and `U`, and that is
+the second thing to try.
 
 ## 0.5.0: confidence and comfort
 

@@ -6,6 +6,18 @@ and the project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## [Unreleased]
 
+### Changed
+
+- The landing page has a new design: slide mounts on a light table.
+  The table at the top is a sample review that answers the arrow keys and `U`.
+- The landing page no longer says that subfolders are never searched or that
+  videos are ignored.
+  It now describes the subfolder switch and the video switch.
+- The interface has a new look with the same layout and the same behaviour:
+  the greys of the landing page, square corners, no shadows and no blur behind
+  the bars.
+  The focus ring is now the text colour, not blue.
+
 ### Fixed
 
 - A request the server cannot validate no longer shows `[object Object]` on
