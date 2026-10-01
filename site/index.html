@@ -20,64 +20,40 @@
     <script src="demo.js" defer></script>
   </head>
   <body>
-    <!-- The sample frames. -->
+    <!-- The sample roll: photos by Bernard Gagnon from Wikimedia Commons, each one CC0. -->
     <svg class="plates" aria-hidden="true">
       <symbol id="p1" viewBox="0 0 60 40">
-        <rect class="sky" width="60" height="40" />
-        <circle class="sun" cx="44" cy="13" r="6" />
-        <path class="sand-far" d="M0 28Q20 16 38 26T60 22V40H0Z" />
-        <path class="sand" d="M0 34Q18 26 34 33T60 30V40H0Z" />
+        <image href="photos/01.jpg" width="60" height="40" preserveAspectRatio="xMidYMid slice" />
       </symbol>
-      <!-- The same dune with the horizon off level. -->
       <symbol id="p2" viewBox="0 0 60 40">
-        <rect class="sky" width="60" height="40" />
-        <g transform="rotate(-8 30 20) scale(1.2)">
-          <circle class="sun" cx="40" cy="12" r="6" />
-          <path class="sand-far" d="M-10 28Q20 16 38 26T70 22V50H-10Z" />
-          <path class="sand" d="M-10 34Q18 26 34 33T70 30V50H-10Z" />
-        </g>
+        <image href="photos/02.jpg" width="60" height="40" preserveAspectRatio="xMidYMid slice" />
       </symbol>
       <symbol id="p3" viewBox="0 0 60 40">
-        <rect class="sky" width="60" height="40" />
-        <rect class="sea" y="25" width="60" height="15" />
-        <path class="sail" d="M30 24V8l11 16Z" />
-        <path class="hull" d="M23 25h22l-3 4H26Z" />
+        <image href="photos/03.jpg" width="60" height="40" preserveAspectRatio="xMidYMid slice" />
       </symbol>
-      <!-- The same boat, cut by the edge of the frame. -->
       <symbol id="p4" viewBox="0 0 60 40">
-        <rect class="sky" width="60" height="40" />
-        <rect class="sea" y="25" width="60" height="15" />
-        <g transform="translate(26 0)">
-          <path class="sail" d="M30 24V8l11 16Z" />
-          <path class="hull" d="M23 25h22l-3 4H26Z" />
-        </g>
+        <image href="photos/04.jpg" width="60" height="40" preserveAspectRatio="xMidYMid slice" />
       </symbol>
       <symbol id="p5" viewBox="0 0 60 40">
-        <rect class="wall" width="60" height="40" />
-        <rect class="shade" x="24" y="14" width="12" height="26" />
-        <rect class="sky" x="6" y="8" width="10" height="10" />
-        <rect class="sky" x="44" y="8" width="10" height="10" />
+        <image href="photos/05.jpg" width="60" height="40" preserveAspectRatio="xMidYMid slice" />
       </symbol>
-      <!-- The same wall, overexposed until nothing is left. -->
       <symbol id="p6" viewBox="0 0 60 40">
-        <rect class="blown" width="60" height="40" />
-        <rect class="blown-2" x="24" y="14" width="12" height="26" />
+        <image href="photos/06.jpg" width="60" height="40" preserveAspectRatio="xMidYMid slice" />
       </symbol>
       <symbol id="p7" viewBox="0 0 60 40">
-        <rect class="night" width="60" height="40" />
-        <circle class="blown" cx="15" cy="11" r="5" />
-        <path class="sea" d="M0 40L18 18l10 10 9-14 23 26Z" />
+        <image href="photos/07.jpg" width="60" height="40" preserveAspectRatio="xMidYMid slice" />
       </symbol>
       <symbol id="p8" viewBox="0 0 60 40">
-        <rect class="sky" width="60" height="40" />
-        <rect class="field" y="25" width="60" height="15" />
-        <rect class="shade" x="41" y="22" width="2" height="9" />
-        <circle class="leaf" cx="42" cy="17" r="8" />
+        <image href="photos/08.jpg" width="60" height="40" preserveAspectRatio="xMidYMid slice" />
       </symbol>
       <symbol id="p9" viewBox="0 0 60 40">
-        <rect class="wall" width="60" height="40" />
-        <circle class="sand" cx="30" cy="15" r="7" />
-        <path class="shade" d="M14 40c0-10 7-15 16-15s16 5 16 15Z" />
+        <image href="photos/09.jpg" width="60" height="40" preserveAspectRatio="xMidYMid slice" />
+      </symbol>
+      <symbol id="p10" viewBox="0 0 60 40">
+        <image href="photos/10.jpg" width="60" height="40" preserveAspectRatio="xMidYMid slice" />
+      </symbol>
+      <symbol id="p11" viewBox="0 0 60 40">
+        <image href="photos/11.jpg" width="60" height="40" preserveAspectRatio="xMidYMid slice" />
       </symbol>
     </svg>
 
@@ -115,7 +91,7 @@
             <div class="tray">
               <p class="tray-count"><b id="demo-left">195</b> left alone</p>
               <div class="mount mount-small">
-                <svg viewBox="0 0 60 40" aria-hidden="true"><use id="demo-left-plate" href="#p6" /></svg>
+                <svg viewBox="0 0 60 40" aria-hidden="true"><use id="demo-left-plate" href="#p11" /></svg>
               </div>
             </div>
 
@@ -133,7 +109,7 @@
             <div class="tray tray-kept">
               <p class="tray-count"><b id="demo-kept">13</b> kept</p>
               <div class="mount mount-small">
-                <svg viewBox="0 0 60 40" aria-hidden="true"><use id="demo-kept-plate" href="#p3" /></svg>
+                <svg viewBox="0 0 60 40" aria-hidden="true"><use id="demo-kept-plate" href="#p10" /></svg>
               </div>
             </div>
 
@@ -144,8 +120,9 @@
               <button type="button" class="key key-keep" id="demo-keep">Keep <kbd>&rarr;</kbd></button>
             </div>
             <p class="note bench-note">
-              <span id="demo-hint" hidden>Press the arrow keys. </span>The frames are drawings, not
-              photographs.
+              <span id="demo-hint" hidden>Press the arrow keys. </span>Sample photos by Bernard
+              Gagnon, CC0, from
+              <a href="https://commons.wikimedia.org/wiki/File:Khongoryn_Els_03.jpg">Wikimedia Commons</a>.
             </p>
             <p class="visually-hidden" id="demo-status" role="status"></p>
           </div>
@@ -315,16 +292,22 @@
       </section>
 
       <!-- ============ The keep: the payoff ============ -->
-      <section class="keep">
+      <section class="keep" id="demo-payoff">
       <div class="wrap">
         <svg class="heap-sheet" viewBox="0 0 150 40" role="img" aria-label="The same forty mounts. Three show a frame and carry the wax mark. The others are as they were.">
           <rect width="150" height="40" fill="url(#blank)" />
-          <use href="#p1" x="33" y="2" width="9" height="6" />
-          <circle class="wax" cx="43.5" cy="1.5" r="1.3" />
-          <use href="#p3" x="93" y="12" width="9" height="6" />
-          <circle class="wax" cx="103.5" cy="11.5" r="1.3" />
-          <use href="#p5" x="123" y="32" width="9" height="6" />
-          <circle class="wax" cx="133.5" cy="31.5" r="1.3" />
+          <g class="kept-one">
+            <use href="#p1" x="33" y="2" width="9" height="6" />
+            <circle class="wax" cx="43.5" cy="1.5" r="1.3" />
+          </g>
+          <g class="kept-one">
+            <use href="#p3" x="93" y="12" width="9" height="6" />
+            <circle class="wax" cx="103.5" cy="11.5" r="1.3" />
+          </g>
+          <g class="kept-one">
+            <use href="#p5" x="123" y="32" width="9" height="6" />
+            <circle class="wax" cx="133.5" cy="31.5" r="1.3" />
+          </g>
         </svg>
         <p class="statement">
           480 undecided files in. <span class="mark">31 photos</span> worth showing out.

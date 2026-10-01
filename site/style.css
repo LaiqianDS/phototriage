@@ -15,18 +15,6 @@
   --color-kept: #e4531f;
   --color-kept-hover: #ee6a3a;
 
-  /* The inks of the sample frames. */
-  --plate-sky: oklch(82% 0.07 232);
-  --plate-sea: oklch(52% 0.1 242);
-  --plate-sand: oklch(80% 0.09 82);
-  --plate-sand-far: oklch(68% 0.1 66);
-  --plate-wall: oklch(70% 0.09 52);
-  --plate-blown: oklch(97% 0.012 90);
-  --plate-blown-2: oklch(93% 0.02 85);
-  --plate-night: oklch(33% 0.09 270);
-  --plate-field: oklch(80% 0.14 118);
-  --plate-leaf: oklch(58% 0.14 146);
-
   /* Only the display face is requested. The page has to hold its shape when that request fails,
      so the fallback is the system face at the same light weight. */
   --font-display: "Bricolage Grotesque", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
@@ -136,6 +124,7 @@ h1 {
 h2,
 .statement {
   font-size: var(--text-xl);
+  line-height: 1.15;
   max-width: 26ch;
 }
 
@@ -190,12 +179,16 @@ kbd {
   font-size: var(--text-sm);
 }
 
-/* The kept mark: a drawn line under the words that carry the sentence. */
+/* A drawn line under the words that carry the sentence. */
 .mark {
   text-decoration-line: underline;
-  text-decoration-color: var(--color-kept);
   text-decoration-thickness: 2px;
   text-underline-offset: 0.14em;
+}
+
+/* The line is orange only under the photos that were kept. */
+.statement .mark {
+  text-decoration-color: var(--color-kept);
 }
 
 /* Off the layout, still read aloud. */
@@ -215,55 +208,8 @@ kbd {
   height: 0;
 }
 
-.sky {
-  fill: var(--plate-sky);
-}
-
-.sea {
-  fill: var(--plate-sea);
-}
-
-.sun,
 .wax {
   fill: var(--color-kept);
-}
-
-.sand {
-  fill: var(--plate-sand);
-}
-
-.sand-far,
-.hull {
-  fill: var(--plate-sand-far);
-}
-
-.sail,
-.blown {
-  fill: var(--plate-blown);
-}
-
-.blown-2 {
-  fill: var(--plate-blown-2);
-}
-
-.wall {
-  fill: var(--plate-wall);
-}
-
-.night {
-  fill: var(--plate-night);
-}
-
-rect.field {
-  fill: var(--plate-field);
-}
-
-.leaf {
-  fill: var(--plate-leaf);
-}
-
-.shade {
-  fill: var(--color-ink);
 }
 
 /* ---------- shell ---------- */
@@ -502,6 +448,14 @@ section > * + *,
   position: relative;
 }
 
+/* The copy of a slide on its way to a tray. */
+.mount-flying {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+}
+
 /* The frame the next key press brings, already on the table. */
 .mount-next {
   position: absolute;
@@ -539,6 +493,8 @@ section > * + *,
 }
 
 .tray-count b {
+  /* A box of its own, so the count can move when it changes. */
+  display: inline-block;
   font-size: var(--text-md);
   font-weight: 500;
   font-variant-numeric: tabular-nums;
@@ -705,6 +661,28 @@ td:first-child::before,
 
 .keep {
   background: var(--color-taupe);
+}
+
+/* The three kept frames arrive one after the other. */
+.kept-one {
+  transform-box: fill-box;
+  transform-origin: center;
+  transition:
+    opacity 500ms var(--ease-out),
+    transform 500ms var(--ease-out);
+}
+
+.kept-one:nth-of-type(2) {
+  transition-delay: 150ms;
+}
+
+.kept-one:nth-of-type(3) {
+  transition-delay: 300ms;
+}
+
+.is-waiting .kept-one {
+  opacity: 0;
+  transform: scale(0.8);
 }
 
 /* ---------- the guarantee ---------- */
