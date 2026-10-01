@@ -90,9 +90,17 @@ el("demo-keep").addEventListener("click", () => decide(true));
 el("demo-leave").addEventListener("click", () => decide(false));
 el("demo-undo").addEventListener("click", undo);
 
+/* The page is complete without the script, so the controls only appear once they work. */
+el("demo-keys").hidden = false;
+el("demo-hint").hidden = false;
+
+/* The keys only act on a table the visitor can see. */
+let onScreen = true;
+new IntersectionObserver(([entry]) => (onScreen = entry.isIntersecting)).observe(el("demo-bench"));
+
 /* The same three keys as the app. */
 document.addEventListener("keydown", (event) => {
-  if (event.metaKey || event.ctrlKey || event.altKey) return;
+  if (!onScreen || event.metaKey || event.ctrlKey || event.altKey) return;
   if (event.key === "ArrowRight") decide(true);
   else if (event.key === "ArrowLeft") decide(false);
   else if (event.key === "u" || event.key === "U") undo();
