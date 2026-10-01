@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 140" role="img" aria-labelledby="title">
+  <title id="title">PhotoTriage logo</title>
+  <!-- The pile. -->
+  <rect fill="#14191C" y="32" width="16" height="76" rx="8"/>
+  <rect fill="#14191C" x="30" y="16" width="16" height="108" rx="8"/>
+  <!-- The kept slide. -->
+  <path fill="#E4531F" fill-rule="evenodd" d="M76 0H184A16 16 0 0 1 200 16V124A16 16 0 0 1 184 140H76A16 16 0 0 1 60 124V16A16 16 0 0 1 76 0Z M84 39H176V101H84Z"/>
+</svg>

@@ -6,6 +6,13 @@ and the project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## [Unreleased]
 
+### Added
+
+- PhotoTriage has a logo: two bars for the pile and one slide pulled to the
+  right of it, the keeper.
+  It is in the header of the landing page and at the top of the README, and
+  the landing page and the app have a tab icon.
+
 ### Changed
 
 - The landing page has more colour and more to look at.

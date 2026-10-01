@@ -1,3 +1,5 @@
+<img src="site/favicon.svg" width="96" alt="PhotoTriage logo" />
+
 # PhotoTriage
 
 Review a folder of photos one at a time, and collect the ones you keep.
