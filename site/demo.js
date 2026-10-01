@@ -15,6 +15,9 @@ const FRAMES = [
   ["IMG_0415.JPG", "p4"],
   ["IMG_0416.JPG", "p5"],
   ["IMG_0417.JPG", "p6"],
+  ["IMG_0418.JPG", "p7"],
+  ["IMG_0419.JPG", "p8"],
+  ["IMG_0420.JPG", "p9"],
 ];
 
 /* What each tray shows before the visitor has sent anything to it. */
@@ -66,7 +69,14 @@ function decide(kept) {
       { transform: ["none", `translateX(${kept ? 55 : -55}%)`], opacity: [1, 0] },
       { duration: 170, easing: "cubic-bezier(0.7, 0, 0.84, 0)" },
     )
-    .finished.then(render);
+    .finished.then(() => {
+      render();
+      /* The frame that waited underneath comes up straight. */
+      slide.animate(
+        { transform: ["translate(3%, 3%) rotate(2deg)", "none"] },
+        { duration: 220, easing: "cubic-bezier(0.16, 1, 0.3, 1)" },
+      );
+    });
 }
 
 function undo() {

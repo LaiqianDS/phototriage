@@ -22,6 +22,8 @@
   /* The accent, dark enough to carry small text on the glass. */
   --color-accent-strong: oklch(49% 0.17 38);
   --color-focus: oklch(49% 0.17 38);
+  /* The wax colour as a ground: the same hue, thinned to a wash. */
+  --color-field: oklch(89% 0.065 55);
 
   /* The inks of the sample frames. */
   --plate-sky: oklch(82% 0.07 232);
@@ -31,6 +33,9 @@
   --plate-wall: oklch(70% 0.09 52);
   --plate-blown: oklch(97% 0.012 90);
   --plate-blown-2: oklch(93% 0.02 85);
+  --plate-night: oklch(33% 0.09 270);
+  --plate-field: oklch(80% 0.14 118);
+  --plate-leaf: oklch(58% 0.14 146);
 
   /* The fallbacks are named rather than left to the generic families: the page has to hold its
      shape when the Google Fonts request fails, which is the only request it makes. */
@@ -229,6 +234,22 @@ kbd {
   fill: var(--plate-wall);
 }
 
+.night {
+  fill: var(--plate-night);
+}
+
+rect.field {
+  fill: var(--plate-field);
+}
+
+.leaf {
+  fill: var(--plate-leaf);
+}
+
+.wax {
+  fill: var(--color-ink);
+}
+
 .shade {
   fill: var(--color-film);
 }
@@ -259,6 +280,33 @@ section > * + *,
 .split > * {
   margin-top: 0;
   min-width: 0;
+}
+
+/* ---------- colour fields ---------- */
+
+/* Colour means decided. The hero and the payoff stand on the wax colour, the
+   pile stays grey, and the page closes on the ink. */
+section.field {
+  background: var(--color-field);
+  --color-focus: var(--color-ink);
+}
+
+.field .note {
+  color: var(--color-ink);
+}
+
+.field .mark,
+.field a {
+  text-decoration-color: var(--color-ink);
+}
+
+@media (hover: hover) {
+  .field .btn:hover,
+  .close .btn:hover {
+    border-color: var(--color-mount);
+    background: var(--color-mount);
+    color: var(--color-ink);
+  }
 }
 
 /* ---------- top ---------- */
@@ -365,6 +413,33 @@ section > * + *,
 
 /* ---------- the table ---------- */
 
+.hero {
+  padding-block: 0 var(--space-3xl);
+}
+
+/* A row of slides, laid across the edge where the colour ends. */
+.strip {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  gap: var(--space-lg);
+  margin-top: calc(var(--space-3xl) * -1);
+}
+
+.strip .mount {
+  flex: none;
+  width: clamp(9rem, 20vw, 17rem);
+  padding-bottom: 7%;
+}
+
+.strip .mount:nth-child(odd) {
+  transform: rotate(-2deg);
+}
+
+.strip .mount:nth-child(3n) {
+  transform: rotate(1.5deg) translateY(var(--space-md));
+}
+
 .table {
   display: grid;
   gap: var(--space-xl);
@@ -380,7 +455,12 @@ section > * + *,
   margin-top: var(--space-lg);
 }
 
+/* The lit panel of the table. */
 .bench {
+  padding: var(--space-lg);
+  border: var(--rule-hair) solid var(--color-rule);
+  border-radius: var(--radius-mount);
+  background: var(--color-mount);
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   grid-template-areas:
@@ -404,6 +484,11 @@ section > * + *,
   display: block;
   width: 100%;
   background: var(--color-film);
+}
+
+/* On the lit panel a mount is the darker card, as it is on a real table. */
+.bench .mount {
+  background: var(--color-glass-2);
 }
 
 .mount-label {
@@ -479,7 +564,8 @@ section > * + *,
 /* ---------- the pile ---------- */
 
 .pile {
-  padding-block: var(--space-3xl);
+  margin-top: calc(var(--space-2xl) * -1);
+  padding-block: calc(var(--space-3xl) + var(--space-2xl)) var(--space-3xl);
   background: var(--color-glass-2);
 }
 
@@ -493,6 +579,10 @@ section > * + *,
   fill: var(--color-mount);
   stroke: var(--color-rule);
   stroke-width: 0.25;
+}
+
+.heap {
+  margin-top: var(--space-2xl);
 }
 
 .heap figcaption {
@@ -601,10 +691,24 @@ th {
   color: var(--color-accent-strong);
 }
 
+/* The wax mark, so a kept row is not told by colour alone. */
+td:first-child::before {
+  content: "";
+  display: inline-block;
+  width: var(--space-xs);
+  height: var(--space-xs);
+  margin-right: var(--space-xs);
+  border-radius: 50%;
+}
+
+.is-kept td:first-child::before {
+  background: var(--color-accent);
+}
+
 /* ---------- the keep ---------- */
 
 .keep {
-  padding-block: var(--space-xl) var(--space-3xl);
+  padding-block: var(--space-3xl);
 }
 
 /* ---------- the guarantee ---------- */
@@ -645,7 +749,24 @@ th {
 
 .close {
   padding-block: var(--space-3xl) var(--space-lg);
-  background: var(--color-glass-2);
+  background: var(--color-ink);
+  color: var(--color-glass);
+  --color-focus: var(--color-accent);
+}
+
+.close .note,
+.close .colophon {
+  color: var(--color-rule);
+}
+
+.close pre {
+  border-color: var(--color-rule);
+}
+
+.close .btn {
+  border-color: var(--color-accent);
+  background: var(--color-accent);
+  color: var(--color-ink);
 }
 
 .close .split > div > * + * {
@@ -717,10 +838,6 @@ pre {
   .split {
     grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
     gap: var(--space-2xl);
-  }
-
-  .heap {
-    align-self: end;
   }
 
   .rule-grid {
