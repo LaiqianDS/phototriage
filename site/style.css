@@ -325,7 +325,15 @@ section.field {
 }
 
 .wordmark {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
   font-size: var(--text-md);
+}
+
+.wordmark img {
+  width: auto;
+  height: 1em;
 }
 
 .score {
