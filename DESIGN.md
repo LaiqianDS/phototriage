@@ -3,6 +3,10 @@
 **For:** A working photographer who must trust the speed, and a hobbyist who must trust the safety.
 **Stack:** Static HTML, CSS and JavaScript with no build step, in `site/` (the public page) and in `src/phototriage/web/` (the app).
 
+This file describes the design as it shipped.
+Each value below was read from `site/style.css`, `site/demo.js` and `src/phototriage/web/style.css`.
+When the code and this file disagree, correct this file.
+
 ## Brief
 
 One design system for two surfaces.
@@ -18,461 +22,393 @@ One design system for two surfaces.
 
 ## Content
 
-The real content of the public page is the copy in `site/index.html` at commit `91e75ed`: the headline, the sections and their texts.
-The real content of the app is the labels and messages in `src/phototriage/web/` at the same commit.
-The redesign changes layout and look.
-Small changes to the copy are allowed, and each one needs the maintainer's agreement.
+The copy of the public page is in `site/index.html`, and the labels of the app are in `src/phototriage/web/index.html`.
+A change to the copy needs the maintainer's agreement.
 The limits in `PRODUCT.md` hold: no invented testimonials, user counts or benchmarks, and the figures 480 and 31 stay an illustration.
 
-## Decisions
+## Overview
 
-Agreed with the maintainer on 2026-10-01.
-Where a decision and the reference disagree, the decision wins.
-
-**Keep from the reference**
-
-- The warm surface ladder: eggshell `#fdfcfc`, taupe `#f5f3f1`, stone `#ebe8e4`.
-- Light, tight display headlines over a calm body face.
-- Pill buttons, filled ink and outline, as the only button hierarchy.
-- Hairline dividers and almost no shadow.
-- One major visual for each section, and generous space.
-
-**Change**
-
-- **Ink:** `#14191C`, the ink of the logo, in place of `#000000`.
-- **Accent:** `#E4531F`, the orange of the kept slide in the logo, in place of the violet and ember sparks.
-  It has one job: it marks what is kept.
-  It is about 3.7 to 1 on eggshell, so it is for marks, fills and large type, and never for small text.
-  Ink text on an orange fill is 4.7 to 1.
-- **Discard in the app:** neutral, with no red, because a discard changes nothing on disk.
-  Built this way, and the maintainer has not confirmed it yet.
-  Red stays for error messages only.
-- **Logo:** `site/logo.svg` and `favicon.svg` stay as they are.
-  The design is built around them.
-- **Display typeface:** Bricolage Grotesque at weight 300, in place of Waldenburg.
-  Its licence is the SIL Open Font License 1.1.
-- **Body typeface:** the system face on both surfaces, in place of Inter.
-- **Direction:** the maintainer skipped the comparison of directions in Claude Design, so the build has one direction and no alternative was drawn.
-- **Voice:** the PhotoTriage voice, which states its limits plainly.
-- **Removed components:** trust logo grid, audio sphere, tab pill, log-in and sign-up buttons.
-- **Text colours:** body text is Graphite `#44403b`.
-  Smoke `#777169` is for text on eggshell only, and Ash `#a59f97` is not used for text.
-- **Sizes:** the smallest text is 13px, and each button is at least 44px high.
-- **Photo stage in the app:** the area around the photo is neutral with no warm tint, and the photo never gets a radius.
-- **Themes:** the app has a light and a dark theme, and the dark palette is derived from the same ladder.
-  The public page is light only.
-- **Fonts:** the app stays on the system font and makes no font request.
-  The public page requests the display face only, and it falls back to the system face at the same weight when that request is blocked.
-
-## Reference
-
-The starting point is the ElevenLabs style reference, brought by the maintainer on 2026-10-01.
-The Tailwind block of the reference is left out, because this project has no Tailwind.
-The sections below are the reference as it came, and they do not yet describe PhotoTriage.
-
-> Warm cream editorial with whispered headlines.
-> A Bauhaus studio notebook - eggshell paper, black ink, a single violet and orange spark for product moments.
-
-**Theme:** light
-
-Source measurements are normalized; roles and recommendations are interpreted.
-Font summary lists are independent, not paired by position.
-HTML examples are reconstructions, not source components.
-
-ElevenLabs runs on a warm-white minimalism: an off-white eggshell canvas (#fdfcfc) holding black type and a single layer of warm taupe surfaces (#f5f3f1).
-The brand voice is quiet and confident - whisper-weight Waldenburg at 300 carves display headlines with extreme tightness (-0.02em), while Inter at 400/500 carries everything else with calm neutrality.
-Two accent sparks - vivid violet #0447ff and vivid orange #ff4704 - only ignite inside product visuals (audio spheres, product icons), never as UI chrome.
-Components stay flat or barely elevated with hairline 1px borders, generous 20px radii on cards, and fully-pilled 9999px buttons.
-The system feels like a Bauhaus studio on cream paper: restrained, editorial, and technically precise.
+Warm paper, one dark ink, light headlines and pill buttons: a quiet page that reads like a studio notebook.
+The system started from the ElevenLabs style reference.
+The difference is the colour rule: the only accent is the orange of the kept slide in the logo, and it marks what is kept and nothing else.
+All other colour comes from the photos.
 
 ## Tokens - Colors
 
-| Name | Value | Token | Role |
-|------|-------|-------|------|
-| Eggshell | `#fdfcfc` | `--color-eggshell` | Page canvas, button surfaces, card surfaces - warm off-white rather than clinical white avoids digital glare and gives the site a paper-like calm |
-| Warm Taupe | `#f5f3f1` | `--color-warm-taupe` | Section bands, feature cards, and secondary surface level - one step deeper than eggshell, creates quiet separation without borders |
-| Stone | `#ebe8e4` | `--color-stone` | Hairline borders, dividers, icon plate backgrounds - warm gray that sits between taupe and mid-gray without feeling cold |
-| Ink | `#000000` | `--color-ink` | Primary text, filled buttons, nav, links - pure black anchors the otherwise warm palette and creates the system's only hard contrast |
-| Graphite | `#44403b` | `--color-graphite` | Strong secondary text, section labels - barely-warm dark gray for text that needs weight without true-black harshness |
-| Smoke | `#777169` | `--color-smoke` | Body text, muted descriptions, caption labels - mid warm-gray; the dominant readable-but-quiet voice across cards and feature copy |
-| Ash | `#a59f97` | `--color-ash` | Faintest helper text, tertiary descriptions - the softest gray, used when text should feel like a footnote |
-| Violet Spark | `#0447ff` | `--color-violet-spark` | Product visual accent - appears inside audio sphere illustrations and decorative product icons only; never used for UI chrome |
-| Ember Orange | `#ff4704` | `--color-ember-orange` | Product visual accent - second sphere color and product icon highlight; paired with Violet Spark inside artwork, never in buttons or links |
+| Name | Value | Token on the page | Token in the app | Role |
+|------|-------|-------------------|------------------|------|
+| Eggshell | `#fdfcfc` | `--color-eggshell` | `--surface`, `--bar` | Page canvas, bars, sheets, buttons, slide mounts |
+| Taupe | `#f5f3f1` | `--color-taupe` | `--surface-hover` | Section bands, the demo panel, hover of an outline control |
+| Stone | `#ebe8e4` | `--color-stone` | `--track`, `--border`, `--bar-line` | Hairlines, tracks, the background of `code` on taupe |
+| Ink | `#14191c` | `--color-ink` | `--text`, `--fill`, `--focus` | Headings, filled buttons, focus ring. It is the ink of the logo. |
+| Graphite | `#44403b` | `--color-graphite` | `--text-muted`, `--discard` | Body text on the page, muted text and Discard in the app |
+| Warm grey | `#8a847c` | not used | `--border-strong` | Border of inputs and outline buttons, the Discard icon in focused mode |
+| Kept orange | `#e4531f` | `--color-kept` | `--keep` | The Keep control, the kept dots, the line under "31 photos" |
+| Kept orange, hover | `#ee6a3a` | `--color-kept-hover` | `--keep-hover` | Hover of the Keep control |
+| Stage grey | `oklch(94% 0 0)` | not used | `--bg` | The area around the photo. It has no hue, so it cannot tint the photo. |
+| Error red | `oklch(52% 0.19 28)` | not used | `--error` | Error messages only |
+
+**Dark theme, app only.**
+The public page is light only.
+
+| Role | Value | Token |
+|------|-------|-------|
+| Stage | `oklch(17% 0 0)` | `--bg` |
+| Bars and sheets | `#1f1d1b` | `--surface`, `--bar` |
+| Hover | `#2a2725` | `--surface-hover` |
+| Track | `#33302d` | `--track` |
+| Hairline | `#36322f` and `#3d3936` | `--border`, `--bar-line` |
+| Text | `#f5f3f1` | `--text`, `--fill`, `--focus` |
+| Muted text and Discard | `#b8b2aa` | `--text-muted`, `--bar-muted`, `--discard` |
+| Error | `oklch(70% 0.19 27)` | `--error` |
+
+The orange, its hover and the ink on it (`--on-keep: #14191c`) are the same in both themes.
+
+**The sample photos on the public page** carry their own colour, and the colour rule does not apply to them.
 
 ## Tokens - Typography
 
-### Waldenburg (`--font-waldenburg`)
-- **Substitute:** Inter (300) or Söhne Light
-- **Weights:** 300
-- **Sizes:** 32px, 36px, 48px
-- **Line height:** 1.08-1.17
-- **Letter spacing:** -0.96px at 48px, -0.72px at 36px, -0.64px at 32px (-0.0200em throughout)
-- **OpenType features:** `"ss01" on if available`
-- **Role:** Display and heading type only.
-  Used at 48/36/32px with weight 300 - the ultra-light weight is anti-convention; most sites use 600-700, this whisper-weight creates authority through restraint.
-  Tight -0.02em tracking pulls letters closer at large sizes.
-  Substitute: "Inter" weight 300, or "Söhne" light as a premium alternative.
+### Bricolage Grotesque (`--font-display`)
+- **Use:** `h1`, `h2` and the result statement on the public page only.
+- **Weight:** 300. Never bold.
+- **Letter spacing:** -0.02em.
+- **Line height:** 1.1 for `h1`, 1.15 for `h2`.
+- **Fallback:** `system-ui, -apple-system, "Segoe UI", Roboto, sans-serif` at the same weight.
+- **Request:** one request to Google Fonts, `Bricolage+Grotesque:opsz,wght@12..96,300`.
 
-### Inter (`--font-inter`)
-- **Substitute:** Inter or system-ui
-- **Weights:** 400, 500
-- **Sizes:** 10px, 12px, 13px, 14px, 15px, 16px, 18px, 20px
-- **Line height:** 1.20-2.06
-- **Letter spacing:** 0.0100em at 14/15/16px sizes, normal elsewhere
-- **Role:** Everything outside display: body, nav, buttons, links, captions, inputs, cards.
-  Weight 400 is the default; weight 500 reserved for buttons and emphasized links.
-  Sizes span 10-20px with relaxed line-heights (1.47-1.6) that give paragraphs breathing room.
-  Slight +0.01em tracking (0.0100em) at 14-16px sizes adds legibility at small sizes.
+### System face (`--font-body` on the page, `--font` in the app)
+- **Stack:** `-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif`.
+- **Use:** everything else on the page, and everything in the app.
+- **Weights:** 400 for text, 500 for buttons, `h3`, terms and counts.
+  No 600 and no 700.
 
-### Geist Mono (`--font-geist-mono`)
-- **Substitute:** JetBrains Mono or IBM Plex Mono
-- **Weights:** 400
-- **Sizes:** 13px
-- **Line height:** 1.69
-- **Role:** Code-adjacent or technical micro-copy at 13px - used sparingly (freq=28) for technical labels or metadata.
-  Single weight, generous 1.69 line-height.
+### System monospace (`--font-mono`)
+- **Stack:** `ui-monospace, SFMono-Regular, Menlo, Consolas, monospace`.
+- **Use:** file names, paths, commands, keys and the table of files, at 13px.
 
 ### Type Scale
 
-| Role | Family | Weight | Size | Line Height | Letter Spacing | Token |
-|------|--------|--------|------|-------------|----------------|-------|
-| caption | - | - | 10px | 1.6 | - | `--text-caption` |
-| body-sm | - | - | 14px | 1.5 | 0.14px | `--text-body-sm` |
-| body | - | - | 16px | 1.5 | 0.16px | `--text-body` |
-| subheading | - | - | 18px | 1.6 | - | `--text-subheading` |
-| body-lg | - | - | 20px | 1.35 | - | `--text-body-lg` |
-| heading-sm | - | - | 32px | 1.13 | -0.64px | `--text-heading-sm` |
-| heading | - | - | 36px | 1.17 | -0.72px | `--text-heading` |
-| display | - | - | 48px | 1.08 | -0.96px | `--text-display` |
+| Role | Size | Weight | Line height | Token |
+|------|------|--------|-------------|-------|
+| display (`h1`) | `clamp(2.25rem, 3vw + 1.25rem, 3.5rem)` | 300 | 1.1 | `--text-display` |
+| heading (`h2`) | `clamp(1.75rem, 1.5vw + 1.25rem, 2.25rem)` | 300 | 1.15 | `--text-xl` |
+| subheading (`h3`), hero text | 18px | 500 for `h3`, 400 for text | 1.3 for `h3`, 1.5 for text | `--text-md` |
+| body on the page | 16px | 400 | 1.5 | `--text-base` |
+| body in the app | 15px | 400 | 1.5 | none |
+| button | 14px on the page, 15px in the app | 500 | 1 | none |
+| note, mono, table | 13px | 400 | 1.5 | `--text-sm` |
+| Keep and Discard cards in the app | 20px | 500 | 1.5 | none |
+| sheet title in the app | 20px | 400 | 1.5 | none |
+
+The smallest text is 13px.
 
 ## Tokens - Spacing & Shapes
 
 **Base unit:** 4px
 
-**Density:** comfortable
-
 ### Spacing Scale
 
-| Name | Value | Token |
-|------|-------|-------|
-| 4 | 4px | `--spacing-4` |
-| 8 | 8px | `--spacing-8` |
-| 12 | 12px | `--spacing-12` |
-| 16 | 16px | `--spacing-16` |
-| 20 | 20px | `--spacing-20` |
-| 24 | 24px | `--spacing-24` |
-| 28 | 28px | `--spacing-28` |
-| 32 | 32px | `--spacing-32` |
-| 36 | 36px | `--spacing-36` |
-| 40 | 40px | `--spacing-40` |
-| 48 | 48px | `--spacing-48` |
-| 56 | 56px | `--spacing-56` |
-| 64 | 64px | `--spacing-64` |
-| 72 | 72px | `--spacing-72` |
-| 96 | 96px | `--spacing-96` |
-| 160 | 160px | `--spacing-160` |
+| Page token | App token | Value |
+|------------|-----------|-------|
+| `--space-2xs` | `--space-1` | 4px |
+| `--space-xs` | `--space-2` | 8px |
+| `--space-sm` | `--space-3` | 12px |
+| `--space-md` | `--space-4` | 16px |
+| `--space-lg` | `--space-5` | 24px |
+| `--space-xl` | none | 40px |
+| `--space-2xl` | none | 64px |
+| `--space-section` | none | `clamp(4rem, 8vw, 6rem)` |
+| `--gutter` | none | `clamp(1rem, 4vw, 4rem)` |
 
 ### Border Radius
 
 | Element | Value |
 |---------|-------|
-| tags | 9999px |
-| cards | 20px |
-| inputs | 4px |
-| buttons | 9999px |
-| large-cards | 24px |
-| small-elements | 4-10px |
+| Buttons, keys, chips, the segmented control, switches | pill (`9999px` on the page, `999px` in the app) |
+| The demo panel on the page | 24px |
+| Keep and Discard cards, sheets and notices in the app | 20px |
+| Slide mounts, `pre`, the folder list | 10px |
+| Inputs, `code`, `kbd`, folder rows | 4px |
+| A photo, in the app and in a slide mount | 0 |
 
 ### Shadows
 
-| Name | Value | Token |
-|------|-------|-------|
-| subtle | `rgba(0, 0, 0, 0.4) 0px 0px 1px 0px, rgba(0, 0, 0, 0.04) 0px 1px 1px 0px, rgba(0, 0, 0, 0.04) 0px 2px 4px 0px` | `--shadow-subtle` |
-| subtle-2 | `rgba(0, 0, 0, 0.075) 0px 0px 0px 0.5px inset` | `--shadow-subtle-2` |
-| subtle-3 | `rgba(0, 0, 0, 0.1) 0px 0px 0px 0.5px inset` | `--shadow-subtle-3` |
-| subtle-4 | `rgba(0, 0, 0, 0.1) 0px 0px 0px 1px inset` | `--shadow-subtle-4` |
-| subtle-5 | `rgba(0, 0, 0, 0.4) 0px 0px 1px 0px, rgba(0, 0, 0, 0.04) 0px 2px 4px 0px` | `--shadow-subtle-5` |
-| subtle-6 | `rgba(255, 255, 255, 0.6) 0px 0px 0px 1px inset` | `--shadow-subtle-6` |
-| subtle-7 | `rgb(235, 232, 228) 0px 0px 0px 0.5px inset` | `--shadow-subtle-7` |
+One shadow, `--shadow-whisper`, on the public page only:
+`0 0 1px rgb(0 0 0 / 0.4), 0 1px 1px rgb(0 0 0 / 0.04), 0 2px 4px rgb(0 0 0 / 0.04)`.
+It is on outline buttons, slide mounts and `pre`.
+The app has no shadow.
 
-### Layout
+## Layout
 
-- **Page max-width:** 1280px
-- **Section gap:** 96-125px
-- **Card padding:** 32px
-- **Element gap:** 8-16px
+**Public page**
+
+- One centred column, 80rem wide at most, with the gutter on each side.
+- Sections are `--space-section` apart.
+- The top bar is plain and not sticky: the logo with the name on the left, an outline GitHub button on the right.
+- The hero puts the headline on the left and the text, the button and the run command on the right.
+- Below it, the demo is one taupe panel as wide as the column.
+- The order of the grounds is: hero on eggshell, problem on eggshell, the idea on a taupe band, the three steps on eggshell, the table of files on eggshell under a hairline, the result on taupe, the guarantee on eggshell, the fine print under a hairline, the close on taupe.
+- The taupe band of the idea section reaches both window edges with a `box-shadow` of `100vmax` cut by a `clip-path`.
+- The three steps are rows with a hairline above each one, not a grid of cards.
+
+**Breakpoints of the public page**
+
+- Below 40rem everything is one column, and the demo puts the large slide above the two trays.
+- From 40rem the demo is three columns (tray, slide of 34rem at most, tray), and each step puts its path beside its text.
+- From 60rem the hero and each split section are two columns, and the idea section is three.
+
+**App**
+
+- The stage is fixed to the window, less the bars and the two cards, with an inset of 8px.
+- The top bar holds the counts, the source field, Browse, the theme button and the settings button.
+- The bottom bar holds Undo, Focused mode, Zoom, Copy or Move, Run, and one line for the file name and the status.
+- Discard is a card on the left edge and Keep is a card on the right edge, each 7.5rem wide.
+- Below 44rem the cards are 4.5rem wide and the top bar wraps.
 
 ## Components
 
-### Filled Pill Button
-**Role:** Primary action
+### Filled pill button
+Ink fill, eggshell text, 44px high, 500 weight.
+Hover is graphite on the page and `--fill-hover` in the app.
+It is the main action: "Get it on GitHub", "Run", "Use this folder", "Done".
 
-Black (#000000) fill, white text, 9999px radius, 16px horizontal padding, Inter 14px/500.
-1px solid #e5e5e5 border (legacy support).
-Used for 'Sign up', 'Create an AI agent', 'Learn more'.
-The pill shape is the system's most recognizable component.
+### Outline pill button
+Eggshell fill and ink text, 44px high.
+On the page it has a stone border and the whisper shadow.
+In the app it has a `--border-strong` border and no shadow.
+Hover is taupe.
+A toggle that is on (`aria-pressed="true"`) takes the track colour.
+Disabled is 40% opacity.
 
-### Outline Pill Button
-**Role:** Secondary action
+### Keep
+The one control that carries the orange: orange fill, ink text.
+On the page it is the Keep key of the demo.
+In the app it is the card on the right edge, 20px radius, with the icon, the label and the key.
+Hover is `--keep-hover`.
 
-White (#fdfcfc) fill, black text, 9999px radius, 14px horizontal padding, Inter 14px/500.
-1px solid #e5e5e5 border.
-Used for 'Contact sales', 'Log in'.
-Lower visual weight than the filled variant - pairs beside it without competing.
+### Discard
+Neutral, because a discard changes nothing on disk.
+In the app it is the card on the left edge: bar fill, `--border-strong` border, ink text.
+On the page it is the outline key "Leave".
 
-### Ghost Link Button
-**Role:** Tertiary navigation or in-text action
+### Chip
+A pill with a dot and a count, in the top bar of the app.
+The kept chip has an orange dot on a tint of the orange (`rgb(228 83 31 / 0.12)`, or `0.2` in the dark theme).
+The discarded chip has a graphite dot on the track colour.
 
-Transparent fill, black text, 9999px radius, Inter 14px/500.
-1px solid #e5e5e5 border.
-Used for nav items and inline actions.
-No visible fill until hover.
+### Segmented control
+A pill track with two pill labels, Copy and Move.
+The chosen label takes the surface colour.
 
-### Feature Card (Taupe)
-**Role:** Feature showcase panel
+### Switch
+A pill track of 2.75rem by 1.5rem.
+On is the ink (`--fill`), not the orange.
 
-#f5f3f1 warm taupe fill, 20px radius, 32px horizontal padding, no shadow, no border.
-The dominant card pattern (22 occurrences).
-Flat, quiet, sits on the canvas without elevation.
+### Sheet
+A `dialog` with a 20px radius, a hairline border and a scrim of `rgb(20 25 28 / 0.45)`.
+It holds the folder explorer and the settings.
 
-### White Card with Whisper Shadow
-**Role:** Elevated content card
+### Notice
+A card in the middle of the stage, 20px radius, for the states with no photo.
 
-White (#fdfcfc) fill, 20px radius, 16px all-side padding, three-layer whisper shadow (1px hard edge + 1px blur + 4px blur at 4% opacity).
-Used sparingly - only when a card needs to sit above other content with subtle separation.
+### Slide mount
+On the page only: an eggshell card with a 10px radius and the whisper shadow, with a sample photo inside and the file name below.
+A kept mount has an orange dot on its corner.
 
-### Large Feature Card
-**Role:** Hero feature block
+### Demo panel
+On the page only: a taupe panel with a 24px radius.
+It holds the title and the count, the "left alone" tray, the slide with the next one under it, the "kept" tray, and three keys.
 
-#f5f3f1 fill, 24px radius (slightly larger than standard 20px), generous internal padding.
-Used for flagship feature showcases that need more visual breathing room.
+### Rows
+A term and its meaning with a stone hairline above each pair.
 
-### Tab Pill
-**Role:** Product switcher in feature panels
+### Table of files
+Monospace at 13px with stone hairlines.
+A kept row has ink text and an orange dot before the file name.
 
-White fill, black text, 9999px radius, 1px border.
-Active state marked by a small colored dot (orange for ElevenCreative, teal for ElevenAgents, gray for ElevenAPI).
-Tabs sit inline above the card content.
+### Focused mode in the app
+The bars are hidden and the cards lose their fill.
+The Keep icon is orange and the Discard icon is `--border-strong`, at 62% opacity.
+A pill at the bottom holds the file name and the counts, and a pill at the top right leaves the mode.
 
-### Hairline Divider
-**Role:** Section separation
+## States
 
-1px solid #ebe8e4 stone-colored line.
-Preferred over whitespace when sections need explicit separation.
-Used 54 times across the page - the most common border pattern.
+- **Empty, app:** "Choose a source folder to start." before a folder is chosen, and "That folder has no images." for a folder with none.
+- **Finished, app:** "Review finished."
+- **Loading, app:** the stage goes to 55% opacity, but only after 250ms, so a fast answer never flickers.
+- **Error, app:** the status line, or the count line of the explorer, shows the message in `--error`.
+- **Disabled:** 40% opacity for buttons, 35% for the two cards.
+- **Finished, demo on the page:** the label says "Review finished" and Leave and Keep are disabled.
+- **No script, page:** the keys and the hint "Press the arrow keys." stay hidden, and the panel shows the roll as it stands.
+- **No font, page:** the headlines use the system face at weight 300.
 
-### Audio Sphere Visual
-**Role:** Product showcase graphic
+## Motion
 
-Large circular gradient sphere (roughly 200px diameter) with soft radial gradients blending violet #0447ff, orange #ff4704, pink, and warm tones.
-Centered play-button overlay.
-No hard edges - these are the system's signature visual and appear 3x in a carousel row.
+- **Hover and press:** 120ms for colour, 90ms to 120ms for the press, with `cubic-bezier(0.16, 1, 0.3, 1)`.
+  A press moves a page button down 1px and scales an app button to 0.98.
+- **Verdict in the demo:** a copy of the slide travels to its tray and shrinks to the size of the tray in 320ms with `cubic-bezier(0.5, 0, 0.2, 1)`.
+  It shows where the photo went.
+  At the same time the next slide comes up straight in 220ms, so a new verdict never waits for the trip.
+- **Count in the demo:** when the slide lands, the count of that tray comes up from below in 200ms.
+- **Undo in the demo:** the slide comes back from the tray it went to, in 280ms.
+- **Result section:** the three kept frames fade in and grow from 80% in 500ms, 150ms apart, the first time the section is 30% on screen.
+  Without the script they are there from the start.
+- **Bars in the app:** fade and move 0.75rem in 240ms when the pointer rests, and return when it moves.
+- **Sheet:** rises 0.5rem and fades in, in 180ms.
+- **Progress line:** its width follows the count in 260ms.
+- **Switch and segmented control:** 140ms to 160ms.
+- **Reduced motion:** each transition and animation is cut to 0.01ms, the demo and the result section skip their animations, and the bars do not fade.
+  The 250ms delay of the loading state stays.
 
-### Logo Wordmark
-**Role:** Brand identity
+## Accessibility
 
-Black text reading 'ElevenLabs' in Inter bold/semibold.
-Consistent across header and footer.
-No icon mark - the wordmark alone carries the brand.
+Contrast was measured with a script on 2026-10-01.
 
-### Top Nav Bar
-**Role:** Primary navigation
-
-Transparent on eggshell canvas, 50px height.
-Logo left, nav links center-left (Inter 14px), auth buttons right (outline 'Log in' + filled 'Sign up').
-No background fill - the nav is invisible until scroll.
-
-### Trust Logo Grid
-**Role:** Social proof section
-
-6-column grid of partner logos (Twilio, Disney, KPN, NVIDIA, Meta, etc.) rendered in grayscale at low contrast.
-Logos sit on the eggshell canvas with generous padding - not boxed in cards.
-'Read all stories' outline button top-right.
+- Graphite text: 10.0 to 1 on eggshell, 9.3 on taupe, 8.4 on stone.
+- Eggshell on ink: 17.3 to 1.
+- Ink on the orange: 4.7 to 1, and 5.7 on the hover orange.
+- The orange as a mark: 3.7 to 1 on eggshell, 3.4 on taupe, 4.5 on the dark bar.
+  It is never the colour of small text.
+- `--border-strong`: 3.6 to 1 on eggshell and 4.5 on the dark surface.
+- Dark theme: text 15.2 to 1, muted text 8.0 to 1.
+- **Focus:** a 2px ring in the ink (in `--focus` in the dark theme), offset 2px to 3px, on each control.
+- **Keyboard:** each control is a native button, link, input or `dialog`.
+  In the app the right arrow keeps, the left arrow discards, `U` undoes, `F` enters focused mode, `Space` zooms and `Escape` leaves.
+  The demo answers the same three keys only while it is on screen.
+- **Targets:** buttons, keys, folder rows, footer links and the segmented control are 44px high.
+- **Not by colour alone:** kept has a label or a dot beside the colour in each place.
+- **Selection:** ink ground with light text on both surfaces.
 
 ## Do's and Don'ts
 
 ### Do
-- Use Waldenburg at weight 300 for all display headlines 32px+; never apply bold or semibold weights to it - the whisper-weight is the brand's signature restraint.
-- Set all buttons, tags, and tab pills to 9999px radius; the pill shape is non-negotiable and defines the system's most recognizable component.
-- Use #000000 filled buttons paired with #fdfcfc outline buttons as the only button hierarchy - do not introduce colored CTA fills.
-- Reserve #0447ff violet and #ff4704 orange exclusively for product visuals (audio spheres, product icons, illustration accents); never apply them to UI text, borders, or interactive elements.
-- Use 1px solid #ebe8e4 hairline borders for section separation; prefer borders over drop shadows for the flat editorial feel.
-- Apply -0.02em letter-spacing on all Waldenburg headlines at 32px+ and +0.01em tracking on Inter body at 14-16px - the opposite tracking directions create a deliberate contrast between display and body.
-- Stack surfaces as eggshell → taupe → stone; never use pure white or pure gray - warmth is the system's defining tonal quality.
+- Use the orange only for what is kept.
+- Keep headlines at weight 300 in the display face.
+- Use pill buttons with two levels: filled ink and outline.
+- Separate with a stone hairline or with space before a shadow.
+- Keep the area around a photo free of hue, and keep the corners of a photo square.
+- State a limit of the program as plainly as a feature.
 
 ### Don't
-- Do not bold or semibold Waldenburg - the weight-300 whisper is the brand's most distinctive choice and bolding destroys it.
-- Do not use violet #0447ff or orange #ff4704 for buttons, links, badges, or any interactive UI element; these colors are decoration-only.
-- Do not add heavy drop shadows; the system uses near-invisible 1px shadows only - no blurred elevation effects.
-- Do not introduce new accent colors beyond the two product-visual sparks; the palette is intentionally 97% achromatic.
-- Do not use sharp corners (<8px) on cards or feature panels; the 20-24px radii are a signature.
-- Do not use pure white #ffffff for backgrounds; always use #fdfcfc eggshell to maintain the warm paper-like canvas.
-- Do not use display-weight fonts (anything heavier than Waldenburg 300) for body copy; Inter 400/500 owns everything below 24px.
+- Do not use the orange for a link, an emphasis, a switch or a progress line.
+- Do not give Discard a colour, and do not use red outside an error message.
+- Do not use a weight above 500.
+- Do not use text below 13px.
+- Do not add a second accent colour.
+- Do not load a font in the app.
+- Do not add testimonials, customer logos or counts that are not real.
 
 ## Surfaces
 
 | Level | Name | Value | Purpose |
 |-------|------|-------|---------|
-| 1 | Eggshell Canvas | `#fdfcfc` | Base page background - warm off-white that reads as paper, not screen |
-| 2 | Warm Taupe | `#f5f3f1` | Section bands and card surfaces that need to sit one step above the canvas without a border |
-| 3 | Stone Plate | `#ebe8e4` | Icon plates, subtle elevated backgrounds - slightly deeper than taupe for small isolated elements |
+| 1 | Eggshell | `#fdfcfc` | The page, the bars and the sheets |
+| 2 | Taupe | `#f5f3f1` | Bands and the demo panel, one step above the canvas with no border |
+| 3 | Stone | `#ebe8e4` | Hairlines, tracks and small plates |
+| App only | Stage | `oklch(94% 0 0)` light, `oklch(17% 0 0)` dark | Under the photo |
 
 ## Elevation
 
-- **Buttons and elevated cards:** `rgba(0, 0, 0, 0.4) 0px 0px 1px 0px, rgba(0, 0, 0, 0.04) 0px 1px 1px 0px, rgba(0, 0, 0, 0.04) 0px 2px 4px 0px`
-- **Inset borders / focus halos:** `rgba(0, 0, 0, 0.075) 0px 0px 0px 0.5px inset`
+The design is flat.
+The whisper shadow on the public page is an edge more than a lift.
+The app separates with hairlines only.
 
 ## Imagery
 
-Product visuals dominate the imagery language: large soft-edged audio sphere gradients (200px+ circles with radial violet-to-orange-to-pink blends) serve as the hero graphic.
-Logos in the trust section appear in low-contrast grayscale against the eggshell canvas.
-Photography is minimal - no lifestyle or product photography detected.
-Iconography is sparse and monochrome (black outlined or filled icons, no chromatic icons).
-The visual system feels more like a design publication than a product catalog - editorial restraint over marketing spectacle.
-
-## Layout
-
-Full-width sections flow vertically in a single max-width 1280px centered column with 64px outer gutters.
-Hero is asymmetric: left-aligned headline at 48px Waldenburg, right-aligned body description, with two pill buttons stacked below the headline.
-Below the hero, a large feature panel with tab navigation spans the full content width.
-Sections alternate between eggshell canvas and taupe band backgrounds with 96-125px vertical gaps.
-Footer is a compact single band.
-Navigation is a minimal top bar - no sticky behavior, no mega-menu.
-Content rhythm is editorial: generous whitespace, one major visual per section, no card grids below the trust section.
+- **Logo:** `site/logo.svg`, two ink bars for the pile and one orange slide for the keeper.
+  The tab icon is `favicon.svg`, a simpler cut on a dark tile.
+- **Sample roll:** eleven photographs from one trip to the Gobi desert, in `site/photos/`, each 960 by 640 pixels and 1.2 MB in total.
+  Nine are the roll, with near-identical frames as in a real shoot, and two fill the trays at the start.
+  Each one is an SVG `symbol`, `#p1` to `#p11` in `site/index.html`, so the demo and the sheet of mounts use the same file.
+  The page credits the photographer under the demo.
+- **The sheet of mounts:** an SVG pattern of forty blank mounts, shown once undecided and once with three kept.
+- **Icons in the app:** inline SVG with a stroke in `currentColor`, drawn for this project.
+  There is no icon font and no icon library.
+- There are no screenshots of the app in the repository.
 
 ## Agent Prompt Guide
 
 **Quick Color Reference**
-- text: #000000 (primary), #777169 (body), #a59f97 (caption)
-- background: #fdfcfc (canvas), #f5f3f1 (card surface)
-- border: #ebe8e4 (hairline), #e5e5e5 (button border)
-- accent: #0447ff (violet spark - product visuals only)
-- accent: #ff4704 (ember orange - product visuals only)
-- primary action: #000000 (filled action)
+- text: `#14191c` (headings), `#44403b` (body)
+- background: `#fdfcfc` (canvas), `#f5f3f1` (band and panel)
+- border: `#ebe8e4` (hairline), `#8a847c` (control border in the app)
+- accent: `#e4531f` (kept only), with `#14191c` text on it
+- primary action: `#14191c` fill with `#fdfcfc` text
 
-**3-5 Example Component Prompts**
+**Example Component Prompts**
 
-1. Create a hero headline: 'Bringing technology to life' at 48px Waldenburg weight 300, color #000000, letter-spacing -0.96px, line-height 1.08.
-   Left-aligned on #fdfcfc canvas.
-2. Create a primary button: 'Sign up' - 9999px radius, #000000 fill, white text, Inter 14px/500, 16px horizontal padding, 1px solid #e5e5e5 border.
-3. Create a secondary button: 'Contact sales' - 9999px radius, #fdfcfc fill, #000000 text, Inter 14px/500, 14px horizontal padding, 1px solid #e5e5e5 border.
-4. Create a feature card: #f5f3f1 fill, 20px radius, 32px horizontal padding, no shadow.
-   Title at 36px Waldenburg 300, description at 16px Inter 400 in #777169.
-5. Create an audio sphere visual: 200px circle with radial-gradient blending #0447ff, #ff4704, and pink, no hard edge.
-   Center play icon in white circle 48px diameter.
-
-## Similar Brands
-
-- **Linear** - Same whisper-weight display headlines paired with monochrome UI and pill-shaped buttons; both achieve authority through typographic restraint rather than color.
-- **Vercel** - Same near-white warm canvas with stark black text and pill buttons; both use minimal color and let typography carry the brand.
-- **Stripe** - Same editorial restraint with hairline borders, generous whitespace, and accent colors reserved for illustrations rather than UI chrome.
-- **Notion** - Same warm off-white palette with taupe secondary surfaces and pill-shaped interactive elements; both feel like paper rather than glass.
-- **Framer** - Same Bauhaus-influenced minimalism with whisper-weight headlines and a 97% achromatic palette that lets single accent colors feel significant.
+1. Create a headline: Bricolage Grotesque weight 300, `clamp(2.25rem, 3vw + 1.25rem, 3.5rem)`, colour `#14191c`, letter spacing -0.02em, line height 1.1, left aligned on `#fdfcfc`.
+2. Create a primary button: pill, `#14191c` fill, `#fdfcfc` text, system face 14px at weight 500, 44px high, 24px horizontal padding.
+3. Create a Keep control: pill or 20px card, `#e4531f` fill, `#14191c` text, hover `#ee6a3a`.
+4. Create a section band: `#f5f3f1` ground, a weight 300 heading, then three columns of an 18px weight 500 title with 16px `#44403b` text, with no cards.
+5. Create a slide mount: `#fdfcfc` card, 10px radius, the whisper shadow, a square frame inside with 7% padding, and a 13px monospace file name below.
 
 ## Quick Start
 
-### CSS Custom Properties
-
 ```css
 :root {
-  /* Colors */
   --color-eggshell: #fdfcfc;
-  --color-warm-taupe: #f5f3f1;
+  --color-taupe: #f5f3f1;
   --color-stone: #ebe8e4;
-  --color-ink: #000000;
+  --color-ink: #14191c;
   --color-graphite: #44403b;
-  --color-smoke: #777169;
-  --color-ash: #a59f97;
-  --color-violet-spark: #0447ff;
-  --color-ember-orange: #ff4704;
+  --color-kept: #e4531f;
+  --color-kept-hover: #ee6a3a;
 
-  /* Typography - Font Families */
-  --font-waldenburg: 'Waldenburg', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  --font-inter: 'Inter', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  --font-geist-mono: 'Geist Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  --font-display: "Bricolage Grotesque", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-body: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 
-  /* Typography - Scale */
-  --text-caption: 10px;
-  --leading-caption: 1.6;
-  --text-body-sm: 14px;
-  --leading-body-sm: 1.5;
-  --tracking-body-sm: 0.14px;
-  --text-body: 16px;
-  --leading-body: 1.5;
-  --tracking-body: 0.16px;
-  --text-subheading: 18px;
-  --leading-subheading: 1.6;
-  --text-body-lg: 20px;
-  --leading-body-lg: 1.35;
-  --text-heading-sm: 32px;
-  --leading-heading-sm: 1.13;
-  --tracking-heading-sm: -0.64px;
-  --text-heading: 36px;
-  --leading-heading: 1.17;
-  --tracking-heading: -0.72px;
-  --text-display: 48px;
-  --leading-display: 1.08;
-  --tracking-display: -0.96px;
+  --text-sm: 0.8125rem;
+  --text-base: 1rem;
+  --text-md: 1.125rem;
+  --text-xl: clamp(1.75rem, 1.5vw + 1.25rem, 2.25rem);
+  --text-display: clamp(2.25rem, 3vw + 1.25rem, 3.5rem);
 
-  /* Typography - Weights */
-  --font-weight-light: 300;
-  --font-weight-regular: 400;
-  --font-weight-medium: 500;
+  --space-2xs: 0.25rem;
+  --space-xs: 0.5rem;
+  --space-sm: 0.75rem;
+  --space-md: 1rem;
+  --space-lg: 1.5rem;
+  --space-xl: 2.5rem;
+  --space-2xl: 4rem;
+  --space-section: clamp(4rem, 8vw, 6rem);
+  --gutter: clamp(1rem, 4vw, 4rem);
 
-  /* Spacing */
-  --spacing-unit: 4px;
-  --spacing-4: 4px;
-  --spacing-8: 8px;
-  --spacing-12: 12px;
-  --spacing-16: 16px;
-  --spacing-20: 20px;
-  --spacing-24: 24px;
-  --spacing-28: 28px;
-  --spacing-32: 32px;
-  --spacing-36: 36px;
-  --spacing-40: 40px;
-  --spacing-48: 48px;
-  --spacing-56: 56px;
-  --spacing-64: 64px;
-  --spacing-72: 72px;
-  --spacing-96: 96px;
-  --spacing-160: 160px;
-
-  /* Layout */
-  --page-max-width: 1280px;
-  --section-gap: 96-125px;
-  --card-padding: 32px;
-  --element-gap: 8-16px;
-
-  /* Border Radius */
-  --radius-md: 4px;
-  --radius-lg: 10px;
-  --radius-2xl: 16px;
-  --radius-2xl-2: 20px;
-  --radius-3xl: 24px;
-  --radius-3xl-2: 28px;
+  --radius-sm: 4px;
+  --radius-md: 10px;
+  --radius-lg: 24px;
   --radius-full: 9999px;
+  --shadow-whisper: 0 0 1px rgb(0 0 0 / 0.4), 0 1px 1px rgb(0 0 0 / 0.04), 0 2px 4px rgb(0 0 0 / 0.04);
 
-  /* Named Radii */
-  --radius-tags: 9999px;
-  --radius-cards: 20px;
-  --radius-inputs: 4px;
-  --radius-buttons: 9999px;
-  --radius-large-cards: 24px;
-  --radius-small-elements: 4-10px;
-
-  /* Shadows */
-  --shadow-subtle: rgba(0, 0, 0, 0.4) 0px 0px 1px 0px, rgba(0, 0, 0, 0.04) 0px 1px 1px 0px, rgba(0, 0, 0, 0.04) 0px 2px 4px 0px;
-  --shadow-subtle-2: rgba(0, 0, 0, 0.075) 0px 0px 0px 0.5px inset;
-  --shadow-subtle-3: rgba(0, 0, 0, 0.1) 0px 0px 0px 0.5px inset;
-  --shadow-subtle-4: rgba(0, 0, 0, 0.1) 0px 0px 0px 1px inset;
-  --shadow-subtle-5: rgba(0, 0, 0, 0.4) 0px 0px 1px 0px, rgba(0, 0, 0, 0.04) 0px 2px 4px 0px;
-  --shadow-subtle-6: rgba(255, 255, 255, 0.6) 0px 0px 0px 1px inset;
-  --shadow-subtle-7: rgb(235, 232, 228) 0px 0px 0px 0.5px inset;
-
-  /* Surfaces */
-  --surface-eggshell-canvas: #fdfcfc;
-  --surface-warm-taupe: #f5f3f1;
-  --surface-stone-plate: #ebe8e4;
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --dur-micro: 120ms;
 }
 ```
+
+## Sources
+
+- **Reference:** the ElevenLabs style reference, brought by the maintainer on 2026-10-01 from one of the two galleries, [Refero Styles](https://styles.refero.design/) or [getdesign.md](https://getdesign.md/).
+  The full text of the reference is in the git history of this file, at commit `92bed3f`.
+- **Display typeface:** Bricolage Grotesque, SIL Open Font License 1.1, read in `OFL.txt` of <https://github.com/ateliertriay/bricolage>.
+  The page links to the font at Google Fonts and does not ship the font file.
+  If the file is added to the repository, read the licence again for what a copy must carry.
+- **Photographs:** by Bernard Gagnon, from Wikimedia Commons.
+  The Commons API reported the licence of each file as CC0 on 2026-10-01, so no attribution is due, and the page gives one all the same.
+  The files, in the order `01.jpg` to `11.jpg`: Khongoryn Els 03, Khongoryn Els 04, Khongoryn Els 05, Camels at Khongoryn Els 01, Camel in Gobi Desert 01, Camels in Gobi Desert 02, Khongoryn Els 14, Khongoryn Els 15, Yurt in Gobi Desert, Yak at Yolyn Am 03, Khongoryn Els 12.
+  Each one is at `https://commons.wikimedia.org/wiki/File:<name with underscores>.jpg`.
+  Each was cut to 3 by 2 and reduced, with no other change.
+- **Icons:** drawn for this project as inline SVG.
+  No licence applies and no attribution is due.
+- **Logo:** the concepts were made with the logo-design skill of kaankiziltug, as recorded in commit `8d7a049`.
+- **Changed from the reference:**
+  - Ink is `#14191c`, the ink of the logo, in place of `#000000`.
+  - One accent, the logo orange `#e4531f` for what is kept, in place of the violet and ember sparks.
+  - Bricolage Grotesque 300 in place of Waldenburg, and the system face in place of Inter.
+  - Body text is Graphite, because Smoke and Ash did not reach 4.5 to 1 on each ground.
+  - The smallest text is 13px in place of 10px, and each button is 44px high.
+  - The trust logo grid, the audio sphere, the tab pill and the account buttons are not used.
+  - The area around a photo is a grey with no hue, and a photo has no radius.
+  - A dark theme for the app, which the reference does not have.
+- **Process:** the comparison of directions in Claude Design was skipped, so one direction was built.
+  The review was an audit with the `impeccable` skill on 2026-10-01.

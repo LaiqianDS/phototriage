@@ -26,6 +26,11 @@ and the project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
   The next slide comes up straight after a verdict.
 - The demo on the landing page answers the arrow keys only while it is on
   screen, and its buttons appear only when the script runs.
+- The sample roll on the landing page is photographs, not drawings: eleven
+  frames of the Gobi desert by Bernard Gagnon, CC0, from Wikimedia Commons.
+- The demo shows where a photo goes: the slide travels to its tray, the count
+  of that tray moves, and Undo brings the slide back.
+  The three kept frames of the result arrive when the section is on screen.
 
 ## [0.5.0] - 2026-10-01
 
