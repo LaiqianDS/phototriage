@@ -85,7 +85,7 @@ function renderTrays() {
 function decide(kept) {
   if (REVIEWED_AT_START + log.length >= TOTAL) return;
 
-  el("demo-status").textContent = frame(log.length)[0] + (kept ? " kept" : " left alone");
+  el("demo-status").textContent = frame(log.length)[0] + (kept ? " kept" : " discarded");
   const slide = el("demo-slide");
 
   /* A copy of the slide makes the trip, so the table is free for the next verdict at once. */
