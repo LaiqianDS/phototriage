@@ -21,9 +21,16 @@ and the project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
   Orange marks what is kept and nothing else.
   In the app, Discard has no colour of its own, the area around the photo is
   a grey with no hue, and the photo has square corners.
-- The landing page shows the run command in the hero, and the sample roll has
-  three more frames.
+- The sample roll on the landing page has three more frames.
   The next slide comes up straight after a verdict.
+- The landing page has new copy.
+  It says in the hero that the app runs from a terminal, it has one section
+  for what the app never does, and it lists the limits: no side by side
+  comparison, no HEIC, no RAW on screen.
+  The close gives the four commands of the install.
+  The demo says "Discard", the word the app uses, where it said "Leave".
+- On the landing page, the table of files and the install commands take the
+  keyboard focus, so the keyboard can scroll them on a narrow screen.
 - The demo on the landing page answers the arrow keys only while it is on
   screen, and its buttons appear only when the script runs.
 - The sample roll on the landing page is photographs, not drawings: eleven

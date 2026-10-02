@@ -145,9 +145,9 @@ The app has no shadow.
 - One centred column, 80rem wide at most, with the gutter on each side.
 - Sections are `--space-section` apart.
 - The top bar is plain and not sticky: the logo with the name on the left, an outline GitHub button on the right.
-- The hero puts the headline on the left and the text, the button and the run command on the right.
+- The hero puts the headline on the left and the text and the button on the right.
 - Below it, the demo is one taupe panel as wide as the column.
-- The order of the grounds is: hero on eggshell, problem on eggshell, the idea on a taupe band, the three steps on eggshell, the table of files on eggshell under a hairline, the result on taupe, the guarantee on eggshell, the fine print under a hairline, the close on taupe.
+- The order of the grounds is: hero on eggshell, problem on eggshell, the idea on a taupe band, the three steps on eggshell, the result on taupe, the guarantee with the table of files on eggshell, the limits under a hairline, the close on taupe.
 - The taupe band of the idea section reaches both window edges with a `box-shadow` of `100vmax` cut by a `clip-path`.
 - The three steps are rows with a hairline above each one, not a grid of cards.
 
@@ -155,7 +155,7 @@ The app has no shadow.
 
 - Below 40rem everything is one column, and the demo puts the large slide above the two trays.
 - From 40rem the demo is three columns (tray, slide of 34rem at most, tray), and each step puts its path beside its text.
-- From 60rem the hero and each split section are two columns, and the idea section is three.
+- From 60rem the hero and each split section are two columns, and the idea section is two by two.
 
 **App**
 
@@ -189,7 +189,7 @@ Hover is `--keep-hover`.
 ### Discard
 Neutral, because a discard changes nothing on disk.
 In the app it is the card on the left edge: bar fill, `--border-strong` border, ink text.
-On the page it is the outline key "Leave".
+On the page it is the outline key "Discard".
 
 ### Chip
 A pill with a dot and a count, in the top bar of the app.
@@ -217,7 +217,7 @@ A kept mount has an orange dot on its corner.
 
 ### Demo panel
 On the page only: a taupe panel with a 24px radius.
-It holds the title and the count, the "left alone" tray, the slide with the next one under it, the "kept" tray, and three keys.
+It holds the title and the count, the "discarded" tray, the slide with the next one under it, the "kept" tray, and three keys.
 
 ### Rows
 A term and its meaning with a stone hairline above each pair.
@@ -238,7 +238,7 @@ A pill at the bottom holds the file name and the counts, and a pill at the top r
 - **Loading, app:** the stage goes to 55% opacity, but only after 250ms, so a fast answer never flickers.
 - **Error, app:** the status line, or the count line of the explorer, shows the message in `--error`.
 - **Disabled:** 40% opacity for buttons, 35% for the two cards.
-- **Finished, demo on the page:** the label says "Review finished" and Leave and Keep are disabled.
+- **Finished, demo on the page:** the label says "Review finished" and Discard and Keep are disabled.
 - **No script, page:** the keys and the hint "Press the arrow keys." stay hidden, and the panel shows the roll as it stands.
 - **No font, page:** the headlines use the system face at weight 300.
 

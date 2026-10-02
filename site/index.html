@@ -66,18 +66,16 @@
       <!-- ============ The table: the mechanism, working ============ -->
       <section class="hero">
         <div class="wrap hero-copy">
-          <h1>Two keys. 480 photos. One folder worth keeping.</h1>
+          <h1>Cull a shoot with two arrow keys.</h1>
           <div>
             <p>
-              One photo fills the screen and asks one question. Left arrow leaves it, right arrow
-              keeps it. When the roll runs out, your keepers are collected into a folder of their
-              own, and every photo you passed on is exactly where you left it.
+              One photo fills the screen. Right arrow keeps it. Left arrow discards it. Your
+              keepers go to a new folder. Nothing is deleted, and nothing leaves your machine.
             </p>
             <p class="cta-row">
               <a class="btn" href="https://github.com/LaiqianDS/phototriage">Get it on GitHub</a>
-              <code>uv run phototriage ~/Pictures/2024</code>
             </p>
-            <p class="note">Free. No account. Works offline.</p>
+            <p class="note">Free and open source. Runs from a terminal. Mac, Windows, Linux.</p>
           </div>
         </div>
 
@@ -89,7 +87,7 @@
             </p>
 
             <div class="tray">
-              <p class="tray-count"><b id="demo-left">195</b> left alone</p>
+              <p class="tray-count"><b id="demo-left">195</b> discarded</p>
               <div class="mount mount-small">
                 <svg viewBox="0 0 60 40" aria-hidden="true"><use id="demo-left-plate" href="#p11" /></svg>
               </div>
@@ -115,7 +113,7 @@
 
             <!-- Shown by the script, so a page without it offers no dead control. -->
             <div class="keys" id="demo-keys" hidden>
-              <button type="button" class="key" id="demo-leave"><kbd>&larr;</kbd> Leave</button>
+              <button type="button" class="key" id="demo-leave"><kbd>&larr;</kbd> Discard</button>
               <button type="button" class="key" id="demo-undo" disabled><kbd>U</kbd> Undo</button>
               <button type="button" class="key key-keep" id="demo-keep">Keep <kbd>&rarr;</kbd></button>
             </div>
@@ -135,10 +133,9 @@
           <div>
             <h2>A shoot doesn&rsquo;t end when you stop shooting.</h2>
             <p>
-              It ends weeks later, when someone finally sits down with the folder. Your file
-              manager makes you open a photo, judge it against the one before, drag it somewhere,
-              then remember what you already decided. Ten minutes in you&rsquo;re not culling,
-              you&rsquo;re doing inventory.
+              It ends weeks later, when you sit down with the folder. A file manager makes you open
+              a photo, drag it somewhere, and remember what you already decided. Ten minutes in
+              you&rsquo;re not culling, you&rsquo;re doing inventory.
             </p>
           </div>
           <dl class="rows">
@@ -147,15 +144,14 @@
               <dd>A preview window, sized wrong, one photo behind.</dd>
             </div>
             <div>
-              <dt>Compare</dt>
-              <dd>Three near-identical frames and no way to hold them in your head.</dd>
-            </div>
-            <div>
               <dt>Drag</dt>
               <dd>
-                A &ldquo;best&rdquo; folder you&rsquo;ll never trust, because you lost count
-                halfway.
+                A &ldquo;best&rdquo; folder you don&rsquo;t trust, because you lost count halfway.
               </dd>
+            </div>
+            <div>
+              <dt>Resume</dt>
+              <dd>You stopped at photo 200 last week. Or was it 180?</dd>
             </div>
           </dl>
         </div>
@@ -173,29 +169,34 @@
 
       <!-- ============ The rule: the reframe ============ -->
       <section class="wrap rule band">
-        <h2>
-          Stop choosing between photos. Answer a question about <span class="mark">this one</span>.
-        </h2>
+        <h2>One photo. One question: keep it?</h2>
         <div class="rule-grid">
           <div>
             <h3>The photo gets the screen</h3>
             <p>
-              Full window, measured rather than guessed: no part of a frame ever hides behind the
-              interface. The bars fade after a couple of seconds and return the moment you move.
+              No part of the interface covers the image. Press <kbd>F</kbd> and the bars go away
+              too.
+            </p>
+          </div>
+          <div>
+            <h3>Check sharpness before you decide</h3>
+            <p>
+              <kbd>Space</kbd> shows the photo at 1:1, one image pixel per screen pixel.
+              <kbd>Space</kbd> again fits it back.
             </p>
           </div>
           <div>
             <h3>The keys do the work</h3>
             <p>
-              Left leaves it, right keeps it, <kbd>U</kbd> takes back the last call. The next photo
-              is already loaded, so you move as fast as you can look.
+              Right keeps, left discards, <kbd>U</kbd> takes back the last decision. The next photo
+              is already loaded.
             </p>
           </div>
           <div>
-            <h3>Nothing moves until you say so</h3>
+            <h3>Stop when you want</h3>
             <p>
-              Until you press run, a decision is only a line in a file. Close the window, come back
-              next week: the review is still there, mid-roll.
+              Every decision is saved the moment you make it. Close the window and come back next
+              week. The review is where you left it.
             </p>
           </div>
         </div>
@@ -203,92 +204,27 @@
 
       <!-- ============ The pass: the mechanics, in order ============ -->
       <section class="wrap">
-        <h2>One folder in, one folder out, nothing in between to learn.</h2>
+        <h2>Folder in, folder out.</h2>
         <ol class="steps">
           <li>
             <p class="path">~/Pictures/2024, 480 files</p>
             <h3>Point at a folder</h3>
-            <p>
-              Type the path or browse the disk. It tells you how many photos are inside before you
-              commit, so you know you&rsquo;re in the right place.
-            </p>
+            <p>Type the path or browse the disk. You see the photo count before you open it.</p>
           </li>
           <li>
             <p class="path">&larr; one photo &rarr;</p>
-            <h3>Make the call</h3>
-            <p>
-              Every verdict is written to disk the instant you take it, and can be undone. The
-              counters in the top bar keep score for you.
-            </p>
+            <h3>Decide</h3>
+            <p>One key per photo. The counters keep score.</p>
           </li>
           <li>
             <p class="path path-kept">2024_keep, 31 files</p>
             <h3>Collect the keepers</h3>
             <p>
-              Copy or move, your choice. A new folder appears beside the original, only when you
-              press run, never before.
+              Choose copy or move, then press Run. A new folder, <code>2024_keep</code>, appears
+              next to the original. RAW files follow the photo that shares their name.
             </p>
           </li>
         </ol>
-      </section>
-
-      <!-- ============ The ledger: the trust ============ -->
-      <section class="wrap split ledger">
-        <div>
-          <h2>No surprises, no losses, no black box.</h2>
-          <p>
-            A discard means &ldquo;left alone&rdquo;: the file isn&rsquo;t moved, marked or renamed.
-            A keep gets copied, and its RAW original rides along by default, because they share a
-            name.
-          </p>
-          <p>The log is the real thing: one entry per file, written the moment you decide.</p>
-        </div>
-        <div class="scroll">
-          <table>
-            <caption class="note">
-              state.json, written as you go. Nothing to save by hand.
-            </caption>
-            <thead>
-              <tr>
-                <th scope="col">File</th>
-                <th scope="col">Verdict</th>
-                <th scope="col">Where it is now</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>IMG_0410.JPG</td>
-                <td>discarded</td>
-                <td>untouched</td>
-              </tr>
-              <tr class="is-kept">
-                <td>IMG_0412.JPG</td>
-                <td>kept</td>
-                <td>2024_keep</td>
-              </tr>
-              <tr class="is-kept">
-                <td>IMG_0412.CR2</td>
-                <td>its RAW</td>
-                <td>2024_keep</td>
-              </tr>
-              <tr>
-                <td>IMG_0413.JPG</td>
-                <td>discarded</td>
-                <td>untouched</td>
-              </tr>
-              <tr class="is-kept">
-                <td>IMG_0414.JPG</td>
-                <td>kept</td>
-                <td>2024_keep</td>
-              </tr>
-              <tr>
-                <td>CLIP_07.MOV</td>
-                <td>not a photo</td>
-                <td>untouched</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
       </section>
 
       <!-- ============ The keep: the payoff ============ -->
@@ -320,90 +256,106 @@
       </div>
       </section>
 
-      <!-- ============ The guarantee: the objection ============ -->
+      <!-- ============ The guarantee: the trust, and the table as its proof ============ -->
       <section class="guarantee">
         <div class="wrap">
-          <h2>
-            This program <span class="mark">never deletes</span> a photo,
-            <span class="mark">never touches</span> what you discard,
-            <span class="mark">never overwrites</span> a file and
-            <span class="mark">never uploads</span> anything, anywhere.
-          </h2>
+          <h2>What PhotoTriage never does.</h2>
           <dl class="rows rows-wide">
             <div>
-              <dt>No delete exists</dt>
-              <dd>
-                There&rsquo;s no trash and no &ldquo;are you sure&rdquo;: the action simply
-                isn&rsquo;t in the app.
-              </dd>
+              <dt>It never deletes</dt>
+              <dd>The app has no delete action.</dd>
             </div>
             <div>
-              <dt>Discards stay put</dt>
+              <dt>It never touches a discarded photo</dt>
               <dd>Not moved, not tagged, not renamed. A discard is a decision, not an edit.</dd>
             </div>
             <div>
-              <dt>Nothing overwritten</dt>
-              <dd>
-                A taken name lands beside the original, never on top of it:
-                <code>IMG_0412_1.JPG</code>. Run the transfer twice and you still lose nothing.
-              </dd>
+              <dt>It never overwrites</dt>
+              <dd>A taken name becomes <code>IMG_0412_1.JPG</code>.</dd>
             </div>
             <div>
-              <dt>It stays on your machine</dt>
-              <dd>
-                Bound to <code>127.0.0.1</code>, with no option to change it. No account, no cloud,
-                no internet.
-              </dd>
+              <dt>It never goes online</dt>
+              <dd>The server is bound to <code>127.0.0.1</code> and no option changes that.</dd>
             </div>
           </dl>
+          <!-- Focusable, so the keyboard can scroll it when it is wider than the screen. -->
+          <div class="scroll" role="region" aria-labelledby="ledger-caption" tabindex="0">
+            <table>
+              <caption class="note" id="ledger-caption">
+                state.json, written as you go. Nothing to save by hand.
+              </caption>
+              <thead>
+                <tr>
+                  <th scope="col">File</th>
+                  <th scope="col">Verdict</th>
+                  <th scope="col">Where it is now</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>IMG_0410.JPG</td>
+                  <td>discarded</td>
+                  <td>untouched</td>
+                </tr>
+                <tr class="is-kept">
+                  <td>IMG_0412.JPG</td>
+                  <td>kept</td>
+                  <td>2024_keep</td>
+                </tr>
+                <tr class="is-kept">
+                  <td>IMG_0412.CR2</td>
+                  <td>its RAW</td>
+                  <td>2024_keep</td>
+                </tr>
+                <tr>
+                  <td>IMG_0413.JPG</td>
+                  <td>discarded</td>
+                  <td>untouched</td>
+                </tr>
+                <tr class="is-kept">
+                  <td>IMG_0414.JPG</td>
+                  <td>kept</td>
+                  <td>2024_keep</td>
+                </tr>
+                <tr>
+                  <td>CLIP_07.MOV</td>
+                  <td>not a photo</td>
+                  <td>untouched</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
         </div>
       </section>
 
-      <!-- ============ The fine print ============ -->
+      <!-- ============ The limits ============ -->
       <section class="wrap fine">
-        <h2>The fine print, including the parts we&rsquo;d rather not mention.</h2>
+        <h2>Know the limits before you install.</h2>
         <div class="fine-grid">
           <div>
-            <h3>Resumes mid-roll</h3>
+            <h3>It is a first pass</h3>
             <p>
-              Decisions are keyed to file names, so you can review several folders, quit, and pick
-              each one up where you left it.
+              One photo at a time is fast for a clear yes or no. It does not put near-identical
+              frames side by side.
             </p>
           </div>
           <div>
-            <h3>Copy or move</h3>
+            <h3>It shows JPEG, PNG, WebP, GIF, BMP and TIFF</h3>
             <p>
-              Copy leaves the source folder complete so you can check the result first. Move leaves
-              behind exactly what you discarded.
+              No HEIC. A RAW file is not displayed. It travels with the JPEG of the same name, so a
+              RAW-only folder has nothing to review.
             </p>
           </div>
           <div>
-            <h3>RAW pairing, optional</h3>
-            <p>
-              CR2, NEF, ARW, DNG and friends follow the photo that shares their name. One switch
-              turns it off.
-            </p>
+            <h3>Undo goes back one step at a time</h3>
+            <p>To change an older decision, undo your way back to it.</p>
           </div>
           <div>
-            <h3>Subfolders on request</h3>
-            <p>
-              Only the photos directly inside the folder are reviewed, until you turn on the
-              subfolder switch. A kept photo then keeps its subfolder in the destination.
-            </p>
+            <h3>Zoom resets on every photo</h3>
           </div>
           <div>
-            <h3>Undo, not rewrite</h3>
-            <p>
-              Undo takes back the most recent call. Changing an older verdict means undoing your
-              way back to it.
-            </p>
-          </div>
-          <div>
-            <h3>No edits, no ratings</h3>
-            <p>
-              Stars don&rsquo;t exist and nothing gets developed here. A video is never reviewed;
-              one switch lets it travel with the kept photo that shares its name.
-            </p>
+            <h3>No ratings, no edits</h3>
+            <p>Keep or discard is the whole vocabulary.</p>
           </div>
         </div>
       </section>
@@ -413,18 +365,19 @@
     <footer class="close">
       <div class="wrap split">
         <div>
-          <h2>Your next shoot ends the same way. Be ready for it.</h2>
+          <h2>Four commands to the first photo.</h2>
           <p class="cta-row">
             <a class="btn" href="https://github.com/LaiqianDS/phototriage">Get it on GitHub</a>
           </p>
         </div>
         <div>
-          <p class="note">Two lines to first photo</p>
-          <pre><code>uv sync
+          <pre role="region" aria-label="Install commands" tabindex="0"><code>git clone https://github.com/LaiqianDS/phototriage.git
+cd phototriage
+uv sync
 uv run phototriage ~/Pictures/2024</code></pre>
           <p>
-            Opens at <code>127.0.0.1:8000</code>. Right arrow keeps, left arrow leaves. Stop with
-            Ctrl-C. Your decisions are already on disk.
+            You need <a href="https://docs.astral.sh/uv/">uv</a>. It installs Python for you. The
+            app opens at <code>127.0.0.1:8000</code>.
           </p>
         </div>
       </div>
