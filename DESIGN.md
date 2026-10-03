@@ -317,7 +317,7 @@ The app separates with hairlines only.
 
 - **Logo:** `site/logo.svg`, two ink bars for the pile and one orange slide for the keeper.
   The tab icon is `favicon.svg`, a simpler cut on a dark tile.
-- **Sample roll:** eleven photographs from one trip to the Gobi desert, in `site/photos/`, each 960 by 640 pixels and 1.2 MB in total.
+- **Sample roll:** eleven photographs from one trip to the Gobi desert, in `site/photos/`, each a WebP file of 960 by 640 pixels, 0.85 MB in total.
   Nine are the roll, with near-identical frames as in a real shoot, and two fill the trays at the start.
   Each one is an SVG `symbol`, `#p1` to `#p11` in `site/index.html`, so the demo and the sheet of mounts use the same file.
   The page credits the photographer under the demo.
@@ -395,9 +395,9 @@ The app separates with hairlines only.
   If the file is added to the repository, read the licence again for what a copy must carry.
 - **Photographs:** by Bernard Gagnon, from Wikimedia Commons.
   The Commons API reported the licence of each file as CC0 on 2026-10-01, so no attribution is due, and the page gives one all the same.
-  The files, in the order `01.jpg` to `11.jpg`: Khongoryn Els 03, Khongoryn Els 04, Khongoryn Els 05, Camels at Khongoryn Els 01, Camel in Gobi Desert 01, Camels in Gobi Desert 02, Khongoryn Els 14, Khongoryn Els 15, Yurt in Gobi Desert, Yak at Yolyn Am 03, Khongoryn Els 12.
+  The files, in the order `01.webp` to `11.webp`: Khongoryn Els 03, Khongoryn Els 04, Khongoryn Els 05, Camels at Khongoryn Els 01, Camel in Gobi Desert 01, Camels in Gobi Desert 02, Khongoryn Els 14, Khongoryn Els 15, Yurt in Gobi Desert, Yak at Yolyn Am 03, Khongoryn Els 12.
   Each one is at `https://commons.wikimedia.org/wiki/File:<name with underscores>.jpg`.
-  Each was cut to 3 by 2 and reduced, with no other change.
+  Each was cut to 3 by 2 from the centre of the original, reduced, and encoded with `cwebp -q 75 -m 6`.
 - **Icons:** drawn for this project as inline SVG.
   No licence applies and no attribution is due.
 - **Logo:** the concepts were made with the logo-design skill of kaankiziltug, as recorded in commit `8d7a049`.
