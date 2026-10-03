@@ -12,6 +12,11 @@ and the project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
   right of it, the keeper.
   It is in the header of the landing page and at the top of the README, and
   the landing page and the app have a tab icon.
+- The landing page has a 32 second video of the review, with music, under the
+  three steps of "Folder in, folder out.".
+  It does not start by itself and it is not loaded until the reader presses
+  play.
+  The README shows its first picture, which opens the video.
 
 ### Changed
 
