@@ -48,6 +48,21 @@ def test_every_id_the_landing_page_script_asks_for_exists_in_the_landing_page() 
     assert not missing, f"demo.js asks for ids that site/index.html does not define: {missing}"
 
 
+def test_the_tour_video_waits_for_the_reader_and_its_files_are_in_the_site() -> None:
+    """A wrong file name shows as an empty player, and autoplay as 3.4 MB nobody asked for."""
+    site = Path(__file__).parents[1] / "site"
+    video = re.search(r"<video\b([^>]*)>(.*?)</video>", (site / "index.html").read_text(), re.S)
+
+    assert video, "site/index.html has no video"
+    attributes, inside = video.groups()
+    assert 'preload="none"' in attributes
+    assert "autoplay" not in attributes
+    files = re.findall(r'\b(?:poster|src)="([^"]+)"', attributes + inside)
+    assert len(files) == 2, f"expected a poster and one source, found {files}"
+    missing = [name for name in files if not (site / name).is_file()]
+    assert not missing, f"the video names files that are not in site/: {missing}"
+
+
 def declarations(stylesheet: str, selector: str) -> str:
     """The body of the one rule written against exactly `selector`."""
     opening = f"\n{selector} {{"
