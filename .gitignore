@@ -12,3 +12,6 @@ __pycache__/
 .pytest_cache/
 .ruff_cache/
 dist/
+
+# The 4K master of the tour video. The web copy is site/promo.mp4.
+videos/

@@ -6,6 +6,11 @@ Review a folder of photos one at a time, and collect the ones you keep.
 
 The site is at <https://laiqiands.github.io/phototriage/>, built from `site/` on every release.
 
+[![The review screen of PhotoTriage. Select it to watch a 32 second video with music.](site/promo-poster.webp)](https://laiqiands.github.io/phototriage/promo.mp4)
+
+The picture opens a 32 second video of the review, with music.
+The interface in the video is drawn for the video, it is not a screen recording.
+
 A shoot leaves you with hundreds of files and no quick way to separate the good ones.
 A file manager makes you open, compare and drag.
 This app shows one image at a time, takes one decision per image, and then puts the kept images into a folder of their own.

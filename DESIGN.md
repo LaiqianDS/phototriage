@@ -219,6 +219,11 @@ A kept mount has an orange dot on its corner.
 On the page only: a taupe panel with a 24px radius.
 It holds the title and the count, the "discarded" tray, the slide with the next one under it, the "kept" tray, and three keys.
 
+### Tour video
+On the page only: one `video` under the three steps, as wide as the column, 16 by 9, with a 10px radius and the whisper shadow.
+It has the browser controls, no autoplay and `preload="none"`, and a poster of 1280 by 720 pixels.
+A note below says that the interface in it is drawn for the video.
+
 ### Rows
 A term and its meaning with a stone hairline above each pair.
 
@@ -325,6 +330,9 @@ The app separates with hairlines only.
 - **Icons in the app:** inline SVG with a stroke in `currentColor`, drawn for this project.
   There is no icon font and no icon library.
 - There are no screenshots of the app in the repository.
+- **Tour video:** `site/promo.mp4`, 1920 by 1080 pixels at 30 frames per second, 32 seconds, 3.4 MB, with `site/promo-poster.webp` as its poster.
+  The interface in it is a drawing of the app, made for the video. It is not a screen recording.
+  The 4K master is not in the repository.
 
 ## Agent Prompt Guide
 
