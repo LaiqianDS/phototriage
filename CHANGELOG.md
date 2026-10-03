@@ -38,6 +38,9 @@ and the project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - The demo shows where a photo goes: the slide travels to its tray, the count
   of that tray moves, and Undo brings the slide back.
   The three kept frames of the result arrive when the section is on screen.
+- The landing page has a sitemap, a canonical address and a shorter
+  description for search engines.
+  The sample roll is WebP, 0.85 MB where the JPEG files were 1.2 MB.
 
 ## [0.5.0] - 2026-10-01
 
